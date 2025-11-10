@@ -11,7 +11,9 @@ from app.core.config import settings
 from app.core.logging import setup_logging
 from app.core.security import HTTPSRedirectMiddleware
 from app.core.database import init_db
-from app.routes import health
+from app.core.rate_limit import RateLimitMiddleware
+from app.core.exceptions import register_exception_handlers
+from app.routes import health, auth, projects, milestones, escrow
 
 # Initialize logging
 logger = logging.getLogger(__name__)
@@ -50,6 +52,9 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Register exception handlers
+register_exception_handlers(app)
+
 # CORS Middleware - Configure allowed origins
 app.add_middleware(
     CORSMiddleware,
@@ -62,6 +67,16 @@ app.add_middleware(
 # HTTPS Enforcement Middleware
 app.add_middleware(HTTPSRedirectMiddleware)
 
+# Rate Limiting Middleware
+if settings.RATE_LIMIT_ENABLED:
+    app.add_middleware(
+        RateLimitMiddleware,
+        requests_per_minute=settings.RATE_LIMIT_PER_MINUTE,
+        burst_size=settings.RATE_LIMIT_BURST_SIZE,
+        exempt_paths=["/docs", "/redoc", "/openapi.json", "/api/v1/health", "/api/v1/ping"],
+        redis_url=settings.REDIS_URL if settings.REDIS_ENABLED else None
+    )
+
 # Trusted Host Middleware (prevent host header attacks)
 if settings.ENVIRONMENT == "production":
     app.add_middleware(
@@ -71,6 +86,10 @@ if settings.ENVIRONMENT == "production":
 
 # Include routers
 app.include_router(health.router, prefix="/api/v1")
+app.include_router(auth.router, prefix="/api/v1")
+app.include_router(projects.router, prefix="/api/v1")
+app.include_router(milestones.router, prefix="/api/v1")
+app.include_router(escrow.router, prefix="/api/v1")
 
 # Request logging middleware
 @app.middleware("http")

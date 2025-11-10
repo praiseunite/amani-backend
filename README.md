@@ -5,13 +5,17 @@ A secure, high-performance FastAPI backend for the Amani escrow platform with Fi
 ## Features
 
 - 🚀 **FastAPI Framework**: High-performance async API with automatic OpenAPI documentation
-- 🔒 **Security First**: HTTPS enforcement, security headers, structured logging for audits
+- 🔒 **Security First**: HTTPS enforcement, security headers, comprehensive audit trails
+- 🛡️ **Rate Limiting**: Redis-based distributed rate limiting with automatic fallback
+- ✅ **Input Validation**: Advanced validation with XSS, SQL injection, and path traversal protection
+- 🔐 **Authentication System**: JWT tokens, password hashing, Supabase Auth integration, role-based access control
 - 📊 **PostgreSQL/Supabase**: Async SQLAlchemy integration with connection pooling
-- 🔐 **Authentication Ready**: bcrypt password hashing, JWT token support
 - 📝 **Structured Logging**: JSON-formatted logs for easy parsing and audit trails
 - 🌐 **CORS Configured**: Cross-origin resource sharing support
+- 🚨 **Error Handling**: Custom exception handlers with standardized error responses
 - ⚡ **Async Support**: Built for high concurrency and scalability
 - 💳 **FinCra Integration**: Ready for payment processing integration
+- 🔄 **API Versioning**: Versioned API endpoints for backward compatibility
 
 ## Project Structure
 
@@ -22,10 +26,15 @@ amani-backend/
 │   ├── main.py              # FastAPI application entry point
 │   ├── core/                # Core functionality
 │   │   ├── __init__.py
-│   │   ├── config.py        # Environment configuration
-│   │   ├── database.py      # Database connection and session management
-│   │   ├── logging.py       # Structured logging setup
-│   │   └── security.py      # Security middleware and utilities
+│   │   ├── audit.py       # Audit trail system
+│   │   ├── auth.py        # Authentication utilities
+│   │   ├── config.py      # Environment configuration
+│   │   ├── database.py    # Database connection and session management
+│   │   ├── exceptions.py  # Custom exception handlers
+│   │   ├── logging.py     # Structured logging setup
+│   │   ├── rate_limit.py  # Rate limiting middleware
+│   │   ├── security.py    # Security middleware and utilities
+│   │   └── validation.py  # Input validation utilities
 │   ├── models/              # SQLAlchemy models
 │   │   └── __init__.py
 │   ├── routes/              # API route handlers
@@ -110,6 +119,17 @@ Copy `.env.example` to `.env` and configure the following:
 - `LOG_LEVEL`: Logging level (DEBUG, INFO, WARNING, ERROR)
 - `FORCE_HTTPS`: Enable HTTPS enforcement in production
 
+### Rate Limiting Configuration
+
+- `RATE_LIMIT_ENABLED`: Enable/disable rate limiting (default: True)
+- `RATE_LIMIT_PER_MINUTE`: Maximum requests per minute (default: 60)
+- `RATE_LIMIT_BURST_SIZE`: Maximum burst size (default: 100)
+
+### Redis Configuration (Optional)
+
+- `REDIS_ENABLED`: Enable Redis for distributed rate limiting (default: False)
+- `REDIS_URL`: Redis connection URL (default: redis://localhost:6379/0)
+
 ## API Endpoints
 
 ### Health & Status
@@ -117,6 +137,17 @@ Copy `.env.example` to `.env` and configure the following:
 - `GET /api/v1/` - Hello World endpoint
 - `GET /api/v1/health` - Health check with timestamp
 - `GET /api/v1/ping` - Simple ping/pong
+
+### Authentication
+
+- `POST /api/v1/auth/signup` - Register a new user
+- `POST /api/v1/auth/login` - Login with email/password
+- `POST /api/v1/auth/magic-link` - Request magic link (passwordless auth)
+- `GET /api/v1/auth/me` - Get current user info
+- `PUT /api/v1/auth/me` - Update user profile
+- `POST /api/v1/auth/change-password` - Change password
+
+**See [AUTHENTICATION.md](AUTHENTICATION.md) for complete authentication documentation.**
 
 ## Development
 
@@ -142,12 +173,20 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
 
 ## Security Features
 
+The application implements comprehensive security hardening:
+
 - **HTTPS Enforcement**: Automatic redirect to HTTPS in production
 - **Security Headers**: X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, HSTS
+- **Rate Limiting**: Token bucket algorithm with Redis support for distributed limiting
 - **CORS Protection**: Configurable allowed origins
+- **Input Validation**: Advanced validation with XSS, SQL injection, and path traversal protection
+- **Audit Trails**: Comprehensive logging of sensitive operations
+- **Error Handling**: Secure error responses that don't leak sensitive information
 - **Trusted Host Middleware**: Prevents host header attacks
-- **Structured Logging**: All requests and responses logged for audit
 - **Password Hashing**: bcrypt for secure password storage
+- **JWT Authentication**: Secure token-based authentication with role-based access control
+
+**See [SECURITY.md](SECURITY.md) for detailed security documentation.**
 - **JWT Authentication**: Token-based authentication ready
 
 ## Database
@@ -168,16 +207,54 @@ Structured JSON logging for production with human-readable format for developmen
 - **Request Tracking**: All HTTP requests logged with metadata
 - **Error Tracking**: Detailed error logging for debugging
 
+## Database
+
+The application uses async SQLAlchemy with PostgreSQL (Supabase):
+
+- **4 Core Models**: User, Project, Milestone, Transaction
+- **Async Support**: Full async/await with asyncpg
+- **Connection Pooling**: Configured with pool_size=10, max_overflow=20
+- **Row-Level Security**: Supabase RLS policies for data protection
+- **Migrations**: Alembic for schema management
+- **Relationships**: Fully mapped with foreign keys and cascade operations
+
+**See [DATABASE_SETUP.md](DATABASE_SETUP.md) for complete setup guide.**
+
+## CI/CD Pipeline
+
+The project includes a complete CI/CD pipeline with GitHub Actions:
+- **Automated Testing**: pytest with coverage reporting
+- **Code Quality**: Black formatting and Flake8 linting
+- **Docker Build**: Automated image builds and deployment
+- **Continuous Deployment**: Automatic deployment to Docker registry
+
+**See [CI_CD.md](CI_CD.md) for complete CI/CD documentation.**
+
+## Testing
+
+Run the test suite:
+```bash
+# Install development dependencies
+pip install -r requirements-dev.txt
+
+# Run all tests
+pytest tests/
+
+# Run tests with coverage
+pytest tests/ --cov=app --cov-report=html
+```
+
 ## Next Steps
 
-1. Define database models in `app/models/`
-2. Create Pydantic schemas in `app/schemas/`
-3. Implement business logic routes in `app/routes/`
-4. Set up database migrations with Alembic
-5. Implement authentication and authorization
-6. Integrate FinCra payment APIs
-7. Add comprehensive tests
-8. Configure CI/CD pipeline
+1. ✅ ~~Define database models in `app/models/`~~
+2. ✅ ~~Set up database migrations with Alembic~~
+3. ✅ ~~Implement authentication and authorization~~
+4. ✅ ~~Create Pydantic schemas in `app/schemas/`~~
+5. ✅ ~~Implement CRUD operations in `app/crud/`~~
+6. ✅ ~~Implement business logic routes in `app/routes/`~~
+7. ✅ ~~Configure CI/CD pipeline~~
+8. Integrate FinCra payment APIs
+9. Add comprehensive end-to-end tests
 
 ## License
 
