@@ -35,6 +35,13 @@ from app.schemas.transaction import (
     TransactionResponse,
     TransactionListResponse
 )
+from app.schemas.kyc import (
+    KycBase,
+    KycCreate,
+    KycResponse,
+    KycUpdate,
+    KycApproval
+)
 
 __all__ = [
     # Auth schemas
@@ -69,4 +76,10 @@ __all__ = [
     "EscrowReleaseRequest",
     "TransactionResponse",
     "TransactionListResponse",
+    # KYC schemas
+    "KycBase",
+    "KycCreate",
+    "KycResponse",
+    "KycUpdate",
+    "KycApproval",
 ]
