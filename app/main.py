@@ -11,7 +11,7 @@ from app.core.config import settings
 from app.core.logging import setup_logging
 from app.core.security import HTTPSRedirectMiddleware
 from app.core.database import init_db
-from app.routes import health
+from app.routes import health, auth
 
 # Initialize logging
 logger = logging.getLogger(__name__)
@@ -71,6 +71,7 @@ if settings.ENVIRONMENT == "production":
 
 # Include routers
 app.include_router(health.router, prefix="/api/v1")
+app.include_router(auth.router, prefix="/api/v1")
 
 # Request logging middleware
 @app.middleware("http")
