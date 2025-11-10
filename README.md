@@ -6,8 +6,8 @@ A secure, high-performance FastAPI backend for the Amani escrow platform with Fi
 
 - 🚀 **FastAPI Framework**: High-performance async API with automatic OpenAPI documentation
 - 🔒 **Security First**: HTTPS enforcement, security headers, structured logging for audits
+- 🔐 **Authentication System**: JWT tokens, password hashing, Supabase Auth integration, role-based access control
 - 📊 **PostgreSQL/Supabase**: Async SQLAlchemy integration with connection pooling
-- 🔐 **Authentication Ready**: bcrypt password hashing, JWT token support
 - 📝 **Structured Logging**: JSON-formatted logs for easy parsing and audit trails
 - 🌐 **CORS Configured**: Cross-origin resource sharing support
 - ⚡ **Async Support**: Built for high concurrency and scalability
@@ -118,6 +118,17 @@ Copy `.env.example` to `.env` and configure the following:
 - `GET /api/v1/health` - Health check with timestamp
 - `GET /api/v1/ping` - Simple ping/pong
 
+### Authentication
+
+- `POST /api/v1/auth/signup` - Register a new user
+- `POST /api/v1/auth/login` - Login with email/password
+- `POST /api/v1/auth/magic-link` - Request magic link (passwordless auth)
+- `GET /api/v1/auth/me` - Get current user info
+- `PUT /api/v1/auth/me` - Update user profile
+- `POST /api/v1/auth/change-password` - Change password
+
+**See [AUTHENTICATION.md](AUTHENTICATION.md) for complete authentication documentation.**
+
 ## Development
 
 ### Running in Development Mode
@@ -185,10 +196,10 @@ The application uses async SQLAlchemy with PostgreSQL (Supabase):
 
 1. ✅ ~~Define database models in `app/models/`~~
 2. ✅ ~~Set up database migrations with Alembic~~
-3. Create Pydantic schemas in `app/schemas/`
-4. Implement CRUD operations in `app/crud/`
-5. Implement business logic routes in `app/routes/`
-6. Implement authentication and authorization
+3. ✅ ~~Implement authentication and authorization~~
+4. Create Pydantic schemas in `app/schemas/`
+5. Implement CRUD operations in `app/crud/`
+6. Implement business logic routes in `app/routes/`
 7. Integrate FinCra payment APIs
 8. Add comprehensive tests
 9. Configure CI/CD pipeline
