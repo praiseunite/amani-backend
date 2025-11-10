@@ -5,13 +5,17 @@ A secure, high-performance FastAPI backend for the Amani escrow platform with Fi
 ## Features
 
 - 🚀 **FastAPI Framework**: High-performance async API with automatic OpenAPI documentation
-- 🔒 **Security First**: HTTPS enforcement, security headers, structured logging for audits
+- 🔒 **Security First**: HTTPS enforcement, security headers, comprehensive audit trails
+- 🛡️ **Rate Limiting**: Redis-based distributed rate limiting with automatic fallback
+- ✅ **Input Validation**: Advanced validation with XSS, SQL injection, and path traversal protection
 - 🔐 **Authentication System**: JWT tokens, password hashing, Supabase Auth integration, role-based access control
 - 📊 **PostgreSQL/Supabase**: Async SQLAlchemy integration with connection pooling
 - 📝 **Structured Logging**: JSON-formatted logs for easy parsing and audit trails
 - 🌐 **CORS Configured**: Cross-origin resource sharing support
+- 🚨 **Error Handling**: Custom exception handlers with standardized error responses
 - ⚡ **Async Support**: Built for high concurrency and scalability
 - 💳 **FinCra Integration**: Ready for payment processing integration
+- 🔄 **API Versioning**: Versioned API endpoints for backward compatibility
 
 ## Project Structure
 
@@ -22,10 +26,15 @@ amani-backend/
 │   ├── main.py              # FastAPI application entry point
 │   ├── core/                # Core functionality
 │   │   ├── __init__.py
-│   │   ├── config.py        # Environment configuration
-│   │   ├── database.py      # Database connection and session management
-│   │   ├── logging.py       # Structured logging setup
-│   │   └── security.py      # Security middleware and utilities
+│   │   ├── audit.py       # Audit trail system
+│   │   ├── auth.py        # Authentication utilities
+│   │   ├── config.py      # Environment configuration
+│   │   ├── database.py    # Database connection and session management
+│   │   ├── exceptions.py  # Custom exception handlers
+│   │   ├── logging.py     # Structured logging setup
+│   │   ├── rate_limit.py  # Rate limiting middleware
+│   │   ├── security.py    # Security middleware and utilities
+│   │   └── validation.py  # Input validation utilities
 │   ├── models/              # SQLAlchemy models
 │   │   └── __init__.py
 │   ├── routes/              # API route handlers
@@ -110,6 +119,17 @@ Copy `.env.example` to `.env` and configure the following:
 - `LOG_LEVEL`: Logging level (DEBUG, INFO, WARNING, ERROR)
 - `FORCE_HTTPS`: Enable HTTPS enforcement in production
 
+### Rate Limiting Configuration
+
+- `RATE_LIMIT_ENABLED`: Enable/disable rate limiting (default: True)
+- `RATE_LIMIT_PER_MINUTE`: Maximum requests per minute (default: 60)
+- `RATE_LIMIT_BURST_SIZE`: Maximum burst size (default: 100)
+
+### Redis Configuration (Optional)
+
+- `REDIS_ENABLED`: Enable Redis for distributed rate limiting (default: False)
+- `REDIS_URL`: Redis connection URL (default: redis://localhost:6379/0)
+
 ## API Endpoints
 
 ### Health & Status
@@ -153,12 +173,20 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
 
 ## Security Features
 
+The application implements comprehensive security hardening:
+
 - **HTTPS Enforcement**: Automatic redirect to HTTPS in production
 - **Security Headers**: X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, HSTS
+- **Rate Limiting**: Token bucket algorithm with Redis support for distributed limiting
 - **CORS Protection**: Configurable allowed origins
+- **Input Validation**: Advanced validation with XSS, SQL injection, and path traversal protection
+- **Audit Trails**: Comprehensive logging of sensitive operations
+- **Error Handling**: Secure error responses that don't leak sensitive information
 - **Trusted Host Middleware**: Prevents host header attacks
-- **Structured Logging**: All requests and responses logged for audit
 - **Password Hashing**: bcrypt for secure password storage
+- **JWT Authentication**: Secure token-based authentication with role-based access control
+
+**See [SECURITY.md](SECURITY.md) for detailed security documentation.**
 - **JWT Authentication**: Token-based authentication ready
 
 ## Database

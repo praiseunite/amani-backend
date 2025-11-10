@@ -12,6 +12,7 @@ from app.core.logging import setup_logging
 from app.core.security import HTTPSRedirectMiddleware
 from app.core.database import init_db
 from app.core.rate_limit import RateLimitMiddleware
+from app.core.exceptions import register_exception_handlers
 from app.routes import health, auth, projects, milestones, escrow
 
 # Initialize logging
@@ -51,6 +52,9 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Register exception handlers
+register_exception_handlers(app)
+
 # CORS Middleware - Configure allowed origins
 app.add_middleware(
     CORSMiddleware,
@@ -64,12 +68,14 @@ app.add_middleware(
 app.add_middleware(HTTPSRedirectMiddleware)
 
 # Rate Limiting Middleware
-app.add_middleware(
-    RateLimitMiddleware,
-    requests_per_minute=60,
-    burst_size=100,
-    exempt_paths=["/docs", "/redoc", "/openapi.json", "/api/v1/health", "/api/v1/ping"]
-)
+if settings.RATE_LIMIT_ENABLED:
+    app.add_middleware(
+        RateLimitMiddleware,
+        requests_per_minute=settings.RATE_LIMIT_PER_MINUTE,
+        burst_size=settings.RATE_LIMIT_BURST_SIZE,
+        exempt_paths=["/docs", "/redoc", "/openapi.json", "/api/v1/health", "/api/v1/ping"],
+        redis_url=settings.REDIS_URL if settings.REDIS_ENABLED else None
+    )
 
 # Trusted Host Middleware (prevent host header attacks)
 if settings.ENVIRONMENT == "production":
