@@ -2,9 +2,9 @@
 Configuration module for the Amani Escrow Backend.
 Handles environment variables and application settings.
 """
-from typing import List
+from typing import List, Union
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import validator
+from pydantic import field_validator
 
 
 class Settings(BaseSettings):
@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     FINCRA_BASE_URL: str = "https://api.fincra.com"
     
     # CORS Settings
-    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000"]
+    ALLOWED_ORIGINS: Union[str, List[str]] = "http://localhost:3000"
     
     # Logging
     LOG_LEVEL: str = "INFO"
@@ -49,6 +49,14 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         case_sensitive=True
     )
+    
+    @field_validator("ALLOWED_ORIGINS", mode="before")
+    @classmethod
+    def parse_allowed_origins(cls, v):
+        """Parse ALLOWED_ORIGINS from comma-separated string to list."""
+        if isinstance(v, str):
+            return [origin.strip() for origin in v.split(",")]
+        return v
 
 
 # Create a global settings instance

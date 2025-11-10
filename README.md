@@ -168,16 +168,30 @@ Structured JSON logging for production with human-readable format for developmen
 - **Request Tracking**: All HTTP requests logged with metadata
 - **Error Tracking**: Detailed error logging for debugging
 
+## Database
+
+The application uses async SQLAlchemy with PostgreSQL (Supabase):
+
+- **4 Core Models**: User, Project, Milestone, Transaction
+- **Async Support**: Full async/await with asyncpg
+- **Connection Pooling**: Configured with pool_size=10, max_overflow=20
+- **Row-Level Security**: Supabase RLS policies for data protection
+- **Migrations**: Alembic for schema management
+- **Relationships**: Fully mapped with foreign keys and cascade operations
+
+**See [DATABASE_SETUP.md](DATABASE_SETUP.md) for complete setup guide.**
+
 ## Next Steps
 
-1. Define database models in `app/models/`
-2. Create Pydantic schemas in `app/schemas/`
-3. Implement business logic routes in `app/routes/`
-4. Set up database migrations with Alembic
-5. Implement authentication and authorization
-6. Integrate FinCra payment APIs
-7. Add comprehensive tests
-8. Configure CI/CD pipeline
+1. ✅ ~~Define database models in `app/models/`~~
+2. ✅ ~~Set up database migrations with Alembic~~
+3. Create Pydantic schemas in `app/schemas/`
+4. Implement CRUD operations in `app/crud/`
+5. Implement business logic routes in `app/routes/`
+6. Implement authentication and authorization
+7. Integrate FinCra payment APIs
+8. Add comprehensive tests
+9. Configure CI/CD pipeline
 
 ## License
 
