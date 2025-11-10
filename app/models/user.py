@@ -3,12 +3,20 @@ User model for authentication and user management.
 Includes support for Supabase Row-Level Security.
 """
 from datetime import datetime
-from sqlalchemy import Column, String, Boolean, DateTime, Text
+from sqlalchemy import Column, String, Boolean, DateTime, Text, Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import uuid
+import enum
 
 from app.core.database import Base
+
+
+class UserRole(str, enum.Enum):
+    """User role enumeration for role-based access control."""
+    ADMIN = "admin"
+    CLIENT = "client"
+    FREELANCER = "freelancer"
 
 
 class User(Base):
@@ -28,6 +36,9 @@ class User(Base):
     
     # Password hash - only used if not using Supabase Auth
     hashed_password = Column(String(255), nullable=True)
+    
+    # User role for RBAC
+    role = Column(SQLEnum(UserRole), default=UserRole.CLIENT, nullable=False)
     
     # User status
     is_active = Column(Boolean, default=True, nullable=False)
