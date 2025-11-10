@@ -59,6 +59,7 @@ class User(Base):
     projects_as_buyer = relationship("Project", back_populates="buyer", foreign_keys="Project.buyer_id")
     projects_as_seller = relationship("Project", back_populates="seller", foreign_keys="Project.seller_id")
     transactions = relationship("Transaction", back_populates="user")
+    kyc_records = relationship("Kyc", back_populates="user")
     
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email}, full_name={self.full_name})>"

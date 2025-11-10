@@ -1,6 +1,6 @@
 """
 CRUD operations module.
-Exports all CRUD functions for User, Project, Milestone, and Transaction models.
+Exports all CRUD functions for User, Project, Milestone, Transaction, and KYC models.
 """
 
 # User CRUD operations
@@ -49,6 +49,17 @@ from app.crud.transaction import (
     update_transaction_status
 )
 
+# KYC CRUD operations
+from app.crud.kyc import (
+    hash_security_code,
+    hash_approval_code,
+    create_kyc_submission,
+    get_kyc_by_user,
+    get_kyc_by_id,
+    update_kyc_status,
+    get_all_kyc_submissions
+)
+
 __all__ = [
     # User
     "create_user",
@@ -84,4 +95,12 @@ __all__ = [
     "update_transaction",
     "delete_transaction",
     "update_transaction_status",
+    # KYC
+    "hash_security_code",
+    "hash_approval_code",
+    "create_kyc_submission",
+    "get_kyc_by_user",
+    "get_kyc_by_id",
+    "update_kyc_status",
+    "get_all_kyc_submissions",
 ]
