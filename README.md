@@ -220,17 +220,41 @@ The application uses async SQLAlchemy with PostgreSQL (Supabase):
 
 **See [DATABASE_SETUP.md](DATABASE_SETUP.md) for complete setup guide.**
 
+## CI/CD Pipeline
+
+The project includes a complete CI/CD pipeline with GitHub Actions:
+- **Automated Testing**: pytest with coverage reporting
+- **Code Quality**: Black formatting and Flake8 linting
+- **Docker Build**: Automated image builds and deployment
+- **Continuous Deployment**: Automatic deployment to Docker registry
+
+**See [CI_CD.md](CI_CD.md) for complete CI/CD documentation.**
+
+## Testing
+
+Run the test suite:
+```bash
+# Install development dependencies
+pip install -r requirements-dev.txt
+
+# Run all tests
+pytest tests/
+
+# Run tests with coverage
+pytest tests/ --cov=app --cov-report=html
+```
+
 ## Next Steps
 
 1. ✅ ~~Define database models in `app/models/`~~
 2. ✅ ~~Set up database migrations with Alembic~~
 3. ✅ ~~Implement authentication and authorization~~
-4. Create Pydantic schemas in `app/schemas/`
-5. Implement CRUD operations in `app/crud/`
-6. Implement business logic routes in `app/routes/`
-7. Integrate FinCra payment APIs
-8. Add comprehensive tests
-9. Configure CI/CD pipeline
+4. ✅ ~~Create Pydantic schemas in `app/schemas/`~~
+5. ✅ ~~Implement CRUD operations in `app/crud/`~~
+6. ✅ ~~Implement business logic routes in `app/routes/`~~
+7. ✅ ~~Configure CI/CD pipeline~~
+8. Integrate FinCra payment APIs
+9. Add comprehensive end-to-end tests
 
 ## License
 
