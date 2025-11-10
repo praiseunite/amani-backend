@@ -35,14 +35,7 @@ class Settings(BaseSettings):
     FINCRA_BASE_URL: str = "https://api.fincra.com"
     
     # CORS Settings
-    ALLOWED_ORIGINS: str = "http://localhost:3000"
-    
-    @validator("ALLOWED_ORIGINS", pre=True)
-    def parse_cors_origins(cls, v: str) -> List[str]:
-        """Parse comma-separated CORS origins into a list."""
-        if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",")]
-        return v
+    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000"]
     
     # Logging
     LOG_LEVEL: str = "INFO"
