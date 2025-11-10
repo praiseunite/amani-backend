@@ -1,11 +1,12 @@
 """
-Authentication utilities for JWT tokens and password hashing.
+Authentication utilities for JWT tokens, password hashing, and 2FA (TOTP).
 """
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import HTTPException, status
+import pyotp
 
 from app.core.config import settings
 from app.schemas.auth import TokenData
@@ -101,3 +102,63 @@ def decode_access_token(token: str) -> TokenData:
         raise credentials_exception
     except ValueError:
         raise credentials_exception
+
+
+def generate_totp_secret() -> str:
+    """
+    Generate a random secret for TOTP (Time-based One-Time Password).
+    
+    Returns:
+        Base32-encoded secret string
+    """
+    return pyotp.random_base32()
+
+
+def get_totp_uri(secret: str, account_name: str, issuer_name: str = "Amani") -> str:
+    """
+    Generate a TOTP URI for QR code generation.
+    
+    Args:
+        secret: Base32-encoded TOTP secret
+        account_name: User's email or identifier
+        issuer_name: Application name
+        
+    Returns:
+        TOTP URI string for QR code
+    """
+    totp = pyotp.TOTP(secret)
+    return totp.provisioning_uri(name=account_name, issuer_name=issuer_name)
+
+
+def verify_totp_code(secret: str, code: str, valid_window: int = 1) -> bool:
+    """
+    Verify a TOTP code against a secret.
+    
+    Args:
+        secret: Base32-encoded TOTP secret
+        code: 6-digit TOTP code to verify
+        valid_window: Number of time windows to check (default 1 = ±30 seconds)
+        
+    Returns:
+        True if code is valid, False otherwise
+    """
+    try:
+        totp = pyotp.TOTP(secret)
+        return totp.verify(code, valid_window=valid_window)
+    except Exception:
+        return False
+
+
+def generate_totp_code(secret: str) -> str:
+    """
+    Generate current TOTP code for testing purposes.
+    
+    Args:
+        secret: Base32-encoded TOTP secret
+        
+    Returns:
+        6-digit TOTP code
+    """
+    totp = pyotp.TOTP(secret)
+    return totp.now()
+

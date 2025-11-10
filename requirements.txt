@@ -15,6 +15,7 @@ supabase==2.3.4
 bcrypt==4.1.2
 python-jose[cryptography]==3.4.0
 passlib[bcrypt]==1.7.4
+pyotp==2.9.0
 
 # Environment & Configuration
 python-dotenv==1.0.0
