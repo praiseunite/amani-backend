@@ -1,12 +1,15 @@
 """
 Pydantic schemas for authentication.
 """
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from datetime import datetime
 from uuid import UUID
 
 from app.models.user import UserRole
+
+if TYPE_CHECKING:
+    pass
 
 
 class UserBase(BaseModel):
@@ -42,21 +45,6 @@ class UserLogin(BaseModel):
     password: str
 
 
-class Token(BaseModel):
-    """Schema for JWT token response."""
-    access_token: str
-    token_type: str = "bearer"
-    expires_in: int
-    user: "UserResponse"
-
-
-class TokenData(BaseModel):
-    """Schema for JWT token payload data."""
-    user_id: str
-    email: str
-    role: UserRole
-
-
 class UserResponse(BaseModel):
     """Schema for user response (no sensitive data)."""
     id: UUID
@@ -75,6 +63,21 @@ class UserResponse(BaseModel):
     model_config = {
         "from_attributes": True
     }
+
+
+class Token(BaseModel):
+    """Schema for JWT token response."""
+    access_token: str
+    token_type: str = "bearer"
+    expires_in: int
+    user: UserResponse
+
+
+class TokenData(BaseModel):
+    """Schema for JWT token payload data."""
+    user_id: str
+    email: str
+    role: UserRole
 
 
 class UserUpdate(BaseModel):
