@@ -13,7 +13,7 @@ from app.core.security import HTTPSRedirectMiddleware
 from app.core.database import init_db
 from app.core.rate_limit import RateLimitMiddleware
 from app.core.exceptions import register_exception_handlers
-from app.routes import health, auth, projects, milestones, escrow
+from app.routes import health, auth, projects, milestones, escrow, kyc
 
 # Initialize logging
 logger = logging.getLogger(__name__)
@@ -90,6 +90,7 @@ app.include_router(auth.router, prefix="/api/v1")
 app.include_router(projects.router, prefix="/api/v1")
 app.include_router(milestones.router, prefix="/api/v1")
 app.include_router(escrow.router, prefix="/api/v1")
+app.include_router(kyc.router, prefix="/api/v1")
 
 # Request logging middleware
 @app.middleware("http")
