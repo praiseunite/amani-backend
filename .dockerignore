@@ -1,24 +1,10 @@
+# .dockerignore - Exclude files from Docker build context
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
 # Virtual Environment
 venv/
@@ -42,7 +28,6 @@ ENV/
 # Testing
 .pytest_cache/
 .coverage
-coverage.xml
 htmlcov/
 .tox/
 
@@ -54,5 +39,17 @@ logs/
 *.db
 *.sqlite3
 
-# Alembic
-alembic/versions/*.pyc
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+!README.md
+
+# CI/CD
+.github/
+
+# Development dependencies
+requirements-dev.txt
