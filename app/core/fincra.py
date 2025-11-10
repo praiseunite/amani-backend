@@ -281,6 +281,99 @@ class FinCraClient:
         """
         params = {"currency": currency} if currency else None
         return await self._make_request("GET", "/balance", params=params)
+    
+    async def submit_kyc(
+        self,
+        user_id: str,
+        kyc_type: str,
+        nin_or_passport: str,
+        first_name: str,
+        last_name: str,
+        email: str,
+        phone: Optional[str] = None,
+        date_of_birth: Optional[str] = None,
+        address: Optional[str] = None,
+        document_image: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        Submit KYC information to FinCra for verification.
+        
+        Args:
+            user_id: User identifier
+            kyc_type: Type of KYC (e.g., "individual", "business")
+            nin_or_passport: National ID or Passport number
+            first_name: Customer's first name
+            last_name: Customer's last name
+            email: Customer's email
+            phone: Customer's phone number
+            date_of_birth: Date of birth (ISO format)
+            address: Customer's address
+            document_image: Base64 encoded document image
+            metadata: Additional metadata
+            
+        Returns:
+            KYC submission response data
+            
+        Raises:
+            FinCraError: If submission fails
+        """
+        data = {
+            "user_id": user_id,
+            "type": kyc_type,
+            "identification": {
+                "type": "nin" if "nin" in nin_or_passport.lower() else "passport",
+                "number": nin_or_passport
+            },
+            "personal_info": {
+                "first_name": first_name,
+                "last_name": last_name,
+                "email": email,
+                "phone": phone,
+                "date_of_birth": date_of_birth,
+                "address": address
+            },
+            "metadata": metadata or {}
+        }
+        
+        if document_image:
+            data["document_image"] = document_image
+        
+        return await self._make_request("POST", "/kyc/submit", data=data)
+    
+    async def verify_kyc(self, kyc_id: str) -> Dict[str, Any]:
+        """
+        Verify KYC submission status with FinCra.
+        
+        Args:
+            kyc_id: FinCra KYC submission ID
+            
+        Returns:
+            KYC verification status data including:
+            - status: Verification status (pending, approved, rejected)
+            - verified_at: Timestamp of verification (if completed)
+            - rejection_reason: Reason for rejection (if rejected)
+            - verification_details: Additional verification information
+            
+        Raises:
+            FinCraError: If verification check fails
+        """
+        return await self._make_request("GET", f"/kyc/{kyc_id}")
+    
+    async def get_kyc_status(self, user_id: str) -> Dict[str, Any]:
+        """
+        Get KYC status for a user from FinCra.
+        
+        Args:
+            user_id: User identifier
+            
+        Returns:
+            User's KYC status information
+            
+        Raises:
+            FinCraError: If status retrieval fails
+        """
+        return await self._make_request("GET", f"/kyc/user/{user_id}")
 
 
 # Global client instance (will be initialized on app startup)
