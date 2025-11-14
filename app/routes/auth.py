@@ -20,15 +20,27 @@ from app.schemas.auth import (
     Token,
     MagicLinkRequest,
     MagicLinkResponse,
+    SignupResponse,
+    VerifyOtpRequest,
     PasswordChange,
     UserUpdate
 )
+from app.core.email import send_email
+from app.core.email_templates import get_verification_email_html, get_welcome_email_html
+from pydantic import BaseModel
+
+
+class TestEmailRequest(BaseModel):
+    to: str
+    subject: str
+    body: str
+    html: bool = False
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 logger = logging.getLogger(__name__)
 
 
-@router.post("/signup", response_model=Token, status_code=status.HTTP_201_CREATED)
+@router.post("/signup", response_model=SignupResponse, status_code=status.HTTP_201_CREATED)
 async def signup(
     user_data: UserCreate,
     db: AsyncSession = Depends(get_db)
@@ -41,10 +53,7 @@ async def signup(
         db: Database session
         
     Returns:
-        JWT token and user information
-        
-    Raises:
-        HTTPException: If email already exists
+        Signup response with message
     """
     # Check if user already exists
     result = await db.execute(
@@ -75,24 +84,32 @@ async def signup(
     await db.commit()
     await db.refresh(new_user)
     
-    # Create access token
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={
-            "sub": str(new_user.id),
-            "email": new_user.email,
-            "role": new_user.role.value
-        },
-        expires_delta=access_token_expires
-    )
+    # Generate OTP
+    import random
+    import string
+    otp = ''.join(random.choices(string.digits, k=6))
+    expires_at = datetime.utcnow() + timedelta(minutes=10)
+    new_user.otp_code = otp
+    new_user.otp_expires_at = expires_at
+    await db.commit()
     
-    logger.info(f"New user registered: {new_user.email}")
+    # Send verification email
+    verification_html = get_verification_email_html(new_user.full_name or "User", otp)
     
-    return Token(
-        access_token=access_token,
-        token_type="bearer",
-        expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        user=UserResponse.model_validate(new_user)
+    try:
+        await send_email(
+            to=new_user.email,
+            subject="Verify Your Amani Account",
+            body=verification_html,
+            html=True
+        )
+        logger.info(f"Verification email sent to: {new_user.email}")
+    except Exception as e:
+        logger.error(f"Failed to send verification email to {new_user.email}: {e}")
+    
+    return SignupResponse(
+        message="Account created successfully. Please check your email for verification code.",
+        email=new_user.email
     )
 
 
@@ -140,6 +157,13 @@ async def login(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User account is inactive"
+        )
+    
+    # Check if user is verified
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account not verified. Please verify your email first."
         )
     
     # Update last login
@@ -316,3 +340,128 @@ async def change_password(
     logger.info(f"Password changed for user: {current_user.email}")
     
     return {"message": "Password changed successfully"}
+
+
+@router.post("/test-email", status_code=status.HTTP_200_OK)
+async def test_email(
+    email_request: TestEmailRequest
+):
+    """
+    Test email sending functionality.
+    
+    Args:
+        email_request: Email details to send
+        
+    Returns:
+        Success message
+    """
+    try:
+        await send_email(
+            to=email_request.to,
+            subject=email_request.subject,
+            body=email_request.body,
+            html=email_request.html
+        )
+        return {"message": "Test email sent successfully"}
+    except Exception as e:
+        logger.error(f"Test email failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to send test email: {str(e)}"
+        )
+
+
+@router.post("/verify-otp", response_model=Token)
+async def verify_otp(
+    request: VerifyOtpRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Verify OTP and activate user account.
+    
+    Args:
+        request: OTP verification data
+        db: Database session
+        
+    Returns:
+        JWT token and user information
+        
+    Raises:
+        HTTPException: If OTP is invalid or expired
+    """
+    # Find user by email
+    result = await db.execute(
+        select(User).where(User.email == request.email)
+    )
+    user = result.scalar_one_or_none()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    if user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Account already verified"
+        )
+    
+    # Check OTP
+    if not user.otp_code or user.otp_expires_at is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No OTP found. Please request a new verification code."
+        )
+    
+    if datetime.utcnow() > user.otp_expires_at:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="OTP has expired. Please request a new verification code."
+        )
+    
+    if user.otp_code != request.otp:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid OTP code"
+        )
+    
+    # Verify user
+    user.is_verified = True
+    user.otp_code = None
+    user.otp_expires_at = None
+    await db.commit()
+    
+    # Send welcome email
+    welcome_html = get_welcome_email_html(user.full_name or "User")
+    
+    try:
+        await send_email(
+            to=user.email,
+            subject="Welcome to Amani Escrow",
+            body=welcome_html,
+            html=True
+        )
+        logger.info(f"Welcome email sent to: {user.email}")
+    except Exception as e:
+        logger.error(f"Failed to send welcome email to {user.email}: {e}")
+    
+    # Create access token
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={
+            "sub": str(user.id),
+            "email": user.email,
+            "role": user.role.value
+        },
+        expires_delta=access_token_expires
+    )
+    
+    logger.info(f"User verified: {user.email}")
+    
+    return Token(
+        access_token=access_token,
+        token_type="bearer",
+        expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        user=UserResponse.model_validate(user)
+    )

@@ -5,10 +5,31 @@ from typing import Optional
 from supabase import create_client, Client
 from app.core.config import settings
 import logging
+import httpx
 
 logger = logging.getLogger(__name__)
 
-# Initialize Supabase client
+# Monkey patch httpx to ignore proxy parameter
+_original_init = httpx.Client.__init__
+
+def patched_init(self, *args, **kwargs):
+    # Remove proxy parameter if it exists
+    kwargs.pop('proxy', None)
+    return _original_init(self, *args, **kwargs)
+
+httpx.Client.__init__ = patched_init
+
+# Also patch AsyncClient
+_original_async_init = httpx.AsyncClient.__init__
+
+def patched_async_init(self, *args, **kwargs):
+    # Remove proxy parameter if it exists
+    kwargs.pop('proxy', None)
+    return _original_async_init(self, *args, **kwargs)
+
+httpx.AsyncClient.__init__ = patched_async_init
+
+# Global client instance
 _supabase_client: Optional[Client] = None
 
 
@@ -58,8 +79,8 @@ async def send_magic_link(email: str, redirect_url: Optional[str] = None) -> dic
             options['redirect_to'] = redirect_url
         
         response = supabase.auth.sign_in_with_otp({
-            'email': email,
-            'options': options
+            "email": email,
+            "options": options if redirect_url else {}
         })
         
         logger.info(f"Magic link sent to {email}")
@@ -88,8 +109,8 @@ async def verify_magic_link_token(token: str) -> dict:
         
         # Verify the token
         response = supabase.auth.verify_otp({
-            'token': token,
-            'type': 'magiclink'
+            "token": token,
+            "type": "magiclink"
         })
         
         logger.info(f"Magic link verified successfully")

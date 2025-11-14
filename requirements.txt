@@ -33,3 +33,6 @@ redis==5.0.1
 
 # Email validation
 email-validator==2.3.0
+
+# SMTP for email sending
+aiosmtplib==3.0.1

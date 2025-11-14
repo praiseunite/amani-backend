@@ -61,34 +61,40 @@ amani-backend/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/praiseunite/amani-backend.git
    cd amani-backend
    ```
 
 2. **Create a virtual environment**
+
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
 3. **Install dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 4. **Configure environment variables**
+
    ```bash
    cp .env.example .env
    # Edit .env and update with your actual credentials
    ```
 
 5. **Run the application**
+
    ```bash
    python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
 
    Or use the built-in run command:
+
    ```bash
    python app/main.py
    ```
@@ -147,6 +153,36 @@ Copy `.env.example` to `.env` and configure the following:
 - `PUT /api/v1/auth/me` - Update user profile
 - `POST /api/v1/auth/change-password` - Change password
 
+### Project Management
+
+- `POST /api/v1/projects` - Create a new project
+- `GET /api/v1/projects` - List user's projects (paginated)
+- `GET /api/v1/projects/{id}` - Get project details
+- `PUT /api/v1/projects/{id}` - Update project
+- `DELETE /api/v1/projects/{id}` - Delete draft project
+
+### Milestone Management
+
+- `POST /api/v1/milestones` - Create a new milestone
+- `GET /api/v1/milestones` - List milestones (paginated, filterable)
+- `GET /api/v1/milestones/{id}` - Get milestone details
+- `PUT /api/v1/milestones/{id}` - Update milestone
+- `POST /api/v1/milestones/{id}/submit` - Submit milestone for approval
+- `POST /api/v1/milestones/{id}/approve` - Approve or reject milestone
+
+### Escrow & Transactions
+
+- `POST /api/v1/escrow/hold` - Hold funds in escrow
+- `POST /api/v1/escrow/release` - Release escrow funds
+- `GET /api/v1/escrow/transactions` - List transactions (paginated)
+- `GET /api/v1/escrow/transactions/{id}` - Get transaction details
+
+### KYC Verification
+
+- `POST /api/v1/kyc/submit` - Submit KYC information
+- `GET /api/v1/kyc/status` - Get KYC submission status
+- `POST /api/v1/kyc/resubmit/{kyc_id}` - Resubmit rejected KYC
+
 **See [AUTHENTICATION.md](AUTHENTICATION.md) for complete authentication documentation.**
 
 ## Development
@@ -187,6 +223,7 @@ The application implements comprehensive security hardening:
 - **JWT Authentication**: Secure token-based authentication with role-based access control
 
 **See [SECURITY.md](SECURITY.md) for detailed security documentation.**
+
 - **JWT Authentication**: Token-based authentication ready
 
 ## Database
@@ -223,6 +260,7 @@ The application uses async SQLAlchemy with PostgreSQL (Supabase):
 ## CI/CD Pipeline
 
 The project includes a complete CI/CD pipeline with GitHub Actions:
+
 - **Automated Testing**: pytest with coverage reporting
 - **Code Quality**: Black formatting and Flake8 linting
 - **Docker Build**: Automated image builds and deployment
@@ -233,6 +271,7 @@ The project includes a complete CI/CD pipeline with GitHub Actions:
 ## Testing
 
 Run the test suite:
+
 ```bash
 # Install development dependencies
 pip install -r requirements-dev.txt

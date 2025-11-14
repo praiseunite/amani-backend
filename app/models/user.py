@@ -45,6 +45,10 @@ class User(Base):
     is_verified = Column(Boolean, default=False, nullable=False)
     is_superuser = Column(Boolean, default=False, nullable=False)
     
+    # OTP verification
+    otp_code = Column(String(6), nullable=True)
+    otp_expires_at = Column(DateTime, nullable=True)
+    
     # Profile information
     avatar_url = Column(String(500), nullable=True)
     bio = Column(Text, nullable=True)

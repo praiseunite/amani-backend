@@ -117,3 +117,15 @@ class MagicLinkResponse(BaseModel):
     """Schema for magic link response."""
     message: str
     email: str
+
+
+class SignupResponse(BaseModel):
+    """Schema for signup response."""
+    message: str
+    email: str
+
+
+class VerifyOtpRequest(BaseModel):
+    """Schema for OTP verification."""
+    email: EmailStr
+    otp: str = Field(..., min_length=6, max_length=6)
