@@ -1,44 +1,49 @@
-"""In-memory wallet registry implementation for testing."""
+"""
+In-memory WalletRegistry adapter for tests
+"""
+from typing import Optional, Dict, Any, List
+import threading
 
-from typing import List, Optional
-from uuid import UUID
-
-from app.domain.entities import WalletRegistryEntry, WalletProvider
-from app.ports.wallet_registry import WalletRegistryPort
+from app.ports.wallet_registry import WalletRegistryPort, WalletRegistryRecord
 
 
-class InMemoryWalletRegistry(WalletRegistryPort):
-    """In-memory implementation of wallet registry."""
-
+class InMemoryWalletRegistryAdapter(WalletRegistryPort):
     def __init__(self):
-        """Initialize in-memory storage."""
-        self._wallets: List[WalletRegistryEntry] = []
+        self._lock = threading.Lock()
+        self._rows: List[Dict[str, Any]] = []
+        self._next_id = 1
 
-    async def register(self, entry: WalletRegistryEntry) -> WalletRegistryEntry:
-        """Register a new wallet.
+    def create(self, provider: str, provider_wallet_id: str, bot_user_id: Optional[str], metadata: Optional[Dict[str, Any]] = None, idempotency_key: Optional[str] = None) -> WalletRegistryRecord:
+        with self._lock:
+            # simulate unique constraints
+            for r in self._rows:
+                if idempotency_key and r.get("idempotency_key") == idempotency_key:
+                    raise Exception("unique_violation_idempotency")
+                if r["provider"] == provider and r["provider_wallet_id"] == provider_wallet_id:
+                    raise Exception("unique_violation_provider")
 
-        Args:
-            entry: The wallet registry entry to register
+            row = {
+                "id": self._next_id,
+                "provider": provider,
+                "provider_wallet_id": provider_wallet_id,
+                "bot_user_id": bot_user_id,
+                "metadata": metadata or {},
+                "idempotency_key": idempotency_key,
+            }
+            self._rows.append(row)
+            self._next_id += 1
+            return WalletRegistryRecord(**row)
 
-        Returns:
-            The registered wallet entry
-        """
-        self._wallets.append(entry)
-        return entry
+    def get_by_idempotency_key(self, idempotency_key: str) -> Optional[WalletRegistryRecord]:
+        with self._lock:
+            for r in self._rows:
+                if r.get("idempotency_key") == idempotency_key:
+                    return WalletRegistryRecord(**r)
+        return None
 
-    async def get_by_provider(
-        self, user_id: UUID, provider: WalletProvider
-    ) -> Optional[WalletRegistryEntry]:
-        """Get wallet by user ID and provider.
-
-        Args:
-            user_id: The user's unique identifier
-            provider: The wallet provider
-
-        Returns:
-            Wallet registry entry if found, None otherwise
-        """
-        for wallet in self._wallets:
-            if wallet.user_id == user_id and wallet.provider == provider:
-                return wallet
+    def get_by_provider(self, provider: str, provider_wallet_id: str) -> Optional[WalletRegistryRecord]:
+        with self._lock:
+            for r in self._rows:
+                if r["provider"] == provider and r["provider_wallet_id"] == provider_wallet_id:
+                    return WalletRegistryRecord(**r)
         return None
