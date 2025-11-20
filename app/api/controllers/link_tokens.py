@@ -1,7 +1,7 @@
 """Link tokens controller."""
 
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter
 from pydantic import BaseModel
 
 from app.domain.entities import WalletProvider

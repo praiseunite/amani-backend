@@ -4,7 +4,7 @@ import hmac
 import hashlib
 import secrets
 from typing import Optional
-from datetime import datetime, timedelta
+from datetime import datetime
 from fastapi import Header, HTTPException, status
 
 from app.ports.api_key import ApiKeyPort

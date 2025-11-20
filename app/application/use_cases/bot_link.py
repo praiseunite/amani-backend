@@ -1,9 +1,8 @@
 """Bot link use case - consume token and link wallet provider."""
 
 from typing import Optional
-from uuid import UUID
 
-from app.domain.entities import WalletRegistryEntry, LinkToken
+from app.domain.entities import LinkToken
 from app.domain.services import LinkTokenService
 
 
