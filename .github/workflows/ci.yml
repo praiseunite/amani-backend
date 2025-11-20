@@ -65,6 +65,10 @@ jobs:
       run: |
         pytest tests/unit/ -v --cov=app.domain --cov=app.ports --cov=app.application --cov-report=term
         
+    - name: Run API tests
+      run: |
+        pytest tests/api/ -v --cov=app.api --cov-report=term
+        
     - name: Run integration tests
       env:
         SECRET_KEY: test-secret-key-for-ci
