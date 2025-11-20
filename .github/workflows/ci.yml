@@ -60,7 +60,11 @@ jobs:
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
         
-    - name: Run tests with pytest
+    - name: Run unit tests
+      run: |
+        pytest tests/unit/ -v --cov=app.domain --cov=app.ports --cov=app.application --cov-report=term
+        
+    - name: Run integration tests
       env:
         SECRET_KEY: test-secret-key-for-ci
         DATABASE_URL: postgresql+asyncpg://test:test@localhost/test
@@ -69,7 +73,7 @@ jobs:
         SUPABASE_SERVICE_KEY: test-service-key
         ENVIRONMENT: testing
       run: |
-        pytest tests/ -v --cov=app --cov-report=xml --cov-report=term
+        pytest tests/ --ignore=tests/unit/ -v --cov=app --cov-report=xml --cov-report=term
         
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
