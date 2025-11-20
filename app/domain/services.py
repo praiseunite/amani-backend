@@ -5,9 +5,10 @@ from typing import Optional
 from uuid import UUID
 import secrets
 
-from app.domain.entities import LinkToken, WalletProvider
+from app.domain.entities import LinkToken, WalletProvider, WalletRegistryEntry
 from app.ports.link_token import LinkTokenPort
 from app.ports.audit import AuditPort
+from app.ports.wallet_registry import WalletRegistryPort
 
 
 class PolicyEnforcer:
@@ -139,3 +140,75 @@ class LinkTokenService:
         )
 
         return consumed_token
+
+
+class WalletRegistryService:
+    """Service for managing wallet registry."""
+
+    def __init__(
+        self,
+        wallet_registry_port: WalletRegistryPort,
+        audit_port: AuditPort,
+    ):
+        """Initialize wallet registry service.
+
+        Args:
+            wallet_registry_port: Port for wallet registry operations
+            audit_port: Port for audit operations
+        """
+        self.wallet_registry_port = wallet_registry_port
+        self.audit_port = audit_port
+
+    async def register_wallet(
+        self,
+        user_id: UUID,
+        provider: WalletProvider,
+        provider_account_id: str,
+        provider_customer_id: Optional[str] = None,
+        metadata: dict = None,
+    ) -> WalletRegistryEntry:
+        """Register a wallet for a user (idempotent).
+
+        Args:
+            user_id: The user's unique identifier
+            provider: The wallet provider
+            provider_account_id: The provider account ID
+            provider_customer_id: Optional provider customer ID
+            metadata: Optional metadata
+
+        Returns:
+            The registered wallet entry
+        """
+        # Check if wallet already exists
+        existing_wallet = await self.wallet_registry_port.get_by_provider(
+            user_id, provider
+        )
+
+        if existing_wallet is not None:
+            # Return existing wallet (idempotent)
+            return existing_wallet
+
+        # Create new wallet entry
+        wallet_entry = WalletRegistryEntry(
+            user_id=user_id,
+            provider=provider,
+            provider_account_id=provider_account_id,
+            provider_customer_id=provider_customer_id,
+            metadata=metadata or {},
+            is_active=True,
+        )
+
+        registered_wallet = await self.wallet_registry_port.register(wallet_entry)
+
+        await self.audit_port.record(
+            user_id=user_id,
+            action="register_wallet",
+            resource_type="wallet_registry",
+            resource_id=str(registered_wallet.id),
+            details={
+                "provider": provider.value,
+                "provider_account_id": provider_account_id,
+            },
+        )
+
+        return registered_wallet
