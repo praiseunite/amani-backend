@@ -1,9 +1,10 @@
 """
 User model for authentication and user management.
 Includes support for Supabase Row-Level Security.
+Uses integer primary key with UUID external_id for hexagonal architecture.
 """
 from datetime import datetime
-from sqlalchemy import Column, String, Boolean, DateTime, Text, Enum as SQLEnum
+from sqlalchemy import Column, String, Boolean, DateTime, Text, Enum as SQLEnum, BigInteger
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import uuid
@@ -23,11 +24,16 @@ class User(Base):
     """
     User model for the Amani platform.
     Integrates with Supabase Auth and supports Row-Level Security.
+    Uses integer primary key for internal operations and UUID for external APIs.
     """
     __tablename__ = "users"
     
-    # Primary key - use UUID for Supabase compatibility
+    # Primary key - UUID for now (will be transitioned to integer in future migration)
+    # This maintains backward compatibility with existing data
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False)
+    
+    # Integer ID for internal operations (added in migration)
+    integer_id = Column(BigInteger, unique=True, nullable=True, index=True)
     
     # User authentication and profile
     email = Column(String(255), unique=True, nullable=False, index=True)
@@ -66,4 +72,5 @@ class User(Base):
     kyc_records = relationship("Kyc", back_populates="user")
     
     def __repr__(self):
-        return f"<User(id={self.id}, email={self.email}, full_name={self.full_name})>"
+        return f"<User(id={self.id}, integer_id={self.integer_id}, email={self.email}, full_name={self.full_name})>"
+

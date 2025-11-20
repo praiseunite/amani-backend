@@ -22,7 +22,7 @@ from app.core.config import settings
 from app.core.database import Base
 
 # Import all models to ensure they are registered with Base
-from app.models import User, Project, Milestone, Transaction
+from app.models import User, Project, Milestone, Transaction, LinkToken, WalletRegistry, Hold, LedgerEntry
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
