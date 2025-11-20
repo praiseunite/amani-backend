@@ -1,8 +1,9 @@
 """Link tokens controller."""
 
 from uuid import UUID
-from fastapi import APIRouter
+from fastapi import APIRouter, Header, HTTPException, status
 from pydantic import BaseModel
+from typing import Optional
 
 from app.domain.entities import WalletProvider
 from app.application.use_cases.create_link_token import CreateLinkTokenUseCase
@@ -11,7 +12,6 @@ from app.application.use_cases.create_link_token import CreateLinkTokenUseCase
 class CreateLinkTokenRequest(BaseModel):
     """Request model for creating a link token."""
 
-    user_id: UUID
     provider: WalletProvider
 
 
@@ -35,17 +35,37 @@ def create_link_tokens_router(create_link_token_use_case: CreateLinkTokenUseCase
     router = APIRouter(prefix="/link_tokens", tags=["link_tokens"])
 
     @router.post("/create", response_model=CreateLinkTokenResponse)
-    async def create_link_token(request: CreateLinkTokenRequest):
+    async def create_link_token(
+        request: CreateLinkTokenRequest,
+        x_user_id: Optional[str] = Header(None, alias="X-USER-ID"),
+    ):
         """Create a link token for connecting a wallet.
+
+        Requires X-USER-ID header for simulated authentication.
 
         Args:
             request: Create link token request
+            x_user_id: User ID from header
 
         Returns:
             Created link token information
         """
+        if not x_user_id:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing X-USER-ID header",
+            )
+
+        try:
+            user_id = UUID(x_user_id)
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid user ID format",
+            )
+
         link_token = await create_link_token_use_case.execute(
-            user_id=request.user_id,
+            user_id=user_id,
             provider=request.provider,
         )
 

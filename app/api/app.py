@@ -6,6 +6,7 @@ from app.api.controllers.link_tokens import create_link_tokens_router
 from app.api.controllers.bot_link import create_bot_link_router
 from app.api.controllers.wallets import create_wallets_router
 from app.api.controllers.users import create_users_router
+from app.api.controllers.events_admin import create_events_admin_router
 from app.api.deps.hmac_auth import create_hmac_auth_dependency
 
 
@@ -40,7 +41,11 @@ def create_app(components: dict) -> FastAPI:
         hmac_auth_dependency,
     )
     users_router = create_users_router(
-        components["get_user_status_use_case"]
+        components["get_user_status_use_case"],
+        hmac_auth_dependency,
+    )
+    events_admin_router = create_events_admin_router(
+        components["event_publisher_port"]
     )
 
     # Include routers
@@ -48,5 +53,6 @@ def create_app(components: dict) -> FastAPI:
     app.include_router(bot_link_router, prefix="/api/v1")
     app.include_router(wallets_router, prefix="/api/v1")
     app.include_router(users_router, prefix="/api/v1")
+    app.include_router(events_admin_router, prefix="/api/v1")
 
     return app

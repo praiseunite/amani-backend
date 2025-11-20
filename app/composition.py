@@ -7,11 +7,13 @@ from app.ports.audit import AuditPort
 from app.ports.user_repository import UserRepositoryPort
 from app.ports.wallet_registry import WalletRegistryPort
 from app.ports.api_key import ApiKeyPort
+from app.ports.event_publisher import EventPublisherPort
 from app.adapters.inmemory.link_token_repo import InMemoryLinkTokenRepository
 from app.adapters.inmemory.audit import InMemoryAudit
 from app.adapters.inmemory.user_repo import InMemoryUserRepository
 from app.adapters.inmemory.wallet_registry import InMemoryWalletRegistry
 from app.adapters.inmemory.api_key_repo import InMemoryApiKeyRepository
+from app.adapters.inmemory.event_publisher import InMemoryEventPublisher
 from app.application.use_cases.create_link_token import CreateLinkTokenUseCase
 from app.application.use_cases.bot_link import BotLinkUseCase, BotLinkService
 from app.application.use_cases.register_wallet import RegisterWalletUseCase
@@ -30,6 +32,7 @@ def build_in_memory_services():
     user_repository_port: UserRepositoryPort = InMemoryUserRepository()
     wallet_registry_port: WalletRegistryPort = InMemoryWalletRegistry()
     api_key_port: ApiKeyPort = InMemoryApiKeyRepository()
+    event_publisher_port: EventPublisherPort = InMemoryEventPublisher()
 
     # Create domain services
     policy_enforcer = PolicyEnforcer()
@@ -67,6 +70,7 @@ def build_in_memory_services():
         "user_repository_port": user_repository_port,
         "wallet_registry_port": wallet_registry_port,
         "api_key_port": api_key_port,
+        "event_publisher_port": event_publisher_port,
         "policy_enforcer": policy_enforcer,
     }
 

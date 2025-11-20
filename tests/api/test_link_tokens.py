@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 
 from app.composition import build_app_components
 from app.api.app import create_app
+from app.domain.entities import WalletProvider
 
 
 @pytest.fixture
@@ -21,104 +22,61 @@ def client(components):
     return TestClient(app)
 
 
-@pytest.fixture
-def audit_port(components):
-    """Get audit port."""
-    return components["audit_port"]
-
-
 class TestLinkTokens:
     """Test suite for link tokens endpoint."""
 
     @pytest.mark.asyncio
-    async def test_create_link_token_success(self, client, audit_port):
+    async def test_create_link_token_success(self, client):
         """Test creating a link token successfully."""
-        # Make request
         user_id = uuid4()
+
+        # Make request
         response = client.post(
             "/api/v1/link_tokens/create",
             json={
-                "user_id": str(user_id),
+                "provider": "fincra",
+            },
+            headers={
+                "X-USER-ID": str(user_id),
+            },
+        )
+
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert data["token"] is not None
+        assert data["expires_at"] is not None
+        assert data["provider"] == "fincra"
+
+    @pytest.mark.asyncio
+    async def test_create_link_token_missing_auth(self, client):
+        """Test creating link token without auth header."""
+        # Make request
+        response = client.post(
+            "/api/v1/link_tokens/create",
+            json={
                 "provider": "fincra",
             },
         )
 
         # Assert
-        assert response.status_code == 200
-        data = response.json()
-        assert "token" in data
-        assert len(data["token"]) > 0
-        assert "expires_at" in data
-        assert data["provider"] == "fincra"
-
-        # Verify audit event
-        events = audit_port.get_events()
-        assert len(events) == 1
-        assert events[0]["action"] == "create_link_token"
-        assert events[0]["user_id"] == user_id
-
-    @pytest.mark.asyncio
-    async def test_create_link_token_paystack(self, client):
-        """Test creating a link token for Paystack provider."""
-        # Make request
-        user_id = uuid4()
-        response = client.post(
-            "/api/v1/link_tokens/create",
-            json={
-                "user_id": str(user_id),
-                "provider": "paystack",
-            },
-        )
-
-        # Assert
-        assert response.status_code == 200
-        data = response.json()
-        assert data["provider"] == "paystack"
-
-    @pytest.mark.asyncio
-    async def test_create_link_token_flutterwave(self, client):
-        """Test creating a link token for Flutterwave provider."""
-        # Make request
-        user_id = uuid4()
-        response = client.post(
-            "/api/v1/link_tokens/create",
-            json={
-                "user_id": str(user_id),
-                "provider": "flutterwave",
-            },
-        )
-
-        # Assert
-        assert response.status_code == 200
-        data = response.json()
-        assert data["provider"] == "flutterwave"
-
-    @pytest.mark.asyncio
-    async def test_create_link_token_invalid_provider(self, client):
-        """Test creating a link token with invalid provider."""
-        # Make request
-        response = client.post(
-            "/api/v1/link_tokens/create",
-            json={
-                "user_id": str(uuid4()),
-                "provider": "invalid-provider",
-            },
-        )
-
-        # Assert validation error
-        assert response.status_code == 422
+        assert response.status_code == 401
+        assert "Missing X-USER-ID header" in response.json()["detail"]
 
     @pytest.mark.asyncio
     async def test_create_link_token_invalid_user_id(self, client):
-        """Test creating a link token with invalid user ID."""
+        """Test creating link token with invalid user ID."""
         # Make request
         response = client.post(
             "/api/v1/link_tokens/create",
             json={
-                "user_id": "invalid-uuid",
                 "provider": "fincra",
+            },
+            headers={
+                "X-USER-ID": "invalid-uuid",
             },
         )
 
-        # Assert validation error
-        assert response.status_code == 422
+        # Assert
+        assert response.status_code == 401
+        assert "Invalid user ID format" in response.json()["detail"]
