@@ -1,5 +1,4 @@
-"""
-Wallet Registry Application Service.
+"""Wallet Registry Application Service.
 
 Provides idempotent and concurrent-safe wallet registration.
 Handles race conditions at the application layer.

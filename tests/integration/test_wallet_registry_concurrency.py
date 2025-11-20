@@ -97,7 +97,7 @@ class TestWalletRegistryConcurrency:
                         idempotency_key=idempotency_key,
                     )
                     return result
-                except Exception as e:
+                except Exception:
                     # Expected for race condition losers
                     return None
 
@@ -107,10 +107,10 @@ class TestWalletRegistryConcurrency:
 
         # Filter out None results (race condition losers)
         successful_results = [r for r in results if r is not None]
-        
+
         # At least one should succeed
         assert len(successful_results) >= 1
-        
+
         # All successful results should have same ID (same wallet)
         wallet_ids = {r.id for r in successful_results}
         assert len(wallet_ids) == 1
@@ -142,7 +142,7 @@ class TestWalletRegistryConcurrency:
                         idempotency_key=f"idem_{idx}",  # Different keys
                     )
                     return result
-                except Exception as e:
+                except Exception:
                     # Expected for race condition losers
                     return None
 
@@ -152,10 +152,10 @@ class TestWalletRegistryConcurrency:
 
         # Filter out None results
         successful_results = [r for r in results if r is not None]
-        
+
         # At least one should succeed
         assert len(successful_results) >= 1
-        
+
         # All successful results should have same ID (same wallet)
         wallet_ids = {r.id for r in successful_results}
         assert len(wallet_ids) == 1
@@ -193,7 +193,7 @@ class TestWalletRegistryConcurrency:
         # All should succeed
         assert len(results) == 5
         assert all(r is not None for r in results)
-        
+
         # All should have different IDs (different wallets)
         wallet_ids = {r.id for r in results}
         assert len(wallet_ids) == 5

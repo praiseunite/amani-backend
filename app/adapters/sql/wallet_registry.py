@@ -1,11 +1,10 @@
-"""
-SQLAlchemy Core adapter for wallet registry.
+"""SQLAlchemy Core adapter for wallet registry.
 
 Uses raw SQLAlchemy Core Table API for maximum control over constraint handling.
 Raises IntegrityError on unique constraint violations for race condition handling.
 """
 from typing import Optional
-from uuid import UUID, uuid4
+from uuid import UUID
 from datetime import datetime
 
 from sqlalchemy import Table, Column, String, Boolean, DateTime, BigInteger, JSON, select
@@ -28,7 +27,7 @@ class SQLWalletRegistry(WalletRegistryPort):
             metadata: SQLAlchemy metadata for table reflection
         """
         self.session = session
-        
+
         # Define the wallet_registry table using SQLAlchemy Core
         self.wallet_registry = Table(
             "wallet_registry",
@@ -63,7 +62,7 @@ class SQLWalletRegistry(WalletRegistryPort):
             IntegrityError: On unique constraint violations (for race condition handling)
         """
         now = datetime.utcnow()
-        
+
         # Prepare insert values
         values = {
             "external_id": entry.id,
@@ -80,12 +79,12 @@ class SQLWalletRegistry(WalletRegistryPort):
 
         # Insert the record - may raise IntegrityError on constraint violation
         stmt = self.wallet_registry.insert().values(**values).returning(self.wallet_registry)
-        
+
         try:
             result = await self.session.execute(stmt)
             await self.session.commit()
             row = result.fetchone()
-            
+
             # Convert row to WalletRegistryEntry
             return self._row_to_entry(row)
         except IntegrityError:
@@ -111,10 +110,10 @@ class SQLWalletRegistry(WalletRegistryPort):
         )
         result = await self.session.execute(stmt)
         row = result.fetchone()
-        
+
         if row is None:
             return None
-        
+
         return self._row_to_entry(row)
 
     async def get_by_idempotency_key(
@@ -133,10 +132,10 @@ class SQLWalletRegistry(WalletRegistryPort):
         )
         result = await self.session.execute(stmt)
         row = result.fetchone()
-        
+
         if row is None:
             return None
-        
+
         return self._row_to_entry(row)
 
     async def get_by_provider_wallet(
@@ -159,10 +158,10 @@ class SQLWalletRegistry(WalletRegistryPort):
         )
         result = await self.session.execute(stmt)
         row = result.fetchone()
-        
+
         if row is None:
             return None
-        
+
         return self._row_to_entry(row)
 
     def _row_to_entry(self, row) -> WalletRegistryEntry:
