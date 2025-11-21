@@ -1,7 +1,7 @@
 """Unit tests for SQL adapter duplicate error translation."""
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 from sqlalchemy.exc import IntegrityError
 
@@ -23,6 +23,7 @@ class TestSQLAdapterDuplicateTranslation:
     def mock_metadata(self):
         """Create a mock metadata object."""
         from sqlalchemy import MetaData
+
         return MetaData()
 
     @pytest.fixture
@@ -62,10 +63,10 @@ class TestSQLAdapterDuplicateTranslation:
 
         # Verify the error message
         assert "unique constraint" in str(exc_info.value).lower()
-        
+
         # Verify the original error is preserved as __cause__
         assert exc_info.value.__cause__ is integrity_error
-        
+
         # Verify rollback was called
         mock_session.rollback.assert_called_once()
 
@@ -88,19 +89,17 @@ class TestSQLAdapterDuplicateTranslation:
 
         # Verify the original error is preserved
         assert exc_info.value.__cause__ is integrity_error
-        
+
         # Verify rollback was called
         mock_session.rollback.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_successful_register_returns_entry(
-        self, sql_adapter, sample_entry, mock_session
-    ):
+    async def test_successful_register_returns_entry(self, sql_adapter, sample_entry, mock_session):
         """Test that successful registration returns the entry without errors."""
         # Mock successful execution
         mock_result = MagicMock()
         mock_row = MagicMock()
-        
+
         # Mock the _mapping property to return dict-like access
         mock_row._mapping = {
             "external_id": sample_entry.id,
@@ -113,7 +112,7 @@ class TestSQLAdapterDuplicateTranslation:
             "created_at": sample_entry.created_at,
             "updated_at": sample_entry.updated_at,
         }
-        
+
         mock_result.fetchone.return_value = mock_row
         mock_session.execute.return_value = mock_result
 
@@ -124,20 +123,18 @@ class TestSQLAdapterDuplicateTranslation:
         assert result.id == sample_entry.id
         assert result.user_id == sample_entry.user_id
         assert result.provider == sample_entry.provider
-        
+
         # Verify commit was called (not rollback)
         mock_session.commit.assert_called_once()
         mock_session.rollback.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_row_mapping_used_for_safe_access(
-        self, sql_adapter, sample_entry, mock_session
-    ):
+    async def test_row_mapping_used_for_safe_access(self, sql_adapter, sample_entry, mock_session):
         """Test that _row_to_entry uses row._mapping for safe access."""
         # Mock successful execution
         mock_result = MagicMock()
         mock_row = MagicMock()
-        
+
         # Set up _mapping to return data
         test_data = {
             "external_id": sample_entry.id,
@@ -151,7 +148,7 @@ class TestSQLAdapterDuplicateTranslation:
             "updated_at": sample_entry.updated_at,
         }
         mock_row._mapping = test_data
-        
+
         mock_result.fetchone.return_value = mock_row
         mock_session.execute.return_value = mock_result
 
