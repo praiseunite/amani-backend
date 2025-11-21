@@ -8,16 +8,23 @@ from app.ports.user_repository import UserRepositoryPort
 from app.ports.wallet_registry import WalletRegistryPort
 from app.ports.api_key import ApiKeyPort
 from app.ports.event_publisher import EventPublisherPort
+from app.ports.wallet_event_ingestion import WalletEventIngestionPort
 from app.adapters.inmemory.link_token_repo import InMemoryLinkTokenRepository
 from app.adapters.inmemory.audit import InMemoryAudit
 from app.adapters.inmemory.user_repo import InMemoryUserRepository
 from app.adapters.inmemory.wallet_registry import InMemoryWalletRegistry
 from app.adapters.inmemory.api_key_repo import InMemoryApiKeyRepository
 from app.adapters.inmemory.event_publisher import InMemoryEventPublisher
+from app.adapters.inmemory.wallet_event_ingestion import InMemoryWalletEventIngestion
+from app.application.services.wallet_event_ingestion_service import WalletEventIngestionService
 from app.application.use_cases.create_link_token import CreateLinkTokenUseCase
 from app.application.use_cases.bot_link import BotLinkUseCase, BotLinkService
 from app.application.use_cases.register_wallet import RegisterWalletUseCase
 from app.application.use_cases.get_user_status import GetUserStatusUseCase
+from app.application.use_cases.wallet_events import (
+    IngestWalletEventUseCase,
+    ListWalletEventsUseCase,
+)
 
 
 def build_in_memory_services():
@@ -33,6 +40,7 @@ def build_in_memory_services():
     wallet_registry_port: WalletRegistryPort = InMemoryWalletRegistry()
     api_key_port: ApiKeyPort = InMemoryApiKeyRepository()
     event_publisher_port: EventPublisherPort = InMemoryEventPublisher()
+    wallet_event_ingestion_port: WalletEventIngestionPort = InMemoryWalletEventIngestion()
 
     # Create domain services
     policy_enforcer = PolicyEnforcer()
@@ -43,6 +51,10 @@ def build_in_memory_services():
     )
     wallet_registry_service = WalletRegistryService(
         wallet_registry_port=wallet_registry_port,
+        audit_port=audit_port,
+    )
+    wallet_event_ingestion_service = WalletEventIngestionService(
+        event_ingestion_port=wallet_event_ingestion_port,
         audit_port=audit_port,
     )
     bot_link_service = BotLinkService(
@@ -56,19 +68,29 @@ def build_in_memory_services():
         wallet_registry_service=wallet_registry_service
     )
     get_user_status_use_case = GetUserStatusUseCase(user_repository=user_repository_port)
+    ingest_wallet_event_use_case = IngestWalletEventUseCase(
+        service=wallet_event_ingestion_service
+    )
+    list_wallet_events_use_case = ListWalletEventsUseCase(
+        service=wallet_event_ingestion_service
+    )
 
     return {
         "link_token_service": link_token_service,
         "wallet_registry_service": wallet_registry_service,
+        "wallet_event_ingestion_service": wallet_event_ingestion_service,
         "bot_link_service": bot_link_service,
         "create_link_token_use_case": create_link_token_use_case,
         "bot_link_use_case": bot_link_use_case,
         "register_wallet_use_case": register_wallet_use_case,
         "get_user_status_use_case": get_user_status_use_case,
+        "ingest_wallet_event_use_case": ingest_wallet_event_use_case,
+        "list_wallet_events_use_case": list_wallet_events_use_case,
         "link_token_port": link_token_port,
         "audit_port": audit_port,
         "user_repository_port": user_repository_port,
         "wallet_registry_port": wallet_registry_port,
+        "wallet_event_ingestion_port": wallet_event_ingestion_port,
         "api_key_port": api_key_port,
         "event_publisher_port": event_publisher_port,
         "policy_enforcer": policy_enforcer,

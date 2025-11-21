@@ -1,53 +1,63 @@
-"""Integration tests for wallet event ingestion with database."""
+"""Integration tests for wallet event ingestion with database.
 
-import pytest
+These tests require a test database and are gated by TEST_DATABASE_URL environment variable.
+Run `alembic upgrade head` before running these tests.
+"""
+
+import os
 import asyncio
+import pytest
 from uuid import uuid4
 from datetime import datetime
 
 from sqlalchemy import MetaData
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 
 from app.domain.entities import WalletProvider, WalletEventType, WalletTransactionEvent
 from app.adapters.sql.wallet_event_ingestion import SQLWalletEventIngestion
 from app.errors import DuplicateEntryError
 
 
-@pytest.fixture
+# Skip all tests if TEST_DATABASE_URL not set
+pytestmark = pytest.mark.skipif(
+    not os.getenv("TEST_DATABASE_URL"),
+    reason="TEST_DATABASE_URL not set - integration tests require database"
+)
+
+
+@pytest.fixture(scope="module")
 async def db_engine():
-    """Create in-memory SQLite database engine for testing."""
-    # Use in-memory SQLite for fast testing
-    engine = create_async_engine(
-        "sqlite+aiosqlite:///:memory:",
-        echo=False,
-    )
-    
+    """Create test database engine."""
+    database_url = os.getenv("TEST_DATABASE_URL")
+    engine = create_async_engine(database_url, echo=False)
     yield engine
-    
     await engine.dispose()
+
+
+@pytest.fixture(scope="module")
+async def db_metadata():
+    """Create metadata for table definitions."""
+    return MetaData()
 
 
 @pytest.fixture
 async def db_session(db_engine):
-    """Create database session."""
-    metadata = MetaData()
-    
-    # Create tables
-    async with db_engine.begin() as conn:
-        await conn.run_sync(metadata.create_all)
-    
-    async with AsyncSession(db_engine, expire_on_commit=False) as session:
-        yield session, metadata
+    """Create a new database session for each test."""
+    async_session = async_sessionmaker(
+        db_engine, class_=AsyncSession, expire_on_commit=False
+    )
+    async with async_session() as session:
+        yield session
+        await session.rollback()
 
 
 class TestWalletEventIngestionConcurrency:
     """Test suite for concurrent wallet event ingestion."""
 
     @pytest.mark.asyncio
-    async def test_concurrent_ingestion_same_event(self, db_session):
+    async def test_concurrent_ingestion_same_event(self, db_session, db_metadata):
         """Test concurrent ingestion of same event (race condition)."""
-        session, metadata = db_session
-        adapter = SQLWalletEventIngestion(session, metadata)
+        adapter = SQLWalletEventIngestion(db_session, db_metadata)
         
         wallet_id = uuid4()
         event_id = uuid4()
@@ -77,10 +87,9 @@ class TestWalletEventIngestionConcurrency:
         assert result2.id == event_id
 
     @pytest.mark.asyncio
-    async def test_concurrent_ingestion_different_events(self, db_session):
+    async def test_concurrent_ingestion_different_events(self, db_session, db_metadata):
         """Test concurrent ingestion of different events."""
-        session, metadata = db_session
-        adapter = SQLWalletEventIngestion(session, metadata)
+        adapter = SQLWalletEventIngestion(db_session, db_metadata)
         
         wallet_id = uuid4()
         occurred_at = datetime.utcnow()
@@ -108,10 +117,9 @@ class TestWalletEventIngestionConcurrency:
         assert len(set(event_ids)) == 5  # All unique
 
     @pytest.mark.asyncio
-    async def test_list_events_after_concurrent_ingestion(self, db_session):
+    async def test_list_events_after_concurrent_ingestion(self, db_session, db_metadata):
         """Test listing events after concurrent ingestion."""
-        session, metadata = db_session
-        adapter = SQLWalletEventIngestion(session, metadata)
+        adapter = SQLWalletEventIngestion(db_session, db_metadata)
         
         wallet_id = uuid4()
         occurred_at = datetime.utcnow()
@@ -143,10 +151,9 @@ class TestWalletEventIngestionConcurrency:
         assert all(e.wallet_id == wallet_id for e in events)
 
     @pytest.mark.asyncio
-    async def test_pagination_correctness(self, db_session):
+    async def test_pagination_correctness(self, db_session, db_metadata):
         """Test pagination returns correct and consistent results."""
-        session, metadata = db_session
-        adapter = SQLWalletEventIngestion(session, metadata)
+        adapter = SQLWalletEventIngestion(db_session, db_metadata)
         
         wallet_id = uuid4()
         occurred_at = datetime.utcnow()
@@ -181,10 +188,9 @@ class TestWalletEventIngestionConcurrency:
         assert len(set(all_ids)) == 15  # All unique
 
     @pytest.mark.asyncio
-    async def test_get_by_provider_event_id(self, db_session):
+    async def test_get_by_provider_event_id(self, db_session, db_metadata):
         """Test getting event by provider event ID."""
-        session, metadata = db_session
-        adapter = SQLWalletEventIngestion(session, metadata)
+        adapter = SQLWalletEventIngestion(db_session, db_metadata)
         
         wallet_id = uuid4()
         provider = WalletProvider.FINCRA
@@ -211,10 +217,9 @@ class TestWalletEventIngestionConcurrency:
         assert result.provider_event_id == provider_event_id
 
     @pytest.mark.asyncio
-    async def test_provider_event_id_uniqueness(self, db_session):
+    async def test_provider_event_id_uniqueness(self, db_session, db_metadata):
         """Test that provider_event_id prevents duplicates."""
-        session, metadata = db_session
-        adapter = SQLWalletEventIngestion(session, metadata)
+        adapter = SQLWalletEventIngestion(db_session, db_metadata)
         
         wallet_id = uuid4()
         provider = WalletProvider.FINCRA
