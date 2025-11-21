@@ -46,12 +46,17 @@ class TestWalletBalanceSyncAPI:
             wallet_balance_sync_service
         )
 
+        # Create a mock HMAC auth dependency for testing
+        async def mock_hmac_auth():
+            """Mock HMAC auth that always succeeds for testing."""
+            return "test-key-id"
+
         # Create app and router
         app = FastAPI()
         router = create_wallets_router(
             register_wallet_use_case=register_wallet_use_case,
+            hmac_auth_dependency=mock_hmac_auth,
             sync_wallet_balance_use_case=sync_wallet_balance_use_case,
-            hmac_auth_dependency=None,  # No auth for testing
         )
         app.include_router(router)
 

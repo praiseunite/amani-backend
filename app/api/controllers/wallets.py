@@ -53,15 +53,15 @@ class BalanceSnapshotResponse(BaseModel):
 
 def create_wallets_router(
     register_wallet_use_case: RegisterWalletUseCase,
+    hmac_auth_dependency,
     sync_wallet_balance_use_case: Optional[SyncWalletBalanceUseCase] = None,
-    hmac_auth_dependency=None,
 ):
     """Create wallets router.
 
     Args:
         register_wallet_use_case: Use case for wallet registration
+        hmac_auth_dependency: HMAC auth dependency (required)
         sync_wallet_balance_use_case: Use case for wallet balance synchronization
-        hmac_auth_dependency: HMAC auth dependency
 
     Returns:
         FastAPI router
@@ -71,7 +71,7 @@ def create_wallets_router(
     @router.post("/register", response_model=RegisterWalletResponse)
     async def register_wallet(
         request: RegisterWalletRequest,
-        api_key_id: str = Depends(hmac_auth_dependency) if hmac_auth_dependency else None,
+        api_key_id: str = Depends(hmac_auth_dependency),
     ):
         """Register a wallet for a user (idempotent).
 
@@ -107,7 +107,7 @@ def create_wallets_router(
         async def sync_balance(
             wallet_id: UUID,
             idempotency_key: Optional[str] = None,
-            api_key_id: str = Depends(hmac_auth_dependency) if hmac_auth_dependency else None,
+            api_key_id: str = Depends(hmac_auth_dependency),
         ):
             """Synchronize wallet balance (idempotent).
 
@@ -141,7 +141,7 @@ def create_wallets_router(
         @router.get("/{wallet_id}/balance", response_model=BalanceSnapshotResponse)
         async def get_balance(
             wallet_id: UUID,
-            api_key_id: str = Depends(hmac_auth_dependency) if hmac_auth_dependency else None,
+            api_key_id: str = Depends(hmac_auth_dependency),
         ):
             """Get latest balance snapshot for a wallet.
 
