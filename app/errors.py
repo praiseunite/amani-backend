@@ -7,7 +7,6 @@ by adapters to decouple the application layer from infrastructure-specific error
 
 class DuplicateEntryError(Exception):
     """Raised when attempting to create a duplicate entry that violates uniqueness constraints.
-
     This domain-level error is raised by adapters when they encounter
     database-specific constraint violations (e.g., SQLAlchemy IntegrityError).
     It allows the application layer to handle duplicates consistently

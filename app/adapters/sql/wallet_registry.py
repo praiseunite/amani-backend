@@ -1,7 +1,7 @@
 """SQLAlchemy Core adapter for wallet registry.
 
 Uses raw SQLAlchemy Core Table API for maximum control over constraint handling.
-Raises IntegrityError on unique constraint violations for race condition handling.
+Raises DuplicateEntryError on unique constraint violations for race condition handling.
 """
 
 from typing import Optional
