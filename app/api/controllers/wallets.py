@@ -3,7 +3,7 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Callable, Awaitable
 from datetime import datetime
 
 from app.domain.entities import WalletProvider
@@ -53,7 +53,7 @@ class BalanceSnapshotResponse(BaseModel):
 
 def create_wallets_router(
     register_wallet_use_case: RegisterWalletUseCase,
-    hmac_auth_dependency,
+    hmac_auth_dependency: Callable[[], Awaitable[str]],
     sync_wallet_balance_use_case: Optional[SyncWalletBalanceUseCase] = None,
 ):
     """Create wallets router.
