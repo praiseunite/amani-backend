@@ -5,7 +5,7 @@ SQLAlchemy IntegrityError into the domain-level DuplicateEntryError.
 """
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import MetaData

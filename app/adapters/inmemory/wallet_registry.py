@@ -27,7 +27,7 @@ class InMemoryWalletRegistry(WalletRegistryPort):
 
         Returns:
             The registered wallet entry
-        
+
         Raises:
             DuplicateEntryError: On duplicate wallet registration
         """
