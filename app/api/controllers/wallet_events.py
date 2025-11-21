@@ -54,7 +54,7 @@ class EventListResponse(BaseModel):
 def create_wallet_events_router(
     ingest_event_use_case: IngestWalletEventUseCase,
     list_events_use_case: ListWalletEventsUseCase,
-    hmac_auth_dependency=None,
+    hmac_auth_dependency,
 ):
     """Create wallet events router.
 
@@ -72,7 +72,7 @@ def create_wallet_events_router(
     async def ingest_event(
         wallet_id: UUID,
         request: IngestEventRequest,
-        api_key_id: str = (Depends(hmac_auth_dependency) if hmac_auth_dependency else None),  # noqa: B008
+        api_key_id: str = Depends(hmac_auth_dependency),
     ):
         """Ingest a wallet transaction event (idempotent).
 
@@ -123,7 +123,7 @@ def create_wallet_events_router(
         wallet_id: UUID,
         limit: int = 100,
         offset: int = 0,
-        api_key_id: str = (Depends(hmac_auth_dependency) if hmac_auth_dependency else None),  # noqa: B008
+        api_key_id: str = Depends(hmac_auth_dependency),
     ):
         """List wallet transaction events.
 
