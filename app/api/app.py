@@ -30,9 +30,7 @@ def create_app(components: dict) -> FastAPI:
     hmac_auth_dependency = create_hmac_auth_dependency(components["api_key_port"])
 
     # Create routers with dependencies
-    link_tokens_router = create_link_tokens_router(
-        components["create_link_token_use_case"]
-    )
+    link_tokens_router = create_link_tokens_router(components["create_link_token_use_case"])
     bot_link_router = create_bot_link_router(
         components["bot_link_use_case"],
         hmac_auth_dependency,
@@ -45,9 +43,7 @@ def create_app(components: dict) -> FastAPI:
         components["get_user_status_use_case"],
         hmac_auth_dependency,
     )
-    events_admin_router = create_events_admin_router(
-        components["event_publisher_port"]
-    )
+    events_admin_router = create_events_admin_router(components["event_publisher_port"])
     wallet_events_router = create_wallet_events_router(
         components["ingest_wallet_event_use_case"],
         components["list_wallet_events_use_case"],

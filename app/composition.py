@@ -68,12 +68,8 @@ def build_in_memory_services():
         wallet_registry_service=wallet_registry_service
     )
     get_user_status_use_case = GetUserStatusUseCase(user_repository=user_repository_port)
-    ingest_wallet_event_use_case = IngestWalletEventUseCase(
-        service=wallet_event_ingestion_service
-    )
-    list_wallet_events_use_case = ListWalletEventsUseCase(
-        service=wallet_event_ingestion_service
-    )
+    ingest_wallet_event_use_case = IngestWalletEventUseCase(service=wallet_event_ingestion_service)
+    list_wallet_events_use_case = ListWalletEventsUseCase(service=wallet_event_ingestion_service)
 
     return {
         "link_token_service": link_token_service,

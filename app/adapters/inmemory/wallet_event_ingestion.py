@@ -5,7 +5,6 @@ from uuid import UUID
 
 from app.domain.entities import WalletTransactionEvent
 from app.ports.wallet_event_ingestion import WalletEventIngestionPort
-from app.errors import DuplicateEntryError
 
 
 class InMemoryWalletEventIngestion(WalletEventIngestionPort):
@@ -108,9 +107,6 @@ class InMemoryWalletEventIngestion(WalletEventIngestionPort):
             Wallet transaction event if found, None otherwise
         """
         for event in self._events:
-            if (
-                event.provider.value == provider
-                and event.provider_event_id == provider_event_id
-            ):
+            if event.provider.value == provider and event.provider_event_id == provider_event_id:
                 return event
         return None

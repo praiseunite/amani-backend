@@ -72,7 +72,7 @@ def create_wallet_events_router(
     async def ingest_event(
         wallet_id: UUID,
         request: IngestEventRequest,
-        api_key_id: str = Depends(hmac_auth_dependency) if hmac_auth_dependency else None,
+        api_key_id: str = (Depends(hmac_auth_dependency) if hmac_auth_dependency else None),  # noqa: B008
     ):
         """Ingest a wallet transaction event (idempotent).
 
@@ -123,7 +123,7 @@ def create_wallet_events_router(
         wallet_id: UUID,
         limit: int = 100,
         offset: int = 0,
-        api_key_id: str = Depends(hmac_auth_dependency) if hmac_auth_dependency else None,
+        api_key_id: str = (Depends(hmac_auth_dependency) if hmac_auth_dependency else None),  # noqa: B008
     ):
         """List wallet transaction events.
 
@@ -140,9 +140,7 @@ def create_wallet_events_router(
         """
         # Validate pagination parameters
         if limit < 1 or limit > 1000:
-            raise HTTPException(
-                status_code=400, detail="limit must be between 1 and 1000"
-            )
+            raise HTTPException(status_code=400, detail="limit must be between 1 and 1000")
         if offset < 0:
             raise HTTPException(status_code=400, detail="offset must be non-negative")
 
