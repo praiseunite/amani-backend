@@ -75,9 +75,7 @@ class TestSQLAdapterDuplicateTranslation:
         assert isinstance(exc_info.value.__cause__, IntegrityError)
 
     @pytest.mark.asyncio
-    async def test_integrity_error_with_idempotency_key(
-        self, sql_adapter, mock_session
-    ):
+    async def test_integrity_error_with_idempotency_key(self, sql_adapter, mock_session):
         """Test IntegrityError translation when duplicate idempotency_key."""
         entry = WalletRegistryEntry(
             id=uuid4(),

@@ -3,6 +3,7 @@
 Uses raw SQLAlchemy Core Table API for maximum control over constraint handling.
 Raises IntegrityError on unique constraint violations for race condition handling.
 """
+
 from typing import Optional
 from uuid import UUID
 from datetime import datetime
@@ -36,7 +37,11 @@ class SQLWalletRegistry(WalletRegistryPort):
             Column("id", BigInteger, primary_key=True, autoincrement=True),
             Column("external_id", PG_UUID(as_uuid=True), nullable=False, unique=True, index=True),
             Column("user_id", PG_UUID(as_uuid=True), nullable=False, index=True),
-            Column("provider", ENUM("fincra", "paystack", "flutterwave", name="wallet_provider"), nullable=False),
+            Column(
+                "provider",
+                ENUM("fincra", "paystack", "flutterwave", name="wallet_provider"),
+                nullable=False,
+            ),
             Column("provider_account_id", String(255), nullable=False),
             Column("provider_customer_id", String(255), nullable=True),
             Column("idempotency_key", String(255), nullable=True, unique=True, index=True),
@@ -91,9 +96,7 @@ class SQLWalletRegistry(WalletRegistryPort):
         except IntegrityError as e:
             # Translate DB-specific IntegrityError to domain-level DuplicateEntryError
             await self.session.rollback()
-            raise DuplicateEntryError(
-                "Duplicate wallet registration detected"
-            ) from e
+            raise DuplicateEntryError("Duplicate wallet registration detected") from e
 
     async def get_by_provider(
         self, user_id: UUID, provider: WalletProvider
@@ -119,9 +122,7 @@ class SQLWalletRegistry(WalletRegistryPort):
 
         return self._row_to_entry(row)
 
-    async def get_by_idempotency_key(
-        self, idempotency_key: str
-    ) -> Optional[WalletRegistryEntry]:
+    async def get_by_idempotency_key(self, idempotency_key: str) -> Optional[WalletRegistryEntry]:
         """Get wallet by idempotency key.
 
         Args:
