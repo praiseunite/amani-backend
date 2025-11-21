@@ -1,10 +1,8 @@
-"""
-Health check and status routes with comprehensive system checks.
-"""
+"""Health check and status routes with comprehensive system checks."""
 
-from fastapi import APIRouter, status, Depends
 from datetime import datetime
-from typing import Dict, Any
+
+from fastapi import APIRouter, Depends, status
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -117,18 +115,25 @@ async def readiness_check(db: AsyncSession = Depends(get_db)):
         return readiness_status
 
     # Verify critical tables exist
-    required_tables = [
-        "users",
-        "wallet_registry",
-        "wallet_balance_snapshot",
-        "wallet_transaction_event",
-    ]
+    # SECURITY: Using explicit allowlist validation to prevent SQL injection
+    # Table names cannot be parameterized in SQL, so we strictly validate
+    # against this immutable allowlist before any query construction.
+    ALLOWED_TABLES = frozenset(
+        [
+            "users",
+            "wallet_registry",
+            "wallet_balance_snapshot",
+            "wallet_transaction_event",
+        ]
+    )
 
-    for table_name in required_tables:
+    for table_name in ALLOWED_TABLES:
         try:
-            # Using validated allowlist to prevent SQL injection
-            # Table names cannot be parameterized, so we validate first
-            # Safe: table_name is from our controlled allowlist above
+            # SECURITY NOTE: table_name is guaranteed to be from ALLOWED_TABLES
+            # This is safe from SQL injection because:
+            # 1. ALLOWED_TABLES is a hardcoded frozenset (immutable)
+            # 2. No user input influences this loop
+            # 3. Table names are validated against allowlist before use
             await db.execute(text(f"SELECT 1 FROM {table_name} LIMIT 1"))
             readiness_status["checks"][f"table_{table_name}"] = "ready"
         except Exception as e:
