@@ -1,7 +1,7 @@
 """SQLAlchemy Core adapter for wallet registry.
 
 Uses raw SQLAlchemy Core Table API for maximum control over constraint handling.
-Raises IntegrityError on unique constraint violations for race condition handling.
+Translates IntegrityError to domain-level DuplicateEntryError for race condition handling.
 """
 from typing import Optional
 from uuid import UUID
@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.entities import WalletRegistryEntry, WalletProvider
 from app.ports.wallet_registry import WalletRegistryPort
+from app.errors import DuplicateEntryError
 
 
 class SQLWalletRegistry(WalletRegistryPort):
@@ -59,7 +60,7 @@ class SQLWalletRegistry(WalletRegistryPort):
             The registered wallet entry
 
         Raises:
-            IntegrityError: On unique constraint violations (for race condition handling)
+            DuplicateEntryError: On unique constraint violations (for race condition handling)
         """
         now = datetime.utcnow()
 
@@ -87,10 +88,12 @@ class SQLWalletRegistry(WalletRegistryPort):
 
             # Convert row to WalletRegistryEntry
             return self._row_to_entry(row)
-        except IntegrityError:
-            # Let IntegrityError propagate for the service layer to handle
+        except IntegrityError as e:
+            # Translate DB-specific IntegrityError to domain-level DuplicateEntryError
             await self.session.rollback()
-            raise
+            raise DuplicateEntryError(
+                "Duplicate wallet registration detected"
+            ) from e
 
     async def get_by_provider(
         self, user_id: UUID, provider: WalletProvider
@@ -173,14 +176,16 @@ class SQLWalletRegistry(WalletRegistryPort):
         Returns:
             WalletRegistryEntry instance
         """
+        # Use _mapping for safe attribute access
+        data = row._mapping
         return WalletRegistryEntry(
-            id=row.external_id,
-            user_id=row.user_id,
-            provider=WalletProvider(row.provider),
-            provider_account_id=row.provider_account_id,
-            provider_customer_id=row.provider_customer_id,
-            metadata=row.metadata or {},
-            is_active=row.is_active,
-            created_at=row.created_at,
-            updated_at=row.updated_at,
+            id=data["external_id"],
+            user_id=data["user_id"],
+            provider=WalletProvider(data["provider"]),
+            provider_account_id=data["provider_account_id"],
+            provider_customer_id=data["provider_customer_id"],
+            metadata=data["metadata"] or {},
+            is_active=data["is_active"],
+            created_at=data["created_at"],
+            updated_at=data["updated_at"],
         )
