@@ -3,6 +3,7 @@
 Provides idempotent and concurrent-safe wallet registration.
 Handles race conditions at the application layer.
 """
+
 from typing import Optional
 from uuid import UUID
 
@@ -58,9 +59,7 @@ class WalletRegistryService:
         """
         # Step 1: Check if already registered by idempotency_key
         if idempotency_key:
-            existing = await self.wallet_registry_port.get_by_idempotency_key(
-                idempotency_key
-            )
+            existing = await self.wallet_registry_port.get_by_idempotency_key(idempotency_key)
             if existing:
                 return existing
 
@@ -110,9 +109,7 @@ class WalletRegistryService:
             # Fetch and return the existing entry
             # Try fetching by idempotency_key first
             if idempotency_key:
-                existing = await self.wallet_registry_port.get_by_idempotency_key(
-                    idempotency_key
-                )
+                existing = await self.wallet_registry_port.get_by_idempotency_key(idempotency_key)
                 if existing:
                     return existing
 

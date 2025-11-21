@@ -1,24 +1,16 @@
-"""Domain-level exceptions for the application.
+"""Domain-level error definitions.
 
-These are domain errors that adapters should translate database-specific
-errors into for cleaner separation of concerns.
+These errors represent business/domain exceptions and should be raised
+by adapters to decouple the application layer from infrastructure-specific errors.
 """
 
 
 class DuplicateEntryError(Exception):
     """Raised when attempting to create a duplicate entry that violates uniqueness constraints.
-
-    This is a domain-level error that adapters should raise when database-level
-    IntegrityError or unique constraint violations occur.
+    This domain-level error is raised by adapters when they encounter
+    database-specific constraint violations (e.g., SQLAlchemy IntegrityError).
+    It allows the application layer to handle duplicates consistently
+    without depending on infrastructure-specific exception types.
     """
 
-    def __init__(self, message: str = "Duplicate entry detected", original_error: Exception = None):
-        """Initialize the duplicate entry error.
-
-        Args:
-            message: Human-readable error message
-            original_error: The original database-specific exception (preserved as __cause__)
-        """
-        super().__init__(message)
-        if original_error:
-            self.__cause__ = original_error
+    pass

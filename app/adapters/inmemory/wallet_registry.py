@@ -27,6 +27,9 @@ class InMemoryWalletRegistry(WalletRegistryPort):
 
         Returns:
             The registered wallet entry
+
+        Raises:
+            DuplicateEntryError: On duplicate registration
         """
         # Check for duplicate provider + provider_wallet_id
         existing = await self.get_by_provider_wallet(
@@ -61,9 +64,7 @@ class InMemoryWalletRegistry(WalletRegistryPort):
                 return wallet
         return None
 
-    async def get_by_idempotency_key(
-        self, idempotency_key: str
-    ) -> Optional[WalletRegistryEntry]:
+    async def get_by_idempotency_key(self, idempotency_key: str) -> Optional[WalletRegistryEntry]:
         """Get wallet by idempotency key.
 
         Args:
