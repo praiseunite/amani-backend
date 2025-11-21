@@ -7,7 +7,6 @@ Raises DuplicateEntryError on unique constraint violations for race condition ha
 from typing import Optional
 from uuid import UUID
 from datetime import datetime
-from decimal import Decimal
 
 from sqlalchemy import Table, Column, String, DateTime, BigInteger, JSON, Numeric, select
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID, ENUM

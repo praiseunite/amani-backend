@@ -8,7 +8,7 @@ from typing import Optional
 from uuid import UUID
 from datetime import datetime
 
-from app.domain.entities import WalletBalanceSnapshot, WalletRegistryEntry, WalletProvider
+from app.domain.entities import WalletBalanceSnapshot, WalletProvider
 from app.ports.wallet_balance_sync import WalletBalanceSyncPort
 from app.ports.wallet_provider import WalletProviderPort
 from app.ports.wallet_registry import WalletRegistryPort
@@ -75,7 +75,7 @@ class WalletBalanceSyncService:
         # This is a known limitation that should be addressed when integrating with
         # the wallet registry lookup functionality.
         latest = await self.wallet_balance_sync_port.get_latest(wallet_id)
-        
+
         # If no latest snapshot, we need wallet info - for this implementation
         # we'll use a default provider (in production this should be fetched from registry)
         provider = latest.provider if latest else WalletProvider.FINCRA
@@ -149,7 +149,7 @@ class WalletBalanceSyncService:
         except DuplicateEntryError:
             # Handle race condition - another request created the snapshot
             # Fetch and return the existing snapshot
-            
+
             # Try fetching by idempotency_key first
             if idempotency_key:
                 existing = await self.wallet_balance_sync_port.get_by_idempotency_key(

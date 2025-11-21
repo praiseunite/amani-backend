@@ -9,7 +9,7 @@ from app.domain.entities import WalletBalanceSnapshot
 
 class WalletBalanceSyncPort(ABC):
     """Port for wallet balance synchronization operations.
-    
+
     Note: This port provides storage and retrieval operations for balance snapshots.
     The actual synchronization logic (fetching from providers, etc.) is handled
     by the WalletBalanceSyncService in the application layer.

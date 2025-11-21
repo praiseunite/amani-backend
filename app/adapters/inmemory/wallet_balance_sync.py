@@ -2,7 +2,6 @@
 
 from typing import Dict, List, Optional
 from uuid import UUID
-from datetime import datetime
 
 from app.domain.entities import WalletBalanceSnapshot
 from app.ports.wallet_balance_sync import WalletBalanceSyncPort
