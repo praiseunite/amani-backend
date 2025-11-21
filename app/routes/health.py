@@ -126,6 +126,9 @@ async def readiness_check(db: AsyncSession = Depends(get_db)):
 
     for table_name in required_tables:
         try:
+            # Using validated allowlist to prevent SQL injection
+            # Table names cannot be parameterized, so we validate first
+            # Safe: table_name is from our controlled allowlist above
             await db.execute(text(f"SELECT 1 FROM {table_name} LIMIT 1"))
             readiness_status["checks"][f"table_{table_name}"] = "ready"
         except Exception as e:

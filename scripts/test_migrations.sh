@@ -58,7 +58,7 @@ echo ""
 
 # Test 4: Re-apply last migration
 echo -e "${GREEN}Test 4: Re-applying last migration...${NC}"
-alembic upgrade +1
+alembic upgrade head
 check_migration_state
 echo -e "${GREEN}✓ Re-apply successful${NC}"
 echo ""
