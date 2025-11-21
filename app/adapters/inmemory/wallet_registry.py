@@ -5,6 +5,7 @@ from uuid import UUID
 
 from app.domain.entities import WalletRegistryEntry, WalletProvider
 from app.ports.wallet_registry import WalletRegistryPort
+from app.errors import DuplicateEntryError
 
 
 class InMemoryWalletRegistry(WalletRegistryPort):
@@ -26,17 +27,20 @@ class InMemoryWalletRegistry(WalletRegistryPort):
 
         Returns:
             The registered wallet entry
+
+        Raises:
+            DuplicateEntryError: On duplicate registration
         """
         # Check for duplicate provider + provider_wallet_id
         existing = await self.get_by_provider_wallet(
             entry.user_id, entry.provider, entry.provider_account_id
         )
         if existing:
-            raise ValueError("Duplicate wallet registration")
+            raise DuplicateEntryError("Duplicate wallet registration")
 
         # Check for duplicate idempotency_key
         if idempotency_key and idempotency_key in self._idempotency_keys:
-            raise ValueError("Duplicate idempotency key")
+            raise DuplicateEntryError("Duplicate idempotency key")
 
         self._wallets.append(entry)
         if idempotency_key:
@@ -60,9 +64,7 @@ class InMemoryWalletRegistry(WalletRegistryPort):
                 return wallet
         return None
 
-    async def get_by_idempotency_key(
-        self, idempotency_key: str
-    ) -> Optional[WalletRegistryEntry]:
+    async def get_by_idempotency_key(self, idempotency_key: str) -> Optional[WalletRegistryEntry]:
         """Get wallet by idempotency key.
 
         Args:

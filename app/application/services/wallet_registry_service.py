@@ -3,12 +3,14 @@
 Provides idempotent and concurrent-safe wallet registration.
 Handles race conditions at the application layer.
 """
+
 from typing import Optional
 from uuid import UUID
 
 from app.domain.entities import WalletRegistryEntry, WalletProvider
 from app.ports.wallet_registry import WalletRegistryPort
 from app.ports.audit import AuditPort
+from app.errors import DuplicateEntryError
 
 
 class WalletRegistryService:
@@ -57,9 +59,7 @@ class WalletRegistryService:
         """
         # Step 1: Check if already registered by idempotency_key
         if idempotency_key:
-            existing = await self.wallet_registry_port.get_by_idempotency_key(
-                idempotency_key
-            )
+            existing = await self.wallet_registry_port.get_by_idempotency_key(idempotency_key)
             if existing:
                 return existing
 
@@ -104,26 +104,23 @@ class WalletRegistryService:
 
             return registered
 
-        except Exception as e:
+        except DuplicateEntryError:
             # Handle race condition - another request created the entry
             # Fetch and return the existing entry
-            if "IntegrityError" in str(type(e).__name__) or "UniqueViolation" in str(e):
-                # Try fetching by idempotency_key first
-                if idempotency_key:
-                    existing = await self.wallet_registry_port.get_by_idempotency_key(
-                        idempotency_key
-                    )
-                    if existing:
-                        return existing
-
-                # Fall back to provider + provider_wallet_id
-                existing = await self.wallet_registry_port.get_by_provider_wallet(
-                    user_id=user_id,
-                    provider=provider,
-                    provider_wallet_id=provider_wallet_id,
-                )
+            # Try fetching by idempotency_key first
+            if idempotency_key:
+                existing = await self.wallet_registry_port.get_by_idempotency_key(idempotency_key)
                 if existing:
                     return existing
+
+            # Fall back to provider + provider_wallet_id
+            existing = await self.wallet_registry_port.get_by_provider_wallet(
+                user_id=user_id,
+                provider=provider,
+                provider_wallet_id=provider_wallet_id,
+            )
+            if existing:
+                return existing
 
             # If we couldn't resolve the race, re-raise the exception
             raise
