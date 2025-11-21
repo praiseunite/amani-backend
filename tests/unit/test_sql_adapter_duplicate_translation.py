@@ -101,6 +101,8 @@ class TestSQLAdapterDuplicateTranslation:
         mock_row = MagicMock()
 
         # Mock the _mapping property to return dict-like access
+        # Note: In real execution, created_at/updated_at would be set by the adapter,
+        # but since we're mocking the DB response, we use the sample_entry values
         mock_row._mapping = {
             "external_id": sample_entry.id,
             "user_id": sample_entry.user_id,
@@ -136,6 +138,8 @@ class TestSQLAdapterDuplicateTranslation:
         mock_row = MagicMock()
 
         # Set up _mapping to return data
+        # Note: In real execution, created_at/updated_at would be set by the adapter,
+        # but since we're mocking the DB response, we use the sample_entry values
         test_data = {
             "external_id": sample_entry.id,
             "user_id": sample_entry.user_id,
