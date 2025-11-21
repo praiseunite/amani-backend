@@ -18,25 +18,6 @@ class InMemoryWalletBalanceSync(WalletBalanceSyncPort):
         self._idempotency_keys: Dict[str, WalletBalanceSnapshot] = {}
         self._external_ids: Dict[str, WalletBalanceSnapshot] = {}
 
-    async def sync_balance(
-        self, wallet_id: UUID, idempotency_key: Optional[str] = None
-    ) -> WalletBalanceSnapshot:
-        """Synchronize wallet balance (idempotent).
-
-        Note: This method is not typically called directly in tests.
-        Use save_snapshot instead.
-
-        Args:
-            wallet_id: The wallet's unique identifier
-            idempotency_key: Optional idempotency key for duplicate prevention
-
-        Returns:
-            The wallet balance snapshot
-        """
-        # For in-memory testing, this method delegates to save_snapshot
-        # In production, this would also fetch from provider
-        raise NotImplementedError("Use save_snapshot for in-memory testing")
-
     async def get_latest(self, wallet_id: UUID) -> Optional[WalletBalanceSnapshot]:
         """Get the latest balance snapshot for a wallet.
 

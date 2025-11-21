@@ -8,26 +8,12 @@ from app.domain.entities import WalletBalanceSnapshot
 
 
 class WalletBalanceSyncPort(ABC):
-    """Port for wallet balance synchronization operations."""
-
-    @abstractmethod
-    async def sync_balance(
-        self, wallet_id: UUID, idempotency_key: Optional[str] = None
-    ) -> WalletBalanceSnapshot:
-        """Synchronize wallet balance (idempotent).
-
-        Fetches the current balance from the provider and creates a snapshot.
-        If the snapshot already exists (by idempotency_key or external_balance_id),
-        returns the existing snapshot.
-
-        Args:
-            wallet_id: The wallet's unique identifier
-            idempotency_key: Optional idempotency key for duplicate prevention
-
-        Returns:
-            The wallet balance snapshot (new or existing)
-        """
-        pass
+    """Port for wallet balance synchronization operations.
+    
+    Note: This port provides storage and retrieval operations for balance snapshots.
+    The actual synchronization logic (fetching from providers, etc.) is handled
+    by the WalletBalanceSyncService in the application layer.
+    """
 
     @abstractmethod
     async def get_latest(self, wallet_id: UUID) -> Optional[WalletBalanceSnapshot]:

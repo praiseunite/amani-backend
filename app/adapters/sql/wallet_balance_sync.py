@@ -53,23 +53,6 @@ class SQLWalletBalanceSync(WalletBalanceSyncPort):
             extend_existing=True,
         )
 
-    async def sync_balance(
-        self, wallet_id: UUID, idempotency_key: Optional[str] = None
-    ) -> WalletBalanceSnapshot:
-        """Synchronize wallet balance (idempotent).
-
-        Note: This method is not typically implemented in the SQL adapter.
-        Use save_snapshot instead. This is handled by the service layer.
-
-        Args:
-            wallet_id: The wallet's unique identifier
-            idempotency_key: Optional idempotency key for duplicate prevention
-
-        Returns:
-            The wallet balance snapshot
-        """
-        raise NotImplementedError("Use save_snapshot - sync logic is in service layer")
-
     async def get_latest(self, wallet_id: UUID) -> Optional[WalletBalanceSnapshot]:
         """Get the latest balance snapshot for a wallet.
 

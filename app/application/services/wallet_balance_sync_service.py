@@ -69,15 +69,17 @@ class WalletBalanceSyncService:
                 return existing
 
         # Step 2: Get wallet information from registry
-        # For simplicity, we'll assume wallet_id is the external_id from wallet_registry
-        # In production, you'd fetch the wallet from registry
-        # For now, let's get the latest snapshot to determine provider
+        # TODO: In production, fetch wallet details from wallet_registry using wallet_id
+        # to get the actual provider and provider_account_id. For now, we use the latest
+        # snapshot to infer provider, or default to FINCRA if no snapshots exist.
+        # This is a known limitation that should be addressed when integrating with
+        # the wallet registry lookup functionality.
         latest = await self.wallet_balance_sync_port.get_latest(wallet_id)
         
         # If no latest snapshot, we need wallet info - for this implementation
         # we'll use a default provider (in production this should be fetched from registry)
         provider = latest.provider if latest else WalletProvider.FINCRA
-        provider_account_id = "default_account"  # Would be fetched from registry
+        provider_account_id = "default_account"  # TODO: Fetch from wallet_registry
 
         # Step 3: Fetch current balance from provider
         balance_data = await self.wallet_provider_port.fetch_balance(
@@ -124,8 +126,11 @@ class WalletBalanceSyncService:
             )
 
             # Record audit event for new snapshot
+            # TODO: Consider adding user_id parameter to sync_balance method
+            # to properly track which user initiated the sync. For now, using
+            # wallet_id as a placeholder to maintain audit trail functionality.
             await self.audit_port.record(
-                user_id=wallet_id,  # Using wallet_id as user_id for now
+                user_id=wallet_id,  # Using wallet_id as placeholder; should be actual user_id
                 action="sync_balance",
                 resource_type="wallet_balance_snapshot",
                 resource_id=str(saved.id),
