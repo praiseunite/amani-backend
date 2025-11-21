@@ -30,6 +30,19 @@ class TransactionType(str, Enum):
     CREDIT = "credit"
 
 
+class WalletEventType(str, Enum):
+    """Type of wallet transaction event."""
+
+    DEPOSIT = "deposit"
+    WITHDRAWAL = "withdrawal"
+    TRANSFER_IN = "transfer_in"
+    TRANSFER_OUT = "transfer_out"
+    FEE = "fee"
+    REFUND = "refund"
+    HOLD = "hold"
+    RELEASE = "release"
+
+
 @dataclass
 class User:
     """User entity representing a platform user."""
@@ -116,4 +129,20 @@ class WalletBalanceSnapshot:
     external_balance_id: Optional[str] = None
     as_of: datetime = field(default_factory=datetime.utcnow)
     metadata: dict = field(default_factory=dict)
+    created_at: datetime = field(default_factory=datetime.utcnow)
+
+
+@dataclass
+class WalletTransactionEvent:
+    """Transaction event for wallet activity reconstruction and audit trail."""
+
+    id: UUID = field(default_factory=uuid4)
+    wallet_id: UUID = field(default_factory=uuid4)
+    provider: WalletProvider = WalletProvider.FINCRA
+    event_type: WalletEventType = WalletEventType.DEPOSIT
+    amount: float = 0.0
+    currency: str = "USD"
+    provider_event_id: Optional[str] = None
+    metadata: dict = field(default_factory=dict)
+    occurred_at: datetime = field(default_factory=datetime.utcnow)
     created_at: datetime = field(default_factory=datetime.utcnow)
