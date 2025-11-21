@@ -95,8 +95,11 @@ class SQLWalletRegistry(WalletRegistryPort):
             return self._row_to_entry(row)
         except IntegrityError as e:
             # Translate DB-specific IntegrityError to domain-level DuplicateEntryError
+            # The original error with constraint details is preserved in __cause__
             await self.session.rollback()
-            raise DuplicateEntryError("Duplicate wallet registration detected") from e
+            raise DuplicateEntryError(
+                "Duplicate wallet registration detected (unique constraint violation)"
+            ) from e
 
     async def get_by_provider(
         self, user_id: UUID, provider: WalletProvider
@@ -177,7 +180,9 @@ class SQLWalletRegistry(WalletRegistryPort):
         Returns:
             WalletRegistryEntry instance
         """
-        # Use row._mapping for safe access across different DB drivers
+        # Use row._mapping for safe, consistent dict-like access across different DB drivers.
+        # _mapping provides a stable interface that works with both sync and async results,
+        # avoiding fragility from direct attribute access which varies by SQLAlchemy version.
         row_data = row._mapping
         return WalletRegistryEntry(
             id=row_data["external_id"],
