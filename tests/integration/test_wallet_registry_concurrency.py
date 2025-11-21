@@ -17,11 +17,14 @@ from app.adapters.sql.wallet_registry import SQLWalletRegistry
 from app.adapters.inmemory.audit import InMemoryAudit
 
 
-# Skip all tests if TEST_DATABASE_URL not set
-pytestmark = pytest.mark.skipif(
-    not os.getenv("TEST_DATABASE_URL"),
-    reason="TEST_DATABASE_URL not set - integration tests require database"
-)
+# Mark all tests in this module as integration tests
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.skipif(
+        not os.getenv("TEST_DATABASE_URL"),
+        reason="TEST_DATABASE_URL not set - integration tests require database",
+    ),
+]
 
 
 @pytest.fixture(scope="module")
@@ -42,9 +45,7 @@ async def db_metadata():
 @pytest.fixture
 async def db_session(db_engine):
     """Create a new database session for each test."""
-    async_session = async_sessionmaker(
-        db_engine, class_=AsyncSession, expire_on_commit=False
-    )
+    async_session = async_sessionmaker(db_engine, class_=AsyncSession, expire_on_commit=False)
     async with async_session() as session:
         yield session
         await session.rollback()

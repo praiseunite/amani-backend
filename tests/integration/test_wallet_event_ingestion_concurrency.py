@@ -18,11 +18,14 @@ from app.adapters.sql.wallet_event_ingestion import SQLWalletEventIngestion
 from app.errors import DuplicateEntryError
 
 
-# Skip all tests if TEST_DATABASE_URL not set
-pytestmark = pytest.mark.skipif(
-    not os.getenv("TEST_DATABASE_URL"),
-    reason="TEST_DATABASE_URL not set - integration tests require database",
-)
+# Mark all tests in this module as integration tests
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.skipif(
+        not os.getenv("TEST_DATABASE_URL"),
+        reason="TEST_DATABASE_URL not set - integration tests require database",
+    ),
+]
 
 
 @pytest.fixture(scope="module")
