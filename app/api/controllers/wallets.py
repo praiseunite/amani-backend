@@ -1,12 +1,14 @@
 """Wallets controller."""
 
 from uuid import UUID
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 
 from app.domain.entities import WalletProvider
 from app.application.use_cases.register_wallet import RegisterWalletUseCase
+from app.application.use_cases.sync_wallet_balance import SyncWalletBalanceUseCase
 
 
 class RegisterWalletRequest(BaseModel):
@@ -29,14 +31,36 @@ class RegisterWalletResponse(BaseModel):
     is_active: bool
 
 
+class SyncBalanceRequest(BaseModel):
+    """Request model for balance synchronization."""
+
+    wallet_id: UUID
+    idempotency_key: Optional[str] = None
+
+
+class BalanceSnapshotResponse(BaseModel):
+    """Response model for balance snapshot."""
+
+    snapshot_id: str
+    wallet_id: str
+    provider: str
+    balance: float
+    currency: str
+    external_balance_id: Optional[str]
+    as_of: datetime
+    created_at: datetime
+
+
 def create_wallets_router(
     register_wallet_use_case: RegisterWalletUseCase,
-    hmac_auth_dependency,
+    sync_wallet_balance_use_case: Optional[SyncWalletBalanceUseCase] = None,
+    hmac_auth_dependency=None,
 ):
     """Create wallets router.
 
     Args:
         register_wallet_use_case: Use case for wallet registration
+        sync_wallet_balance_use_case: Use case for wallet balance synchronization
         hmac_auth_dependency: HMAC auth dependency
 
     Returns:
@@ -47,7 +71,7 @@ def create_wallets_router(
     @router.post("/register", response_model=RegisterWalletResponse)
     async def register_wallet(
         request: RegisterWalletRequest,
-        api_key_id: str = Depends(hmac_auth_dependency),
+        api_key_id: str = Depends(hmac_auth_dependency) if hmac_auth_dependency else None,
     ):
         """Register a wallet for a user (idempotent).
 
@@ -75,5 +99,78 @@ def create_wallets_router(
             provider_account_id=wallet_entry.provider_account_id,
             is_active=wallet_entry.is_active,
         )
+
+    # Only add sync endpoint if use case is provided
+    if sync_wallet_balance_use_case:
+
+        @router.post("/{wallet_id}/sync-balance", response_model=BalanceSnapshotResponse)
+        async def sync_balance(
+            wallet_id: UUID,
+            idempotency_key: Optional[str] = None,
+            api_key_id: str = Depends(hmac_auth_dependency) if hmac_auth_dependency else None,
+        ):
+            """Synchronize wallet balance (idempotent).
+
+            Fetches the current balance from the provider and creates a snapshot.
+            Requires HMAC authentication.
+
+            Args:
+                wallet_id: The wallet's unique identifier
+                idempotency_key: Optional idempotency key for duplicate prevention
+                api_key_id: Authenticated API key ID
+
+            Returns:
+                Balance snapshot information
+            """
+            snapshot = await sync_wallet_balance_use_case.execute(
+                wallet_id=wallet_id,
+                idempotency_key=idempotency_key,
+            )
+
+            return BalanceSnapshotResponse(
+                snapshot_id=str(snapshot.id),
+                wallet_id=str(snapshot.wallet_id),
+                provider=snapshot.provider.value,
+                balance=snapshot.balance,
+                currency=snapshot.currency,
+                external_balance_id=snapshot.external_balance_id,
+                as_of=snapshot.as_of,
+                created_at=snapshot.created_at,
+            )
+
+        @router.get("/{wallet_id}/balance", response_model=BalanceSnapshotResponse)
+        async def get_balance(
+            wallet_id: UUID,
+            api_key_id: str = Depends(hmac_auth_dependency) if hmac_auth_dependency else None,
+        ):
+            """Get latest balance snapshot for a wallet.
+
+            Requires HMAC authentication.
+
+            Args:
+                wallet_id: The wallet's unique identifier
+                api_key_id: Authenticated API key ID
+
+            Returns:
+                Latest balance snapshot information
+
+            Raises:
+                HTTPException: If no balance snapshot found
+            """
+            snapshot = await sync_wallet_balance_use_case.get_latest(wallet_id=wallet_id)
+
+            if snapshot is None:
+                raise HTTPException(status_code=404, detail="No balance snapshot found")
+
+            return BalanceSnapshotResponse(
+                snapshot_id=str(snapshot.id),
+                wallet_id=str(snapshot.wallet_id),
+                provider=snapshot.provider.value,
+                balance=snapshot.balance,
+                currency=snapshot.currency,
+                external_balance_id=snapshot.external_balance_id,
+                as_of=snapshot.as_of,
+                created_at=snapshot.created_at,
+            )
 
     return router
