@@ -7,6 +7,7 @@ from app.models.transaction import Transaction, TransactionType, TransactionStat
 from app.models.kyc import Kyc, KycType, KycStatus
 from app.models.link_token import LinkToken, WalletProvider
 from app.models.wallet_registry import WalletRegistry
+from app.models.wallet_balance_snapshot import WalletBalanceSnapshot
 from app.models.hold import Hold, HoldStatus
 from app.models.ledger_entry import LedgerEntry, TransactionType as LedgerTransactionType
 
@@ -25,6 +26,7 @@ __all__ = [
     "LinkToken",
     "WalletProvider",
     "WalletRegistry",
+    "WalletBalanceSnapshot",
     "Hold",
     "HoldStatus",
     "LedgerEntry",
