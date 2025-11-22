@@ -24,7 +24,7 @@ def upgrade() -> None:
     # Using checkfirst=True to prevent DuplicateObjectError if types already exist
     project_status_enum = sa.Enum('draft', 'pending', 'active', 'in_progress', 'completed', 'disputed', 'cancelled', 'refunded', name='project_status')
     project_status_enum.create(op.get_bind(), checkfirst=True)
-    
+
     op.execute("CREATE TYPE milestone_status AS ENUM ('pending', 'in_progress', 'completed', 'approved', 'rejected', 'disputed')")
     op.execute("CREATE TYPE transaction_type AS ENUM ('deposit', 'withdrawal', 'escrow_hold', 'escrow_release', 'refund', 'fee', 'commission')")
     op.execute("CREATE TYPE transaction_status AS ENUM ('pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded')")
@@ -164,7 +164,7 @@ def downgrade() -> None:
     op.execute("DROP TYPE IF EXISTS transaction_status")
     op.execute("DROP TYPE IF EXISTS transaction_type")
     op.execute("DROP TYPE IF EXISTS milestone_status")
-    
+
     # Using checkfirst=True for consistent handling
     project_status_enum = sa.Enum('draft', 'pending', 'active', 'in_progress', 'completed', 'disputed', 'cancelled', 'refunded', name='project_status')
     project_status_enum.drop(op.get_bind(), checkfirst=True)
