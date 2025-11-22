@@ -28,6 +28,10 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # We need to import Base from database.py BUT avoid creating the async engine
 # So we'll temporarily set the DATABASE_URL to use psycopg2
+# This is safe because:
+# 1. It's wrapped in try/finally to always restore the original value
+# 2. It only runs once during alembic's env.py import (not during runtime)
+# 3. Alembic runs in a separate process from the application
 _original_db_url = os.environ.get('DATABASE_URL')
 if _original_db_url and _original_db_url.startswith('postgresql+asyncpg://'):
     os.environ['DATABASE_URL'] = _original_db_url.replace('postgresql+asyncpg://', 'postgresql+psycopg2://')
