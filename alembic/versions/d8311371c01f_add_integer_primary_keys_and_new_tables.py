@@ -9,12 +9,7 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import UUID
-
-# Define enum instances at module level with create_type=False
-wallet_provider_enum = sa.Enum('fincra', 'paystack', 'flutterwave', name='wallet_provider', create_type=False)
-hold_status_enum = sa.Enum('active', 'released', 'captured', name='hold_status', create_type=False)
-ledger_transaction_type_enum = sa.Enum('debit', 'credit', name='ledger_transaction_type', create_type=False)
+from sqlalchemy.dialects import postgresql
 
 
 # revision identifiers, used by Alembic.
@@ -31,9 +26,27 @@ def upgrade() -> None:
     """
     
     # Create enum types before using them in tables
-    wallet_provider_enum.create(op.get_bind(), checkfirst=True)
-    hold_status_enum.create(op.get_bind(), checkfirst=True)
-    ledger_transaction_type_enum.create(op.get_bind(), checkfirst=True)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE wallet_provider AS ENUM ('fincra', 'paystack', 'flutterwave');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE hold_status AS ENUM ('active', 'released', 'captured');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE ledger_transaction_type AS ENUM ('debit', 'credit');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
     
     # Step 1: Modify users table to add integer id as a new column (external_id to be added later)
     # For now, we add a new integer id column alongside the existing UUID id
@@ -52,10 +65,10 @@ def upgrade() -> None:
     op.create_table(
         'link_tokens',
         sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False),
-        sa.Column('external_id', UUID(as_uuid=True), nullable=False),
-        sa.Column('user_id', UUID(as_uuid=True), nullable=False),
+        sa.Column('external_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('token', sa.String(length=255), nullable=False),
-        sa.Column('provider', wallet_provider_enum, nullable=False),
+        sa.Column('provider', postgresql.ENUM('fincra', 'paystack', 'flutterwave', name='wallet_provider', create_type=False), nullable=False),
         sa.Column('is_consumed', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('created_at', sa.DateTime(), nullable=False, server_default=sa.text('now()')),
         sa.Column('expires_at', sa.DateTime(), nullable=False),
@@ -70,9 +83,9 @@ def upgrade() -> None:
     op.create_table(
         'wallet_registry',
         sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False),
-        sa.Column('external_id', UUID(as_uuid=True), nullable=False),
-        sa.Column('user_id', UUID(as_uuid=True), nullable=False),
-        sa.Column('provider', wallet_provider_enum, nullable=False),
+        sa.Column('external_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('provider', postgresql.ENUM('fincra', 'paystack', 'flutterwave', name='wallet_provider', create_type=False), nullable=False),
         sa.Column('provider_account_id', sa.String(length=255), nullable=False),
         sa.Column('provider_customer_id', sa.String(length=255), nullable=True),
         sa.Column('metadata', sa.JSON(), nullable=True),
@@ -88,11 +101,11 @@ def upgrade() -> None:
     op.create_table(
         'holds',
         sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False),
-        sa.Column('external_id', UUID(as_uuid=True), nullable=False),
-        sa.Column('user_id', UUID(as_uuid=True), nullable=False),
+        sa.Column('external_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('amount', sa.Numeric(precision=15, scale=2), nullable=False),
         sa.Column('currency', sa.String(length=3), nullable=False, server_default='USD'),
-        sa.Column('status', hold_status_enum, nullable=False, server_default='active'),
+        sa.Column('status', postgresql.ENUM('active', 'released', 'captured', name='hold_status', create_type=False), nullable=False, server_default='active'),
         sa.Column('reference', sa.String(length=255), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False, server_default=sa.text('now()')),
         sa.Column('released_at', sa.DateTime(), nullable=True),
@@ -107,9 +120,9 @@ def upgrade() -> None:
     op.create_table(
         'ledger_entries',
         sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False),
-        sa.Column('external_id', UUID(as_uuid=True), nullable=False),
-        sa.Column('user_id', UUID(as_uuid=True), nullable=False),
-        sa.Column('transaction_type', ledger_transaction_type_enum, nullable=False),
+        sa.Column('external_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('transaction_type', postgresql.ENUM('debit', 'credit', name='ledger_transaction_type', create_type=False), nullable=False),
         sa.Column('amount', sa.Numeric(precision=15, scale=2), nullable=False),
         sa.Column('currency', sa.String(length=3), nullable=False, server_default='USD'),
         sa.Column('balance_after', sa.Numeric(precision=15, scale=2), nullable=False),
@@ -155,7 +168,7 @@ def downgrade() -> None:
     op.execute("DROP SEQUENCE IF EXISTS users_integer_id_seq")
     
     # Drop enums after dropping tables
-    ledger_transaction_type_enum.drop(op.get_bind(), checkfirst=True)
-    hold_status_enum.drop(op.get_bind(), checkfirst=True)
-    wallet_provider_enum.drop(op.get_bind(), checkfirst=True)
+    op.execute('DROP TYPE IF EXISTS ledger_transaction_type')
+    op.execute('DROP TYPE IF EXISTS hold_status')
+    op.execute('DROP TYPE IF EXISTS wallet_provider')
 

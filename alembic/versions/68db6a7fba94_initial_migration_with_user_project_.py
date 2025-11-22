@@ -9,7 +9,7 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects import postgresql
 
 
 # revision identifiers, used by Alembic.
@@ -18,24 +18,42 @@ down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-# Define enum instances at module level with create_type=False
-project_status_enum = sa.Enum('draft', 'active', 'completed', 'cancelled', 'disputed', name='project_status', create_type=False)
-milestone_status_enum = sa.Enum('pending', 'in_progress', 'completed', 'approved', 'rejected', 'disputed', name='milestone_status', create_type=False)
-transaction_type_enum = sa.Enum('deposit', 'withdrawal', 'escrow_hold', 'escrow_release', 'refund', 'fee', 'commission', name='transaction_type', create_type=False)
-transaction_status_enum = sa.Enum('pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded', name='transaction_status', create_type=False)
-
 
 def upgrade() -> None:
-    # Create enum types before using them in tables
-    project_status_enum.create(op.get_bind(), checkfirst=True)
-    milestone_status_enum.create(op.get_bind(), checkfirst=True)
-    transaction_type_enum.create(op.get_bind(), checkfirst=True)
-    transaction_status_enum.create(op.get_bind(), checkfirst=True)
+    # Create enum types before using them in tables (using raw SQL with IF NOT EXISTS)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE project_status AS ENUM ('draft', 'active', 'completed', 'cancelled', 'disputed');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE milestone_status AS ENUM ('pending', 'in_progress', 'completed', 'approved', 'rejected', 'disputed');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE transaction_type AS ENUM ('deposit', 'withdrawal', 'escrow_hold', 'escrow_release', 'refund', 'fee', 'commission');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE transaction_status AS ENUM ('pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
     
     # Create users table
     op.create_table(
         'users',
-        sa.Column('id', UUID(as_uuid=True), nullable=False),
+        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('email', sa.String(length=255), nullable=False),
         sa.Column('full_name', sa.String(length=255), nullable=True),
         sa.Column('phone_number', sa.String(length=50), nullable=True),
@@ -55,15 +73,15 @@ def upgrade() -> None:
     # Create projects table
     op.create_table(
         'projects',
-        sa.Column('id', UUID(as_uuid=True), nullable=False),
+        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('title', sa.String(length=255), nullable=False),
         sa.Column('description', sa.Text(), nullable=False),
         sa.Column('total_amount', sa.Numeric(precision=15, scale=2), nullable=False),
         sa.Column('currency', sa.String(length=3), nullable=False, server_default='USD'),
-        sa.Column('status', project_status_enum, nullable=False, server_default='draft'),
-        sa.Column('creator_id', UUID(as_uuid=True), nullable=False),
-        sa.Column('buyer_id', UUID(as_uuid=True), nullable=True),
-        sa.Column('seller_id', UUID(as_uuid=True), nullable=True),
+        sa.Column('status', postgresql.ENUM('draft', 'active', 'completed', 'cancelled', 'disputed', name='project_status', create_type=False), nullable=False, server_default='draft'),
+        sa.Column('creator_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('buyer_id', postgresql.UUID(as_uuid=True), nullable=True),
+        sa.Column('seller_id', postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column('terms_accepted_at', sa.DateTime(), nullable=True),
         sa.Column('completion_criteria', sa.Text(), nullable=True),
         sa.Column('start_date', sa.DateTime(), nullable=True),
@@ -84,14 +102,14 @@ def upgrade() -> None:
     # Create milestones table
     op.create_table(
         'milestones',
-        sa.Column('id', UUID(as_uuid=True), nullable=False),
-        sa.Column('project_id', UUID(as_uuid=True), nullable=False),
+        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('project_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('title', sa.String(length=255), nullable=False),
         sa.Column('description', sa.Text(), nullable=False),
         sa.Column('order_index', sa.Integer(), nullable=False, server_default='0'),
         sa.Column('amount', sa.Numeric(precision=15, scale=2), nullable=False),
         sa.Column('currency', sa.String(length=3), nullable=False, server_default='USD'),
-        sa.Column('status', milestone_status_enum, nullable=False, server_default='pending'),
+        sa.Column('status', postgresql.ENUM('pending', 'in_progress', 'completed', 'approved', 'rejected', 'disputed', name='milestone_status', create_type=False), nullable=False, server_default='pending'),
         sa.Column('is_paid', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('completion_criteria', sa.Text(), nullable=True),
         sa.Column('completion_notes', sa.Text(), nullable=True),
@@ -110,11 +128,11 @@ def upgrade() -> None:
     # Create transactions table
     op.create_table(
         'transactions',
-        sa.Column('id', UUID(as_uuid=True), nullable=False),
-        sa.Column('user_id', UUID(as_uuid=True), nullable=False),
-        sa.Column('project_id', UUID(as_uuid=True), nullable=True),
-        sa.Column('transaction_type', transaction_type_enum, nullable=False),
-        sa.Column('status', transaction_status_enum, nullable=False, server_default='pending'),
+        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('project_id', postgresql.UUID(as_uuid=True), nullable=True),
+        sa.Column('transaction_type', postgresql.ENUM('deposit', 'withdrawal', 'escrow_hold', 'escrow_release', 'refund', 'fee', 'commission', name='transaction_type', create_type=False), nullable=False),
+        sa.Column('status', postgresql.ENUM('pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded', name='transaction_status', create_type=False), nullable=False, server_default='pending'),
         sa.Column('amount', sa.Numeric(precision=15, scale=2), nullable=False),
         sa.Column('currency', sa.String(length=3), nullable=False, server_default='USD'),
         sa.Column('fee', sa.Numeric(precision=15, scale=2), nullable=False, server_default='0'),
@@ -164,7 +182,7 @@ def downgrade() -> None:
     op.drop_table('users')
     
     # Drop enum types after dropping tables
-    transaction_status_enum.drop(op.get_bind(), checkfirst=True)
-    transaction_type_enum.drop(op.get_bind(), checkfirst=True)
-    milestone_status_enum.drop(op.get_bind(), checkfirst=True)
-    project_status_enum.drop(op.get_bind(), checkfirst=True)
+    op.execute('DROP TYPE IF EXISTS transaction_status')
+    op.execute('DROP TYPE IF EXISTS transaction_type')
+    op.execute('DROP TYPE IF EXISTS milestone_status')
+    op.execute('DROP TYPE IF EXISTS project_status')
