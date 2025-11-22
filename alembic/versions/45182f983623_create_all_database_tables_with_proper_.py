@@ -156,11 +156,12 @@ def upgrade() -> None:
     )
 
     # Create link_tokens table
+    # Note: user_id without FK constraint (will be migrated to integer FK in future per hexagonal architecture)
     op.create_table(
         'link_tokens',
         sa.Column('id', sa.BigInteger, primary_key=True, autoincrement=True, nullable=False),
         sa.Column('external_id', postgresql.UUID(as_uuid=True), unique=True, nullable=False, server_default=sa.text('uuid_generate_v4()'), index=True),
-        sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
+        sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),  # No FK - hexagonal architecture design
         sa.Column('token', sa.String(255), unique=True, nullable=False, index=True),
         sa.Column('provider', wallet_provider_enum, nullable=False),
         sa.Column('is_consumed', sa.Boolean, nullable=False, server_default=sa.text('false')),
@@ -170,11 +171,12 @@ def upgrade() -> None:
     )
 
     # Create wallet_registry table
+    # Note: user_id without FK constraint (will be migrated to integer FK in future per hexagonal architecture)
     op.create_table(
         'wallet_registry',
         sa.Column('id', sa.BigInteger, primary_key=True, autoincrement=True, nullable=False),
         sa.Column('external_id', postgresql.UUID(as_uuid=True), unique=True, nullable=False, server_default=sa.text('uuid_generate_v4()'), index=True),
-        sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
+        sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),  # No FK - hexagonal architecture design
         sa.Column('provider', wallet_provider_enum, nullable=False),
         sa.Column('provider_account_id', sa.String(255), nullable=False),
         sa.Column('provider_customer_id', sa.String(255), nullable=True),
@@ -185,11 +187,12 @@ def upgrade() -> None:
     )
 
     # Create holds table
+    # Note: user_id without FK constraint (will be migrated to integer FK in future per hexagonal architecture)
     op.create_table(
         'holds',
         sa.Column('id', sa.BigInteger, primary_key=True, autoincrement=True, nullable=False),
         sa.Column('external_id', postgresql.UUID(as_uuid=True), unique=True, nullable=False, server_default=sa.text('uuid_generate_v4()'), index=True),
-        sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
+        sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),  # No FK - hexagonal architecture design
         sa.Column('amount', sa.Numeric(15, 2), nullable=False),
         sa.Column('currency', sa.String(3), nullable=False, server_default='USD'),
         sa.Column('status', hold_status_enum, nullable=False, server_default='active'),
@@ -200,11 +203,12 @@ def upgrade() -> None:
     )
 
     # Create ledger_entries table
+    # Note: user_id without FK constraint (will be migrated to integer FK in future per hexagonal architecture)
     op.create_table(
         'ledger_entries',
         sa.Column('id', sa.BigInteger, primary_key=True, autoincrement=True, nullable=False),
         sa.Column('external_id', postgresql.UUID(as_uuid=True), unique=True, nullable=False, server_default=sa.text('uuid_generate_v4()'), index=True),
-        sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
+        sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),  # No FK - hexagonal architecture design
         sa.Column('transaction_type', ledger_transaction_type_enum, nullable=False),
         sa.Column('amount', sa.Numeric(15, 2), nullable=False),
         sa.Column('currency', sa.String(3), nullable=False, server_default='USD'),
@@ -215,10 +219,11 @@ def upgrade() -> None:
     )
 
     # Create wallet_balance_snapshot table
+    # Note: wallet_id is a UUID reference without FK constraint (hexagonal architecture design)
     op.create_table(
         'wallet_balance_snapshot',
         sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, nullable=False, server_default=sa.text('uuid_generate_v4()'), index=True),
-        sa.Column('wallet_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),
+        sa.Column('wallet_id', postgresql.UUID(as_uuid=True), nullable=False, index=True),  # No FK - loosely coupled design
         sa.Column('provider', wallet_provider_enum, nullable=False, index=True),
         sa.Column('balance', sa.Numeric(20, 2), nullable=False),
         sa.Column('currency', sa.String(3), nullable=False, server_default='USD'),
