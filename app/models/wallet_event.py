@@ -12,19 +12,6 @@ from app.core.database import Base
 from app.models.link_token import WalletProvider
 
 
-class WalletEventType(str, SQLEnum):
-    """Type of wallet transaction event."""
-
-    DEPOSIT = "deposit"
-    WITHDRAWAL = "withdrawal"
-    TRANSFER_IN = "transfer_in"
-    TRANSFER_OUT = "transfer_out"
-    FEE = "fee"
-    REFUND = "refund"
-    HOLD = "hold"
-    RELEASE = "release"
-
-
 class WalletTransactionEvent(Base):
     """
     WalletTransactionEvent model for tracking wallet transaction events.

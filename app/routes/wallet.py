@@ -1,5 +1,9 @@
 """
 Wallet routes for wallet registry and balance operations.
+
+Note: Currently only FinCra provider is implemented for balance sync.
+Additional providers (Paystack, Flutterwave) can be added by implementing
+their respective balance fetch logic.
 """
 
 from typing import Optional
@@ -200,6 +204,13 @@ async def sync_wallet_balance(
 
     # Fetch balance from provider
     try:
+        # Only FinCra is currently implemented
+        if wallet.provider != "fincra":
+            raise HTTPException(
+                status_code=status.HTTP_501_NOT_IMPLEMENTED,
+                detail=f"Balance sync not yet implemented for provider: {wallet.provider}",
+            )
+
         fincra_client = get_fincra_client()
 
         # Get balance from FinCra
