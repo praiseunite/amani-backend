@@ -42,10 +42,17 @@ sqlalchemy.ext.asyncio.create_async_engine = dummy_create_async_engine
 
 # Now import to register models with Base
 from app.core.database import Base
-from app.models import (
-    user, project, milestone, transaction, kyc, 
-    hold, link_token, ledger_entry, wallet_balance_snapshot, wallet_registry
-)
+# Import all model classes to ensure they're registered with Base.metadata
+from app.models.user import User
+from app.models.project import Project
+from app.models.milestone import Milestone
+from app.models.transaction import Transaction
+from app.models.kyc import Kyc
+from app.models.hold import Hold
+from app.models.link_token import LinkToken
+from app.models.ledger_entry import LedgerEntry
+from app.models.wallet_balance_snapshot import WalletBalanceSnapshot
+from app.models.wallet_registry import WalletRegistry
 
 # Restore original function
 sqlalchemy.ext.asyncio.create_async_engine = real_create_async_engine
