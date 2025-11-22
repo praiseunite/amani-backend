@@ -13,6 +13,10 @@ from app.adapters.inmemory.audit import InMemoryAudit
 from app.errors import DuplicateEntryError
 
 
+# Mark all tests in this module as unit tests (using in-memory adapters)
+pytestmark = pytest.mark.unit
+
+
 class TestWalletBalanceSyncConcurrency:
     """Test suite for wallet balance sync concurrent operations."""
 
@@ -80,9 +84,7 @@ class TestWalletBalanceSyncConcurrency:
         assert all(r.balance == balance for r in results)
 
     @pytest.mark.asyncio
-    async def test_concurrent_sync_same_external_balance_id(
-        self, service, wallet_provider_port
-    ):
+    async def test_concurrent_sync_same_external_balance_id(self, service, wallet_provider_port):
         """Test concurrent syncs with same external_balance_id are idempotent."""
         wallet_id = uuid4()
         external_balance_id = "ext_bal_123"
@@ -106,9 +108,7 @@ class TestWalletBalanceSyncConcurrency:
         assert len(set(snapshot_ids)) == 1, "All concurrent requests should return same snapshot"
 
     @pytest.mark.asyncio
-    async def test_concurrent_sync_different_idempotency_keys(
-        self, service, wallet_provider_port
-    ):
+    async def test_concurrent_sync_different_idempotency_keys(self, service, wallet_provider_port):
         """Test concurrent syncs with different idempotency_keys create separate snapshots."""
         wallet_id = uuid4()
         balance = 100.50
@@ -133,7 +133,9 @@ class TestWalletBalanceSyncConcurrency:
 
         # Should create separate snapshots
         snapshot_ids = [r.id for r in results]
-        assert len(set(snapshot_ids)) == 3, "Different idempotency_keys should create separate snapshots"
+        assert (
+            len(set(snapshot_ids)) == 3
+        ), "Different idempotency_keys should create separate snapshots"
 
     @pytest.mark.asyncio
     async def test_concurrent_sync_handles_race_condition(
@@ -160,9 +162,7 @@ class TestWalletBalanceSyncConcurrency:
         assert result1.external_balance_id == result2.external_balance_id
 
     @pytest.mark.asyncio
-    async def test_concurrent_sync_different_wallets(
-        self, service, wallet_provider_port
-    ):
+    async def test_concurrent_sync_different_wallets(self, service, wallet_provider_port):
         """Test concurrent syncs for different wallets work independently."""
         wallet_id_1 = uuid4()
         wallet_id_2 = uuid4()
@@ -222,9 +222,7 @@ class TestWalletBalanceSyncConcurrency:
         assert fetch_count_2 == 1, "Provider should not be called again for idempotent request"
 
     @pytest.mark.asyncio
-    async def test_concurrent_sync_with_balance_changes(
-        self, service, wallet_provider_port
-    ):
+    async def test_concurrent_sync_with_balance_changes(self, service, wallet_provider_port):
         """Test concurrent syncs with balance changes create multiple snapshots."""
         wallet_id = uuid4()
 

@@ -1,5 +1,8 @@
 # Amani Escrow Backend
 
+[![CI Pipeline](https://github.com/praiseunite/amani-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/praiseunite/amani-backend/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/praiseunite/amani-backend/branch/main/graph/badge.svg)](https://codecov.io/gh/praiseunite/amani-backend)
+
 A secure, high-performance FastAPI backend for the Amani escrow platform with FinCra payment integration.
 
 ## Features
@@ -141,8 +144,41 @@ Copy `.env.example` to `.env` and configure the following:
 ### Health & Status
 
 - `GET /api/v1/` - Hello World endpoint
-- `GET /api/v1/health` - Health check with timestamp
-- `GET /api/v1/ping` - Simple ping/pong
+- `GET /api/v1/health` - Comprehensive health check with database and migration status
+- `GET /api/v1/readiness` - Readiness probe for deployment orchestration
+- `GET /api/v1/ping` - Simple ping/pong for basic liveness checks
+
+#### Health Endpoint Details
+
+The `/health` endpoint provides comprehensive system status:
+
+```bash
+curl http://localhost:8000/api/v1/health
+```
+
+Response includes:
+- Application status and version
+- Database connectivity check
+- Migration status verification
+- Current migration version
+
+#### Readiness Endpoint Details
+
+The `/readiness` endpoint verifies the system is ready to serve traffic:
+
+```bash
+curl http://localhost:8000/api/v1/readiness
+```
+
+Checks:
+- Database connection
+- Required tables exist (users, wallet_registry, wallet_balance_snapshot, wallet_transaction_event)
+- Post-migration state validation
+
+Use this endpoint for:
+- Kubernetes readiness probes
+- Load balancer health checks
+- Deployment verification
 
 ### Authentication
 
@@ -259,29 +295,159 @@ The application uses async SQLAlchemy with PostgreSQL (Supabase):
 
 ## CI/CD Pipeline
 
-The project includes a complete CI/CD pipeline with GitHub Actions:
+The project includes a comprehensive CI/CD pipeline with GitHub Actions:
 
-- **Automated Testing**: pytest with coverage reporting
-- **Code Quality**: Black formatting and Flake8 linting
-- **Docker Build**: Automated image builds and deployment
-- **Continuous Deployment**: Automatic deployment to Docker registry
+### Pipeline Jobs
+
+1. **Linting** - Code quality checks
+   - Black code formatting (enforced)
+   - Flake8 linting (enforced)
+   - Build fails if checks don't pass
+
+2. **Unit Tests** - Fast, isolated tests
+   - Tests domain logic, ports, and application services
+   - No external dependencies required
+   - Coverage requirement: ≥85%
+
+3. **Integration Tests** - Database-backed tests
+   - PostgreSQL service provisioned automatically
+   - Alembic migrations run before tests
+   - Tests wallet registry, balance sync, event ingestion
+   - Validates idempotency and concurrency handling
+   - Tests database constraints
+
+4. **API Tests** - API endpoint tests
+   - FastAPI route testing
+   - Request/response validation
+
+5. **Migration Tests** - Database migration validation
+   - Tests migration upgrade to head
+   - Tests rollback (downgrade -1)
+   - Verifies re-application works
+   - Validates migration history
+
+6. **Docker Build** - Container image building
+   - Runs only if all tests pass
+   - Uses build cache for efficiency
+
+### Coverage Reporting
+
+- Codecov integration for coverage tracking
+- Separate coverage reports for unit, integration, and API tests
+- Minimum 85% coverage required for unit tests
+- CI badge shows current build status
+
+### Running CI Locally
+
+Simulate CI environment locally:
+
+```bash
+# Run linting
+black --check app/ tests/
+flake8 app/ tests/
+
+# Run unit tests
+pytest tests/unit/ -v --cov=app --cov-fail-under=85
+
+# Run integration tests (requires database)
+export TEST_DATABASE_URL="postgresql+asyncpg://test_user:test_pass@localhost:5432/test_db"
+alembic upgrade head
+pytest tests/integration/ -v -m integration
+```
 
 **See [CI_CD.md](CI_CD.md) for complete CI/CD documentation.**
 
 ## Testing
 
-Run the test suite:
+### Running Tests
 
 ```bash
 # Install development dependencies
 pip install -r requirements-dev.txt
 
-# Run all tests
-pytest tests/
+# Run all unit tests (fast, no database required)
+pytest tests/unit/ -v -m "unit"
 
-# Run tests with coverage
+# Run API tests
+pytest tests/api/ -v
+
+# Run integration tests (requires database)
+export TEST_DATABASE_URL="postgresql+asyncpg://test_user:test_pass@localhost:5432/test_db"
+pytest tests/integration/ -v -m "integration"
+
+# Run all tests with coverage
 pytest tests/ --cov=app --cov-report=html
 ```
+
+### Database Testing Setup
+
+#### Local Database Setup
+
+1. **Start PostgreSQL with Docker**:
+   ```bash
+   docker run --name test-postgres \
+     -e POSTGRES_USER=test_user \
+     -e POSTGRES_PASSWORD=test_pass \
+     -e POSTGRES_DB=test_db \
+     -p 5432:5432 \
+     -d postgres:15
+   ```
+
+2. **Set environment variable**:
+   ```bash
+   export TEST_DATABASE_URL="postgresql+asyncpg://test_user:test_pass@localhost:5432/test_db"
+   ```
+
+3. **Run migrations**:
+   ```bash
+   DATABASE_URL=$TEST_DATABASE_URL alembic upgrade head
+   ```
+
+4. **Run integration tests**:
+   ```bash
+   pytest tests/integration/ -v -m "integration"
+   ```
+
+#### CI Database Setup
+
+The CI pipeline automatically:
+- Provisions PostgreSQL service container
+- Runs migrations before tests
+- Executes integration tests with real database
+- Tests migration rollback scenarios
+
+See `.github/workflows/ci.yml` for configuration.
+
+#### Test Markers
+
+Tests are organized with pytest markers:
+
+- `@pytest.mark.unit` - Fast unit tests (in-memory, no database)
+- `@pytest.mark.integration` - Integration tests (require database)
+
+#### Testing Migrations
+
+Use the automated migration testing script:
+
+```bash
+# Set test database URL
+export DATABASE_URL="postgresql+asyncpg://test_user:test_pass@localhost:5432/test_db"
+
+# Run migration tests
+./scripts/test_migrations.sh
+```
+
+This script tests:
+- Migration upgrade to head
+- Migration rollback
+- Re-application of migrations
+- Migration history verification
+
+### Coverage Requirements
+
+- Minimum coverage: **85%**
+- CI enforces coverage requirements
+- View detailed coverage: `htmlcov/index.html`
 
 ## Next Steps
 
@@ -292,8 +458,50 @@ pytest tests/ --cov=app --cov-report=html
 5. ✅ ~~Implement CRUD operations in `app/crud/`~~
 6. ✅ ~~Implement business logic routes in `app/routes/`~~
 7. ✅ ~~Configure CI/CD pipeline~~
-8. Integrate FinCra payment APIs
-9. Add comprehensive end-to-end tests
+8. ✅ ~~Add comprehensive integration tests~~
+9. ✅ ~~Implement health and readiness probes~~
+10. Integrate FinCra payment APIs
+11. Add comprehensive end-to-end tests
+
+## Operational Runbooks
+
+Detailed operational guides are available in `docs/runbooks/`:
+
+- **[Migration Runbook](docs/runbooks/migration_runbook.md)** - Database migration procedures, verification, and rollback
+- **[Troubleshooting Guide](docs/runbooks/troubleshooting_guide.md)** - Solutions to common issues and problems
+- **[Wallet Registry Runbook](docs/runbooks/wallet_registry_runbook.md)** - Wallet registry operations and maintenance
+- **[Wallet Event Ingestion Runbook](docs/runbooks/wallet_event_ingestion_runbook.md)** - Event ingestion procedures
+
+### Quick References
+
+**Run Migrations**:
+```bash
+alembic upgrade head
+```
+
+**Test Migrations**:
+```bash
+./scripts/test_migrations.sh
+```
+
+**Check Health**:
+```bash
+curl http://localhost:8000/api/v1/health
+```
+
+**Run Tests**:
+```bash
+pytest tests/ --cov=app
+```
+
+## Additional Documentation
+
+- [API Implementation Guide](API_IMPLEMENTATION.md)
+- [Architecture Overview](ARCHITECTURE.md)
+- [Authentication Guide](AUTHENTICATION.md)
+- [Security Documentation](SECURITY.md)
+- [Database Setup Guide](DATABASE_SETUP.md)
+- [CI/CD Documentation](CI_CD.md)
 
 ## License
 
