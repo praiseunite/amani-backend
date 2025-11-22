@@ -34,8 +34,7 @@ class SQLWalletBalanceSync(WalletBalanceSyncPort):
         self.wallet_balance_snapshot = Table(
             "wallet_balance_snapshot",
             metadata,
-            Column("id", BigInteger, primary_key=True, autoincrement=True),
-            Column("external_id", PG_UUID(as_uuid=True), nullable=False, unique=True, index=True),
+            Column("id", PG_UUID(as_uuid=True), primary_key=True, nullable=False, index=True),
             Column("wallet_id", PG_UUID(as_uuid=True), nullable=False, index=True),
             Column(
                 "provider",
@@ -114,7 +113,7 @@ class SQLWalletBalanceSync(WalletBalanceSyncPort):
 
         # Prepare insert values
         values = {
-            "external_id": snapshot.id,
+            "id": snapshot.id,
             "wallet_id": snapshot.wallet_id,
             "provider": snapshot.provider.value,
             "balance": snapshot.balance,
@@ -178,7 +177,7 @@ class SQLWalletBalanceSync(WalletBalanceSyncPort):
         """
         row_data = row._mapping
         return WalletBalanceSnapshot(
-            id=row_data["external_id"],
+            id=row_data["id"],
             wallet_id=row_data["wallet_id"],
             provider=WalletProvider(row_data["provider"]),
             balance=float(row_data["balance"]),
