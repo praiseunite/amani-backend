@@ -12,8 +12,8 @@ from app.core.config import Settings
 class TestSettings:
     """Test suite for Settings configuration class."""
 
-    def test_settings_initialization_with_defaults(self, monkeypatch):
-        """Test Settings initialization with default values."""
+    def test_settings_initialization_with_required_fields(self, monkeypatch):
+        """Test Settings initialization with required fields set."""
         # Set required fields
         monkeypatch.setenv("SECRET_KEY", "test-secret-key-123")
         monkeypatch.setenv("DATABASE_URL", "postgresql+asyncpg://test:test@localhost/test")

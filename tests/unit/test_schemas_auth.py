@@ -9,6 +9,7 @@ from app.schemas.auth import (
     UserBase,
     UserCreate,
     UserLogin,
+    UserResponse,
     TokenData,
     Token,
     UserUpdate,
@@ -200,7 +201,6 @@ class TestToken:
         """Test Token schema creation."""
         from datetime import datetime
         from uuid import uuid4
-        from app.schemas.auth import UserResponse
         
         user = UserResponse(
             id=uuid4(),
@@ -227,7 +227,6 @@ class TestToken:
         """Test Token default token type."""
         from datetime import datetime
         from uuid import uuid4
-        from app.schemas.auth import UserResponse
         
         user = UserResponse(
             id=uuid4(),
