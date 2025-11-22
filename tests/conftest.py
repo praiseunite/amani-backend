@@ -3,8 +3,8 @@ Pytest configuration and fixtures.
 """
 
 import os
-import pytest
 
+import pytest
 
 # Set test environment variables before any imports
 os.environ.setdefault("SECRET_KEY", "test-secret-key-for-ci-testing-12345678901234567890")

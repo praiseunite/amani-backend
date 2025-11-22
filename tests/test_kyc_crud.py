@@ -11,13 +11,13 @@ class TestKycCRUD:
     def test_create_kyc_submission_imports(self):
         """Test that KYC CRUD functions can be imported."""
         from app.crud.kyc import (
-            hash_security_code,
-            hash_approval_code,
             create_kyc_submission,
-            get_kyc_by_user,
-            get_kyc_by_id,
-            update_kyc_status,
             get_all_kyc_submissions,
+            get_kyc_by_id,
+            get_kyc_by_user,
+            hash_approval_code,
+            hash_security_code,
+            update_kyc_status,
         )
 
         assert hash_security_code is not None
@@ -31,10 +31,10 @@ class TestKycCRUD:
     def test_kyc_crud_function_signatures(self):
         """Test that KYC CRUD functions have correct signatures."""
         from app.crud.kyc import (
-            hash_security_code,
-            hash_approval_code,
             create_kyc_submission,
             get_kyc_by_user,
+            hash_approval_code,
+            hash_security_code,
             update_kyc_status,
         )
 
@@ -66,7 +66,7 @@ class TestKycCRUD:
 
     def test_hash_functions_are_not_async(self):
         """Test that hash functions are synchronous."""
-        from app.crud.kyc import hash_security_code, hash_approval_code
+        from app.crud.kyc import hash_approval_code, hash_security_code
 
         assert not inspect.iscoroutinefunction(hash_security_code)
         assert not inspect.iscoroutinefunction(hash_approval_code)
@@ -75,10 +75,10 @@ class TestKycCRUD:
         """Test that CRUD functions are async."""
         from app.crud.kyc import (
             create_kyc_submission,
-            get_kyc_by_user,
-            get_kyc_by_id,
-            update_kyc_status,
             get_all_kyc_submissions,
+            get_kyc_by_id,
+            get_kyc_by_user,
+            update_kyc_status,
         )
 
         assert inspect.iscoroutinefunction(create_kyc_submission)
@@ -134,7 +134,7 @@ class TestKycCRUDErrorHandling:
 
     def test_exception_imports(self):
         """Test that KYC CRUD module imports proper exceptions."""
-        from app.crud.kyc import NotFoundError, ConflictError, BadRequestError
+        from app.crud.kyc import BadRequestError, ConflictError, NotFoundError
 
         # All imports should succeed
         assert NotFoundError is not None

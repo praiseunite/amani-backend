@@ -2,16 +2,18 @@
 Unit tests for authentication utilities.
 """
 
-import pytest
 from datetime import timedelta
+
+import pytest
+from fastapi import HTTPException
+
 from app.core.auth import (
-    verify_password,
-    get_password_hash,
     create_access_token,
     decode_access_token,
+    get_password_hash,
+    verify_password,
 )
 from app.models.user import UserRole
-from fastapi import HTTPException
 
 
 class TestPasswordHashing:

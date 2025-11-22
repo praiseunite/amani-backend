@@ -3,14 +3,15 @@ CRUD operations for User model.
 Includes error handling and session management.
 """
 
-from typing import Optional, List
+from typing import List, Optional
 from uuid import UUID
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, delete
-from sqlalchemy.exc import IntegrityError
 
+from sqlalchemy import delete, select, update
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.exceptions import ConflictError, NotFoundError
 from app.models.user import User, UserRole
-from app.core.exceptions import NotFoundError, ConflictError
 
 
 async def create_user(

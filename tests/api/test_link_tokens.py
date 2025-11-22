@@ -1,11 +1,12 @@
 """Tests for link tokens endpoint."""
 
-import pytest
 from uuid import uuid4
+
+import pytest
 from fastapi.testclient import TestClient
 
-from app.composition import build_app_components
 from app.api.app import create_app
+from app.composition import build_app_components
 from app.domain.entities import WalletProvider
 
 

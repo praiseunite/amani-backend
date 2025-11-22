@@ -2,22 +2,23 @@
 Unit tests for wallet schemas.
 """
 
-import pytest
+from datetime import datetime
 from decimal import Decimal
 from uuid import uuid4
-from datetime import datetime
+
+import pytest
 from pydantic import ValidationError
 
 from app.schemas.wallet import (
-    WalletProvider,
-    WalletEventType,
-    WalletRegistryCreate,
-    WalletRegistryResponse,
     WalletBalanceSnapshotCreate,
     WalletBalanceSnapshotResponse,
+    WalletEventType,
+    WalletProvider,
+    WalletRegistryCreate,
+    WalletRegistryResponse,
+    WalletSyncRequest,
     WalletTransactionEventCreate,
     WalletTransactionEventResponse,
-    WalletSyncRequest,
 )
 
 

@@ -3,8 +3,8 @@
 from typing import Optional
 from uuid import UUID
 
-from app.domain.entities import WalletBalanceSnapshot
 from app.application.services.wallet_balance_sync_service import WalletBalanceSyncService
+from app.domain.entities import WalletBalanceSnapshot
 
 
 class SyncWalletBalanceUseCase:

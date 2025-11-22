@@ -1,12 +1,13 @@
 """Unit tests for wallet registry idempotency."""
 
-import pytest
 from uuid import uuid4
 
-from app.domain.entities import WalletProvider
-from app.application.services.wallet_registry_service import WalletRegistryService
-from app.adapters.inmemory.wallet_registry import InMemoryWalletRegistry
+import pytest
+
 from app.adapters.inmemory.audit import InMemoryAudit
+from app.adapters.inmemory.wallet_registry import InMemoryWalletRegistry
+from app.application.services.wallet_registry_service import WalletRegistryService
+from app.domain.entities import WalletProvider
 
 
 class TestWalletRegistryIdempotency:

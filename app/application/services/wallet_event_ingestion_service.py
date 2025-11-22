@@ -1,12 +1,12 @@
 """Wallet event ingestion service - orchestrates event ingestion with business rules."""
 
+import logging
 from typing import List, Optional
 from uuid import UUID
-import logging
 
-from app.domain.entities import WalletTransactionEvent, WalletProvider, WalletEventType
-from app.ports.wallet_event_ingestion import WalletEventIngestionPort
+from app.domain.entities import WalletEventType, WalletProvider, WalletTransactionEvent
 from app.ports.audit import AuditPort
+from app.ports.wallet_event_ingestion import WalletEventIngestionPort
 
 logger = logging.getLogger(__name__)
 

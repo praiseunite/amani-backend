@@ -2,16 +2,17 @@
 Tests for CRUD operations.
 """
 
-import pytest
+from datetime import datetime, timedelta
 from decimal import Decimal
 from uuid import uuid4
-from datetime import datetime, timedelta
 
-from app.models.user import UserRole
-from app.models.project import ProjectStatus
+import pytest
+
+from app.core.exceptions import BadRequestError, ConflictError, NotFoundError
 from app.models.milestone import MilestoneStatus
-from app.models.transaction import TransactionType, TransactionStatus
-from app.core.exceptions import NotFoundError, ConflictError, BadRequestError
+from app.models.project import ProjectStatus
+from app.models.transaction import TransactionStatus, TransactionType
+from app.models.user import UserRole
 
 
 class TestUserCRUD:
@@ -21,11 +22,11 @@ class TestUserCRUD:
         """Test that user CRUD functions can be imported."""
         from app.crud.user import (
             create_user,
-            get_user_by_id,
+            delete_user,
             get_user_by_email,
+            get_user_by_id,
             get_users,
             update_user,
-            delete_user,
         )
 
         assert create_user is not None
@@ -37,8 +38,9 @@ class TestUserCRUD:
 
     def test_user_crud_function_signatures(self):
         """Test that user CRUD functions have correct signatures."""
-        from app.crud.user import create_user, get_user_by_id
         import inspect
+
+        from app.crud.user import create_user, get_user_by_id
 
         # Check create_user signature
         sig = inspect.signature(create_user)
@@ -58,11 +60,11 @@ class TestProjectCRUD:
         """Test that project CRUD functions can be imported."""
         from app.crud.project import (
             create_project,
+            delete_project,
             get_project_by_id,
             get_projects,
             get_projects_by_user,
             update_project,
-            delete_project,
         )
 
         assert create_project is not None
@@ -74,8 +76,9 @@ class TestProjectCRUD:
 
     def test_project_crud_function_signatures(self):
         """Test that project CRUD functions have correct signatures."""
-        from app.crud.project import create_project, get_project_by_id
         import inspect
+
+        from app.crud.project import create_project, get_project_by_id
 
         # Check create_project signature
         sig = inspect.signature(create_project)
@@ -98,14 +101,14 @@ class TestMilestoneCRUD:
         """Test that milestone CRUD functions can be imported."""
         from app.crud.milestone import (
             create_milestone,
+            delete_milestone,
             get_milestone_by_id,
             get_milestones,
             get_milestones_by_project,
-            update_milestone,
-            delete_milestone,
-            mark_milestone_completed,
             mark_milestone_approved,
+            mark_milestone_completed,
             mark_milestone_paid,
+            update_milestone,
         )
 
         assert create_milestone is not None
@@ -120,8 +123,9 @@ class TestMilestoneCRUD:
 
     def test_milestone_crud_function_signatures(self):
         """Test that milestone CRUD functions have correct signatures."""
-        from app.crud.milestone import create_milestone, get_milestone_by_id
         import inspect
+
+        from app.crud.milestone import create_milestone, get_milestone_by_id
 
         # Check create_milestone signature
         sig = inspect.signature(create_milestone)
@@ -144,13 +148,13 @@ class TestTransactionCRUD:
         """Test that transaction CRUD functions can be imported."""
         from app.crud.transaction import (
             create_transaction,
-            get_transaction_by_id,
-            get_transaction_by_gateway_id,
-            get_transactions,
-            get_transactions_by_user,
-            get_transactions_by_project,
-            update_transaction,
             delete_transaction,
+            get_transaction_by_gateway_id,
+            get_transaction_by_id,
+            get_transactions,
+            get_transactions_by_project,
+            get_transactions_by_user,
+            update_transaction,
             update_transaction_status,
         )
 
@@ -166,8 +170,9 @@ class TestTransactionCRUD:
 
     def test_transaction_crud_function_signatures(self):
         """Test that transaction CRUD functions have correct signatures."""
-        from app.crud.transaction import create_transaction, get_transaction_by_id
         import inspect
+
+        from app.crud.transaction import create_transaction, get_transaction_by_id
 
         # Check create_transaction signature
         sig = inspect.signature(create_transaction)
@@ -244,10 +249,10 @@ class TestCRUDErrorHandling:
 
     def test_exception_imports(self):
         """Test that CRUD modules import proper exceptions."""
-        from app.crud.user import NotFoundError, ConflictError
-        from app.crud.project import NotFoundError, ConflictError, BadRequestError
-        from app.crud.milestone import NotFoundError, ConflictError, BadRequestError
-        from app.crud.transaction import NotFoundError, ConflictError, BadRequestError
+        from app.crud.milestone import BadRequestError, ConflictError, NotFoundError
+        from app.crud.project import BadRequestError, ConflictError, NotFoundError
+        from app.crud.transaction import BadRequestError, ConflictError, NotFoundError
+        from app.crud.user import ConflictError, NotFoundError
 
         # All imports should succeed
         assert NotFoundError is not None
@@ -256,32 +261,36 @@ class TestCRUDErrorHandling:
 
     def test_user_crud_async_functions(self):
         """Test that user CRUD functions are async."""
-        from app.crud.user import create_user, get_user_by_id
         import inspect
+
+        from app.crud.user import create_user, get_user_by_id
 
         assert inspect.iscoroutinefunction(create_user)
         assert inspect.iscoroutinefunction(get_user_by_id)
 
     def test_project_crud_async_functions(self):
         """Test that project CRUD functions are async."""
-        from app.crud.project import create_project, get_project_by_id
         import inspect
+
+        from app.crud.project import create_project, get_project_by_id
 
         assert inspect.iscoroutinefunction(create_project)
         assert inspect.iscoroutinefunction(get_project_by_id)
 
     def test_milestone_crud_async_functions(self):
         """Test that milestone CRUD functions are async."""
-        from app.crud.milestone import create_milestone, get_milestone_by_id
         import inspect
+
+        from app.crud.milestone import create_milestone, get_milestone_by_id
 
         assert inspect.iscoroutinefunction(create_milestone)
         assert inspect.iscoroutinefunction(get_milestone_by_id)
 
     def test_transaction_crud_async_functions(self):
         """Test that transaction CRUD functions are async."""
-        from app.crud.transaction import create_transaction, get_transaction_by_id
         import inspect
+
+        from app.crud.transaction import create_transaction, get_transaction_by_id
 
         assert inspect.iscoroutinefunction(create_transaction)
         assert inspect.iscoroutinefunction(get_transaction_by_id)

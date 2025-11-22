@@ -3,11 +3,14 @@ Hold model for escrow fund holds.
 Uses integer primary key with UUID external_id for hexagonal architecture.
 """
 
-from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, Enum as SQLEnum, BigInteger, Numeric
-from sqlalchemy.dialects.postgresql import UUID
-import uuid
 import enum
+import uuid
+from datetime import datetime
+
+from sqlalchemy import BigInteger, Column, DateTime
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import Integer, Numeric, String
+from sqlalchemy.dialects.postgresql import UUID
 
 from app.core.database import Base
 

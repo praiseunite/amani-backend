@@ -1,13 +1,14 @@
 """Unit tests for sequential integer ID assignment in new models."""
 
-import pytest
-from uuid import uuid4, UUID
 from datetime import datetime, timedelta
+from uuid import UUID, uuid4
 
-from app.models import LinkToken, WalletRegistry, Hold, LedgerEntry
-from app.models.link_token import WalletProvider
+import pytest
+
+from app.models import Hold, LedgerEntry, LinkToken, WalletRegistry
 from app.models.hold import HoldStatus
 from app.models.ledger_entry import TransactionType as LedgerTransactionType
+from app.models.link_token import WalletProvider
 
 
 class TestSequentialIDs:

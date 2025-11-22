@@ -1,12 +1,13 @@
 """Unit tests for LinkTokenService."""
 
-import pytest
 from datetime import datetime, timedelta
 from uuid import uuid4
 
+import pytest
+
+from app.composition import build_in_memory_services
 from app.domain.entities import WalletProvider
 from app.domain.services import PolicyEnforcer
-from app.composition import build_in_memory_services
 
 
 class TestLinkTokenService:

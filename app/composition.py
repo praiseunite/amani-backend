@@ -1,30 +1,31 @@
 """Composition root - wires dependencies for different environments."""
 
-from app.domain.services import LinkTokenService, PolicyEnforcer, WalletRegistryService
-from app.domain.services import LinkTokenService as LinkTokenDomainService
-from app.ports.link_token import LinkTokenPort
-from app.ports.audit import AuditPort
-from app.ports.user_repository import UserRepositoryPort
-from app.ports.wallet_registry import WalletRegistryPort
-from app.ports.api_key import ApiKeyPort
-from app.ports.event_publisher import EventPublisherPort
-from app.ports.wallet_event_ingestion import WalletEventIngestionPort
-from app.adapters.inmemory.link_token_repo import InMemoryLinkTokenRepository
-from app.adapters.inmemory.audit import InMemoryAudit
-from app.adapters.inmemory.user_repo import InMemoryUserRepository
-from app.adapters.inmemory.wallet_registry import InMemoryWalletRegistry
 from app.adapters.inmemory.api_key_repo import InMemoryApiKeyRepository
+from app.adapters.inmemory.audit import InMemoryAudit
 from app.adapters.inmemory.event_publisher import InMemoryEventPublisher
+from app.adapters.inmemory.link_token_repo import InMemoryLinkTokenRepository
+from app.adapters.inmemory.user_repo import InMemoryUserRepository
 from app.adapters.inmemory.wallet_event_ingestion import InMemoryWalletEventIngestion
+from app.adapters.inmemory.wallet_registry import InMemoryWalletRegistry
 from app.application.services.wallet_event_ingestion_service import WalletEventIngestionService
+from app.application.use_cases.bot_link import BotLinkService, BotLinkUseCase
 from app.application.use_cases.create_link_token import CreateLinkTokenUseCase
-from app.application.use_cases.bot_link import BotLinkUseCase, BotLinkService
-from app.application.use_cases.register_wallet import RegisterWalletUseCase
 from app.application.use_cases.get_user_status import GetUserStatusUseCase
+from app.application.use_cases.register_wallet import RegisterWalletUseCase
 from app.application.use_cases.wallet_events import (
     IngestWalletEventUseCase,
     ListWalletEventsUseCase,
 )
+from app.domain.services import LinkTokenService
+from app.domain.services import LinkTokenService as LinkTokenDomainService
+from app.domain.services import PolicyEnforcer, WalletRegistryService
+from app.ports.api_key import ApiKeyPort
+from app.ports.audit import AuditPort
+from app.ports.event_publisher import EventPublisherPort
+from app.ports.link_token import LinkTokenPort
+from app.ports.user_repository import UserRepositoryPort
+from app.ports.wallet_event_ingestion import WalletEventIngestionPort
+from app.ports.wallet_registry import WalletRegistryPort
 
 
 def build_in_memory_services():

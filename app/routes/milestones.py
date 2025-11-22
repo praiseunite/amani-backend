@@ -2,28 +2,28 @@
 Milestone routes for tracking project progress.
 """
 
-from typing import Optional
-from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from uuid import UUID
 import logging
+from datetime import datetime
+from typing import Optional
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_active_user
-from app.models.user import User
-from app.models.project import Project
 from app.models.milestone import Milestone, MilestoneStatus
+from app.models.project import Project
+from app.models.user import User
 from app.schemas.milestone import (
-    MilestoneCreate,
-    MilestoneUpdate,
-    MilestoneSubmit,
     MilestoneApprove,
-    MilestoneResponse,
+    MilestoneCreate,
     MilestoneListResponse,
+    MilestoneResponse,
+    MilestoneSubmit,
+    MilestoneUpdate,
 )
-
 
 router = APIRouter(prefix="/milestones", tags=["milestones"])
 logger = logging.getLogger(__name__)

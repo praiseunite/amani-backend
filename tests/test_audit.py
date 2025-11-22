@@ -2,9 +2,11 @@
 Tests for audit logging functionality.
 """
 
-import pytest
 from uuid import uuid4
-from app.core.audit import AuditLogger, AuditAction, AuditLevel, audit_log
+
+import pytest
+
+from app.core.audit import AuditAction, AuditLevel, AuditLogger, audit_log
 
 
 class TestAuditLogger:

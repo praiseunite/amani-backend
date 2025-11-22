@@ -3,6 +3,7 @@ Tests for KYC routes.
 """
 
 import pytest
+
 from app.routes import kyc
 
 

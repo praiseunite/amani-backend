@@ -2,11 +2,12 @@
 CRUD operations for wallet balance snapshots.
 """
 
-from typing import Optional, List
-from uuid import UUID
 from datetime import datetime
 from decimal import Decimal
-from sqlalchemy import select, and_, desc
+from typing import List, Optional
+from uuid import UUID
+
+from sqlalchemy import and_, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.wallet_balance_snapshot import WalletBalanceSnapshot

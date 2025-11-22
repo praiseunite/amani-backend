@@ -2,12 +2,12 @@
 
 from fastapi import FastAPI
 
-from app.api.controllers.link_tokens import create_link_tokens_router
 from app.api.controllers.bot_link import create_bot_link_router
-from app.api.controllers.wallets import create_wallets_router
-from app.api.controllers.users import create_users_router
 from app.api.controllers.events_admin import create_events_admin_router
+from app.api.controllers.link_tokens import create_link_tokens_router
+from app.api.controllers.users import create_users_router
 from app.api.controllers.wallet_events import create_wallet_events_router
+from app.api.controllers.wallets import create_wallets_router
 from app.api.deps.hmac_auth import create_hmac_auth_dependency
 
 

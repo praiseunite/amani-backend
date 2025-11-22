@@ -1,12 +1,13 @@
 """Link tokens controller."""
 
+from typing import Optional
 from uuid import UUID
+
 from fastapi import APIRouter, Header, HTTPException, status
 from pydantic import BaseModel
-from typing import Optional
 
-from app.domain.entities import WalletProvider
 from app.application.use_cases.create_link_token import CreateLinkTokenUseCase
+from app.domain.entities import WalletProvider
 
 
 class CreateLinkTokenRequest(BaseModel):

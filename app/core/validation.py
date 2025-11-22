@@ -2,10 +2,11 @@
 Advanced input validation utilities for enhanced security.
 """
 
-import re
-from typing import Optional, List
-from pydantic import field_validator
 import html
+import re
+from typing import List, Optional
+
+from pydantic import field_validator
 
 
 class ValidationPatterns:

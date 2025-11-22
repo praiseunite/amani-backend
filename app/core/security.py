@@ -2,15 +2,17 @@
 Security middleware for HTTPS enforcement, security headers, and KYC validation.
 """
 
+import logging
+
 from fastapi import Request, status
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
+from sqlalchemy import select
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
-from sqlalchemy import select
+
 from app.core.config import settings
 from app.core.database import get_db
 from app.models.kyc import Kyc, KycStatus
-import logging
 
 logger = logging.getLogger(__name__)
 

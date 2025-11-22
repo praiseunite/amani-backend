@@ -2,9 +2,10 @@
 CRUD operations for wallet registry.
 """
 
-from typing import Optional, List
+from typing import List, Optional
 from uuid import UUID
-from sqlalchemy import select, and_
+
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.wallet_registry import WalletRegistry

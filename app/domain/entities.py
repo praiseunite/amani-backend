@@ -2,9 +2,9 @@
 
 from dataclasses import dataclass, field
 from datetime import datetime
+from enum import Enum
 from typing import Optional
 from uuid import UUID, uuid4
-from enum import Enum
 
 
 class WalletProvider(str, Enum):

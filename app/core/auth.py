@@ -4,14 +4,15 @@ Authentication utilities for JWT tokens, password hashing, and 2FA (TOTP).
 
 from datetime import datetime, timedelta
 from typing import Optional
+
+import pyotp
+from fastapi import HTTPException, status
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from fastapi import HTTPException, status
-import pyotp
 
 from app.core.config import settings
-from app.schemas.auth import TokenData
 from app.models.user import UserRole
+from app.schemas.auth import TokenData
 
 # Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

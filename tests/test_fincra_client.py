@@ -2,8 +2,10 @@
 Tests for FinCra API client.
 """
 
-import pytest
 from decimal import Decimal
+
+import pytest
+
 from app.core.fincra import FinCraClient, FinCraError
 
 

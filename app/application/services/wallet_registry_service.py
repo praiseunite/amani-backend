@@ -7,10 +7,10 @@ Handles race conditions at the application layer.
 from typing import Optional
 from uuid import UUID
 
-from app.domain.entities import WalletRegistryEntry, WalletProvider
-from app.ports.wallet_registry import WalletRegistryPort
-from app.ports.audit import AuditPort
+from app.domain.entities import WalletProvider, WalletRegistryEntry
 from app.errors import DuplicateEntryError
+from app.ports.audit import AuditPort
+from app.ports.wallet_registry import WalletRegistryPort
 
 
 class WalletRegistryService:

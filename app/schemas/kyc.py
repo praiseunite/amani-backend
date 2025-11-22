@@ -2,12 +2,13 @@
 Pydantic schemas for KYC operations.
 """
 
-from typing import Optional
-from pydantic import BaseModel, Field
 from datetime import datetime
+from typing import Optional
 from uuid import UUID
 
-from app.models.kyc import KycType, KycStatus
+from pydantic import BaseModel, Field
+
+from app.models.kyc import KycStatus, KycType
 
 
 class KycBase(BaseModel):

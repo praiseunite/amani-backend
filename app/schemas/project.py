@@ -2,11 +2,12 @@
 Pydantic schemas for project operations.
 """
 
-from typing import Optional, List
-from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
-from uuid import UUID
 from decimal import Decimal
+from typing import List, Optional
+from uuid import UUID
+
+from pydantic import BaseModel, Field, field_validator
 
 from app.models.project import ProjectStatus
 

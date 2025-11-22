@@ -3,11 +3,14 @@ LinkToken model for wallet connection tokens.
 Uses integer primary key with UUID external_id for hexagonal architecture.
 """
 
-from datetime import datetime
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum as SQLEnum, BigInteger
-from sqlalchemy.dialects.postgresql import UUID
-import uuid
 import enum
+import uuid
+from datetime import datetime
+
+from sqlalchemy import BigInteger, Boolean, Column, DateTime
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import Integer, String
+from sqlalchemy.dialects.postgresql import UUID
 
 from app.core.database import Base
 

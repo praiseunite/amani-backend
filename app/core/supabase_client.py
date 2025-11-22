@@ -2,11 +2,13 @@
 Supabase client configuration and utilities.
 """
 
-from typing import Optional
-from supabase import create_client, Client
-from app.core.config import settings
 import logging
+from typing import Optional
+
 import httpx
+from supabase import Client, create_client
+
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 

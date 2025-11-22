@@ -3,6 +3,7 @@ Tests for FinCra KYC methods.
 """
 
 import pytest
+
 from app.core.fincra import FinCraClient
 
 

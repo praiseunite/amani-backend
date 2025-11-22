@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 from uuid import UUID
 
-from app.domain.entities import WalletRegistryEntry, WalletProvider
+from app.domain.entities import WalletProvider, WalletRegistryEntry
 
 
 class WalletRegistryPort(ABC):

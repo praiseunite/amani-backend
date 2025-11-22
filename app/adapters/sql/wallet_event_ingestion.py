@@ -4,18 +4,19 @@ Uses raw SQLAlchemy Core Table API for maximum control over constraint handling.
 Raises DuplicateEntryError on unique constraint violations for race condition handling.
 """
 
+from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
-from datetime import datetime
 
-from sqlalchemy import Table, Column, String, Float, DateTime, BigInteger, JSON, select
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID, ENUM
+from sqlalchemy import JSON, BigInteger, Column, DateTime, Float, String, Table, select
+from sqlalchemy.dialects.postgresql import ENUM
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domain.entities import WalletTransactionEvent, WalletProvider, WalletEventType
-from app.ports.wallet_event_ingestion import WalletEventIngestionPort
+from app.domain.entities import WalletEventType, WalletProvider, WalletTransactionEvent
 from app.errors import DuplicateEntryError
+from app.ports.wallet_event_ingestion import WalletEventIngestionPort
 
 
 class SQLWalletEventIngestion(WalletEventIngestionPort):

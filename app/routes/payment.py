@@ -2,17 +2,20 @@
 Payment routes for FinCra payment operations.
 """
 
+import logging
 from typing import Optional
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-import logging
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_active_user
-from app.core.fincra import get_fincra_client, FinCraError
+from app.core.fincra import FinCraError, get_fincra_client
 from app.models.user import User
 from app.schemas.fincra import (
+    FinCraBalanceRequest,
+    FinCraBalanceResponse,
     FinCraPaymentRequest,
     FinCraPaymentResponse,
     FinCraPaymentVerifyRequest,
@@ -21,8 +24,6 @@ from app.schemas.fincra import (
     FinCraTransferResponse,
     FinCraTransferVerifyRequest,
     FinCraTransferVerifyResponse,
-    FinCraBalanceRequest,
-    FinCraBalanceResponse,
 )
 
 router = APIRouter(prefix="/payment", tags=["payment"])

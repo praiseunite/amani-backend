@@ -1,8 +1,8 @@
 """In-memory audit implementation for testing."""
 
+from datetime import datetime
 from typing import Any, Dict, List
 from uuid import UUID
-from datetime import datetime
 
 from app.ports.audit import AuditPort
 

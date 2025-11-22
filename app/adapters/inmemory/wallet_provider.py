@@ -1,6 +1,6 @@
 """In-memory (mock) wallet provider implementation for testing."""
 
-from typing import Dict, Any
+from typing import Any, Dict
 from uuid import UUID
 
 from app.domain.entities import WalletProvider

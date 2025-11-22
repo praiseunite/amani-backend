@@ -5,16 +5,18 @@ Security-first design with async support and structured logging.
 
 import logging
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+
 from app.core.config import settings
-from app.core.logging import setup_logging
-from app.core.security import HTTPSRedirectMiddleware
 from app.core.database import init_db
-from app.core.rate_limit import RateLimitMiddleware
 from app.core.exceptions import register_exception_handlers
-from app.routes import health, auth, projects, milestones, escrow, kyc, wallet, payment
+from app.core.logging import setup_logging
+from app.core.rate_limit import RateLimitMiddleware
+from app.core.security import HTTPSRedirectMiddleware
+from app.routes import auth, escrow, health, kyc, milestones, payment, projects, wallet
 
 # Initialize logging
 logger = logging.getLogger(__name__)

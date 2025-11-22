@@ -1,15 +1,16 @@
 """Models module for database models."""
 
-from app.models.user import User
-from app.models.project import Project, ProjectStatus
-from app.models.milestone import Milestone, MilestoneStatus
-from app.models.transaction import Transaction, TransactionType, TransactionStatus
-from app.models.kyc import Kyc, KycType, KycStatus
-from app.models.link_token import LinkToken, WalletProvider
-from app.models.wallet_registry import WalletRegistry
-from app.models.wallet_balance_snapshot import WalletBalanceSnapshot
 from app.models.hold import Hold, HoldStatus
-from app.models.ledger_entry import LedgerEntry, TransactionType as LedgerTransactionType
+from app.models.kyc import Kyc, KycStatus, KycType
+from app.models.ledger_entry import LedgerEntry
+from app.models.ledger_entry import TransactionType as LedgerTransactionType
+from app.models.link_token import LinkToken, WalletProvider
+from app.models.milestone import Milestone, MilestoneStatus
+from app.models.project import Project, ProjectStatus
+from app.models.transaction import Transaction, TransactionStatus, TransactionType
+from app.models.user import User
+from app.models.wallet_balance_snapshot import WalletBalanceSnapshot
+from app.models.wallet_registry import WalletRegistry
 
 __all__ = [
     "User",

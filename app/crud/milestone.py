@@ -3,16 +3,17 @@ CRUD operations for Milestone model.
 Includes error handling and session management.
 """
 
-from typing import Optional, List
-from uuid import UUID
-from decimal import Decimal
 from datetime import datetime
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, delete
-from sqlalchemy.exc import IntegrityError
+from decimal import Decimal
+from typing import List, Optional
+from uuid import UUID
 
+from sqlalchemy import delete, select, update
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.exceptions import BadRequestError, ConflictError, NotFoundError
 from app.models.milestone import Milestone, MilestoneStatus
-from app.core.exceptions import NotFoundError, ConflictError, BadRequestError
 
 
 async def create_milestone(

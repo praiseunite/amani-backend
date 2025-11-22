@@ -4,9 +4,9 @@ Audit trail system for tracking sensitive operations and user actions.
 
 import logging
 from datetime import datetime
-from typing import Optional, Dict, Any
-from uuid import UUID
 from enum import Enum
+from typing import Any, Dict, Optional
+from uuid import UUID
 
 logger = logging.getLogger(__name__)
 
