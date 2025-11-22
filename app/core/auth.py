@@ -1,6 +1,7 @@
 """
 Authentication utilities for JWT tokens, password hashing, and 2FA (TOTP).
 """
+
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
@@ -19,11 +20,11 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
     Verify a plain password against a hashed password.
-    
+
     Args:
         plain_password: Plain text password
         hashed_password: Hashed password from database
-        
+
     Returns:
         True if password matches, False otherwise
     """
@@ -33,10 +34,10 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def get_password_hash(password: str) -> str:
     """
     Hash a plain text password.
-    
+
     Args:
         password: Plain text password
-        
+
     Returns:
         Hashed password
     """
@@ -46,37 +47,37 @@ def get_password_hash(password: str) -> str:
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """
     Create a JWT access token.
-    
+
     Args:
         data: Dictionary containing token payload data
         expires_delta: Optional expiration time delta
-        
+
     Returns:
         Encoded JWT token
     """
     to_encode = data.copy()
-    
+
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    
+
     to_encode.update({"exp": expire, "iat": datetime.utcnow()})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
-    
+
     return encoded_jwt
 
 
 def decode_access_token(token: str) -> TokenData:
     """
     Decode and validate a JWT access token.
-    
+
     Args:
         token: JWT token string
-        
+
     Returns:
         TokenData object with decoded payload
-        
+
     Raises:
         HTTPException: If token is invalid or expired
     """
@@ -85,19 +86,19 @@ def decode_access_token(token: str) -> TokenData:
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    
+
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id: str = payload.get("sub")
         email: str = payload.get("email")
         role: str = payload.get("role")
-        
+
         if user_id is None or email is None:
             raise credentials_exception
-        
+
         token_data = TokenData(user_id=user_id, email=email, role=UserRole(role))
         return token_data
-        
+
     except JWTError:
         raise credentials_exception
     except ValueError:
@@ -107,7 +108,7 @@ def decode_access_token(token: str) -> TokenData:
 def generate_totp_secret() -> str:
     """
     Generate a random secret for TOTP (Time-based One-Time Password).
-    
+
     Returns:
         Base32-encoded secret string
     """
@@ -117,12 +118,12 @@ def generate_totp_secret() -> str:
 def get_totp_uri(secret: str, account_name: str, issuer_name: str = "Amani") -> str:
     """
     Generate a TOTP URI for QR code generation.
-    
+
     Args:
         secret: Base32-encoded TOTP secret
         account_name: User's email or identifier
         issuer_name: Application name
-        
+
     Returns:
         TOTP URI string for QR code
     """
@@ -133,12 +134,12 @@ def get_totp_uri(secret: str, account_name: str, issuer_name: str = "Amani") -> 
 def verify_totp_code(secret: str, code: str, valid_window: int = 1) -> bool:
     """
     Verify a TOTP code against a secret.
-    
+
     Args:
         secret: Base32-encoded TOTP secret
         code: 6-digit TOTP code to verify
         valid_window: Number of time windows to check (default 1 = ±30 seconds)
-        
+
     Returns:
         True if code is valid, False otherwise
     """
@@ -152,13 +153,12 @@ def verify_totp_code(secret: str, code: str, valid_window: int = 1) -> bool:
 def generate_totp_code(secret: str) -> str:
     """
     Generate current TOTP code for testing purposes.
-    
+
     Args:
         secret: Base32-encoded TOTP secret
-        
+
     Returns:
         6-digit TOTP code
     """
     totp = pyotp.TOTP(secret)
     return totp.now()
-

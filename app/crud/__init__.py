@@ -10,7 +10,7 @@ from app.crud.user import (
     get_user_by_email,
     get_users,
     update_user,
-    delete_user
+    delete_user,
 )
 
 # Project CRUD operations
@@ -20,7 +20,7 @@ from app.crud.project import (
     get_projects,
     get_projects_by_user,
     update_project,
-    delete_project
+    delete_project,
 )
 
 # Milestone CRUD operations
@@ -33,7 +33,7 @@ from app.crud.milestone import (
     delete_milestone,
     mark_milestone_completed,
     mark_milestone_approved,
-    mark_milestone_paid
+    mark_milestone_paid,
 )
 
 # Transaction CRUD operations
@@ -46,7 +46,7 @@ from app.crud.transaction import (
     get_transactions_by_project,
     update_transaction,
     delete_transaction,
-    update_transaction_status
+    update_transaction_status,
 )
 
 # KYC CRUD operations
@@ -57,7 +57,7 @@ from app.crud.kyc import (
     get_kyc_by_user,
     get_kyc_by_id,
     update_kyc_status,
-    get_all_kyc_submissions
+    get_all_kyc_submissions,
 )
 
 __all__ = [

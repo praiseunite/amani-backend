@@ -75,9 +75,7 @@ class SQLWalletBalanceSync(WalletBalanceSyncPort):
 
         return self._row_to_snapshot(row)
 
-    async def get_by_external_id(
-        self, external_balance_id: str
-    ) -> Optional[WalletBalanceSnapshot]:
+    async def get_by_external_id(self, external_balance_id: str) -> Optional[WalletBalanceSnapshot]:
         """Get balance snapshot by external provider event ID.
 
         Args:
@@ -129,8 +127,10 @@ class SQLWalletBalanceSync(WalletBalanceSyncPort):
         }
 
         # Insert the record - may raise IntegrityError on constraint violation
-        stmt = self.wallet_balance_snapshot.insert().values(**values).returning(
-            self.wallet_balance_snapshot
+        stmt = (
+            self.wallet_balance_snapshot.insert()
+            .values(**values)
+            .returning(self.wallet_balance_snapshot)
         )
 
         try:
@@ -147,9 +147,7 @@ class SQLWalletBalanceSync(WalletBalanceSyncPort):
                 "Duplicate balance snapshot detected (unique constraint violation)"
             ) from e
 
-    async def get_by_idempotency_key(
-        self, idempotency_key: str
-    ) -> Optional[WalletBalanceSnapshot]:
+    async def get_by_idempotency_key(self, idempotency_key: str) -> Optional[WalletBalanceSnapshot]:
         """Get snapshot by idempotency key.
 
         Args:

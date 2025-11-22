@@ -1,6 +1,7 @@
 """
 Pydantic schemas for milestone operations.
 """
+
 from typing import Optional, List
 from pydantic import BaseModel, Field
 from datetime import datetime
@@ -12,6 +13,7 @@ from app.models.milestone import MilestoneStatus
 
 class MilestoneBase(BaseModel):
     """Base milestone schema with common fields."""
+
     title: str = Field(..., min_length=3, max_length=255)
     description: str = Field(..., min_length=10)
     amount: Decimal = Field(..., gt=0)
@@ -23,11 +25,13 @@ class MilestoneBase(BaseModel):
 
 class MilestoneCreate(MilestoneBase):
     """Schema for creating a new milestone."""
+
     project_id: UUID
 
 
 class MilestoneUpdate(BaseModel):
     """Schema for updating a milestone."""
+
     title: Optional[str] = Field(None, min_length=3, max_length=255)
     description: Optional[str] = Field(None, min_length=10)
     amount: Optional[Decimal] = Field(None, gt=0)
@@ -40,17 +44,20 @@ class MilestoneUpdate(BaseModel):
 
 class MilestoneSubmit(BaseModel):
     """Schema for submitting a milestone for approval."""
+
     completion_notes: Optional[str] = None
 
 
 class MilestoneApprove(BaseModel):
     """Schema for approving or rejecting a milestone."""
+
     approved: bool
     notes: Optional[str] = None
 
 
 class MilestoneResponse(MilestoneBase):
     """Schema for milestone response."""
+
     id: UUID
     project_id: UUID
     status: MilestoneStatus
@@ -61,14 +68,13 @@ class MilestoneResponse(MilestoneBase):
     paid_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
-    
-    model_config = {
-        "from_attributes": True
-    }
+
+    model_config = {"from_attributes": True}
 
 
 class MilestoneListResponse(BaseModel):
     """Schema for paginated milestone list response."""
+
     items: List[MilestoneResponse]
     total: int
     page: int

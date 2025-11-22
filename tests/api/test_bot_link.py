@@ -67,9 +67,7 @@ class TestBotLink:
     """Test suite for bot link endpoint."""
 
     @pytest.mark.asyncio
-    async def test_bot_link_success(
-        self, client, api_key_repo, link_token_service, audit_port
-    ):
+    async def test_bot_link_success(self, client, api_key_repo, link_token_service, audit_port):
         """Test successful bot linking."""
         # Setup: Add API key
         key_id = "test-bot-key"

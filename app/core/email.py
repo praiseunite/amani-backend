@@ -1,6 +1,7 @@
 """
 Email sending module using Brevo SMTP.
 """
+
 import asyncio
 import smtplib
 import ssl
@@ -31,20 +32,25 @@ async def send_email(to: str, subject: str, body: str, html: bool = False) -> No
 
     # Create message
     msg = MIMEMultipart()
-    msg['From'] = f"{settings.BREVO_FROM_NAME} <{settings.BREVO_FROM_EMAIL}>" if settings.BREVO_FROM_NAME else settings.BREVO_FROM_EMAIL
-    msg['To'] = to
-    msg['Subject'] = subject
+    msg["From"] = (
+        f"{settings.BREVO_FROM_NAME} <{settings.BREVO_FROM_EMAIL}>"
+        if settings.BREVO_FROM_NAME
+        else settings.BREVO_FROM_EMAIL
+    )
+    msg["To"] = to
+    msg["Subject"] = subject
 
     # Attach body
     if html:
-        msg.attach(MIMEText(body, 'html'))
+        msg.attach(MIMEText(body, "html"))
     else:
-        msg.attach(MIMEText(body, 'plain'))
+        msg.attach(MIMEText(body, "plain"))
 
     # Send via SMTP using aiosmtplib for true async
     import aiosmtplib
+
     try:
-        smtp = aiosmtplib.SMTP(hostname='smtp-relay.brevo.com', port=587, start_tls=True)
+        smtp = aiosmtplib.SMTP(hostname="smtp-relay.brevo.com", port=587, start_tls=True)
         await smtp.connect()
         # Use Brevo SMTP login as username, API key as password
         await smtp.login(settings.BREVO_SMTP_LOGIN, settings.BREVO_API_KEY)

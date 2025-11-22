@@ -42,9 +42,7 @@ class TestWalletBalanceSyncAPI:
 
         # Create use cases
         register_wallet_use_case = RegisterWalletUseCase(wallet_registry_service)
-        sync_wallet_balance_use_case = SyncWalletBalanceUseCase(
-            wallet_balance_sync_service
-        )
+        sync_wallet_balance_use_case = SyncWalletBalanceUseCase(wallet_balance_sync_service)
 
         # Create a mock HMAC auth dependency for testing
         async def mock_hmac_auth():
@@ -157,9 +155,7 @@ class TestWalletBalanceSyncAPI:
         assert response.status_code == 404
         assert "No balance snapshot found" in response.json()["detail"]
 
-    def test_sync_multiple_times_creates_snapshots_on_balance_change(
-        self, client, app
-    ):
+    def test_sync_multiple_times_creates_snapshots_on_balance_change(self, client, app):
         """Test that multiple syncs with different balances create separate snapshots."""
         wallet_id = uuid4()
 

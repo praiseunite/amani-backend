@@ -1,4 +1,5 @@
 """Models module for database models."""
+
 from app.models.user import User
 from app.models.project import Project, ProjectStatus
 from app.models.milestone import Milestone, MilestoneStatus

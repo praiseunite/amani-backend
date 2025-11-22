@@ -2,6 +2,7 @@
 Main FastAPI application for Amani Escrow Backend.
 Security-first design with async support and structured logging.
 """
+
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -28,16 +29,16 @@ async def lifespan(app: FastAPI):
     logger.info("Starting Amani Escrow Backend...")
     logger.info(f"Environment: {settings.ENVIRONMENT}")
     logger.info(f"Debug mode: {settings.DEBUG}")
-    
+
     # Initialize database
     try:
         await init_db()
         logger.info("Database initialized successfully")
     except Exception as e:
         logger.error(f"Failed to initialize database: {e}")
-    
+
     yield
-    
+
     # Shutdown
     logger.info("Shutting down Amani Escrow Backend...")
 
@@ -49,7 +50,7 @@ app = FastAPI(
     description="Secure escrow backend for Amani platform with FinCra integration",
     docs_url="/docs" if settings.DEBUG else None,
     redoc_url="/redoc" if settings.DEBUG else None,
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Register exception handlers
@@ -74,14 +75,14 @@ if settings.RATE_LIMIT_ENABLED:
         requests_per_minute=settings.RATE_LIMIT_PER_MINUTE,
         burst_size=settings.RATE_LIMIT_BURST_SIZE,
         exempt_paths=["/docs", "/redoc", "/openapi.json", "/api/v1/health", "/api/v1/ping"],
-        redis_url=settings.REDIS_URL if settings.REDIS_ENABLED else None
+        redis_url=settings.REDIS_URL if settings.REDIS_ENABLED else None,
     )
 
 # Trusted Host Middleware (prevent host header attacks)
 if settings.ENVIRONMENT == "production":
     app.add_middleware(
         TrustedHostMiddleware,
-        allowed_hosts=["*.amani.com", "amani.com"]  # Update with actual domains
+        allowed_hosts=["*.amani.com", "amani.com"],  # Update with actual domains
     )
 
 # Include routers
@@ -91,6 +92,7 @@ app.include_router(projects.router, prefix="/api/v1")
 app.include_router(milestones.router, prefix="/api/v1")
 app.include_router(escrow.router, prefix="/api/v1")
 app.include_router(kyc.router, prefix="/api/v1")
+
 
 # Request logging middleware
 @app.middleware("http")
@@ -102,30 +104,30 @@ async def log_requests(request, call_next):
             "method": request.method,
             "url": str(request.url),
             "client": request.client.host if request.client else None,
-        }
+        },
     )
-    
+
     response = await call_next(request)
-    
+
     logger.info(
         f"Request completed",
         extra={
             "method": request.method,
             "url": str(request.url),
             "status_code": response.status_code,
-        }
+        },
     )
-    
+
     return response
 
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     uvicorn.run(
         "app.main:app",
         host=settings.HOST,
         port=settings.PORT,
         reload=settings.DEBUG,
-        log_level=settings.LOG_LEVEL.lower()
+        log_level=settings.LOG_LEVEL.lower(),
     )

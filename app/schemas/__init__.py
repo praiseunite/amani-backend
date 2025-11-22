@@ -1,4 +1,5 @@
 """Schemas module for Pydantic models."""
+
 from app.schemas.auth import (
     UserBase,
     UserCreate,
@@ -9,14 +10,14 @@ from app.schemas.auth import (
     UserUpdate,
     PasswordChange,
     MagicLinkRequest,
-    MagicLinkResponse
+    MagicLinkResponse,
 )
 from app.schemas.project import (
     ProjectBase,
     ProjectCreate,
     ProjectUpdate,
     ProjectResponse,
-    ProjectListResponse
+    ProjectListResponse,
 )
 from app.schemas.milestone import (
     MilestoneBase,
@@ -25,7 +26,7 @@ from app.schemas.milestone import (
     MilestoneSubmit,
     MilestoneApprove,
     MilestoneResponse,
-    MilestoneListResponse
+    MilestoneListResponse,
 )
 from app.schemas.transaction import (
     TransactionBase,
@@ -33,15 +34,9 @@ from app.schemas.transaction import (
     EscrowHoldRequest,
     EscrowReleaseRequest,
     TransactionResponse,
-    TransactionListResponse
+    TransactionListResponse,
 )
-from app.schemas.kyc import (
-    KycBase,
-    KycCreate,
-    KycResponse,
-    KycUpdate,
-    KycApproval
-)
+from app.schemas.kyc import KycBase, KycCreate, KycResponse, KycUpdate, KycApproval
 
 __all__ = [
     # Auth schemas

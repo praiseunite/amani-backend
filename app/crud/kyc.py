@@ -2,6 +2,7 @@
 CRUD operations for KYC model.
 Includes error handling and session management.
 """
+
 from typing import Optional, List
 from uuid import UUID
 from datetime import datetime
@@ -50,7 +51,7 @@ async def create_kyc_submission(
     security_code: str,
     type: KycType = KycType.KYC,
     fingerprint: Optional[bytes] = None,
-    image: Optional[bytes] = None
+    image: Optional[bytes] = None,
 ) -> Kyc:
     """
     Create a new KYC submission.
@@ -75,16 +76,13 @@ async def create_kyc_submission(
         # Check if user already has a pending or approved KYC
         existing_kyc = await db.execute(
             select(Kyc).where(
-                Kyc.user_id == user_id,
-                Kyc.status.in_([KycStatus.PENDING, KycStatus.APPROVED])
+                Kyc.user_id == user_id, Kyc.status.in_([KycStatus.PENDING, KycStatus.APPROVED])
             )
         )
         existing = existing_kyc.scalar_one_or_none()
 
         if existing:
-            raise ConflictError(
-                f"User already has a {existing.status.value} KYC submission"
-            )
+            raise ConflictError(f"User already has a {existing.status.value} KYC submission")
 
         # Hash the security code before storage
         hashed_security_code = hash_security_code(security_code)
@@ -98,7 +96,7 @@ async def create_kyc_submission(
             fingerprint=fingerprint,
             image=image,
             status=KycStatus.PENDING,
-            submitted_at=datetime.utcnow()
+            submitted_at=datetime.utcnow(),
         )
 
         db.add(new_kyc)
@@ -121,9 +119,7 @@ async def create_kyc_submission(
 
 
 async def get_kyc_by_user(
-    db: AsyncSession,
-    user_id: UUID,
-    status: Optional[KycStatus] = None
+    db: AsyncSession, user_id: UUID, status: Optional[KycStatus] = None
 ) -> List[Kyc]:
     """
     Get KYC records for a specific user.
@@ -166,9 +162,7 @@ async def get_kyc_by_id(db: AsyncSession, kyc_id: UUID) -> Kyc:
         NotFoundError: If KYC record not found
     """
     try:
-        result = await db.execute(
-            select(Kyc).where(Kyc.id == kyc_id)
-        )
+        result = await db.execute(select(Kyc).where(Kyc.id == kyc_id))
         kyc = result.scalar_one_or_none()
 
         if kyc is None:
@@ -187,7 +181,7 @@ async def update_kyc_status(
     kyc_id: UUID,
     status: KycStatus,
     rejection_reason: Optional[str] = None,
-    approval_code: Optional[str] = None
+    approval_code: Optional[str] = None,
 ) -> Kyc:
     """
     Update KYC status (for admin approval/rejection).
@@ -218,10 +212,7 @@ async def update_kyc_status(
             raise BadRequestError("Approval code is required when approving KYC")
 
         # Prepare update data
-        update_data = {
-            "status": status,
-            "updated_at": datetime.utcnow()
-        }
+        update_data = {"status": status, "updated_at": datetime.utcnow()}
 
         if status == KycStatus.APPROVED:
             update_data["verified_at"] = datetime.utcnow()
@@ -251,7 +242,7 @@ async def get_all_kyc_submissions(
     skip: int = 0,
     limit: int = 100,
     status: Optional[KycStatus] = None,
-    type: Optional[KycType] = None
+    type: Optional[KycType] = None,
 ) -> List[Kyc]:
     """
     Get all KYC submissions with optional filtering (admin only).

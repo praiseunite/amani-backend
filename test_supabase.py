@@ -53,7 +53,7 @@ def test_supabase_client():
         print("Testing magic link...")
         try:
             response = auth.sign_in_with_otp({
-                "email": "test@example.com",
+                "email": "praiseubong@gmail.com",
                 "options": {}
             })
             print(f"✅ Magic link sent! Response: {response}")

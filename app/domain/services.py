@@ -180,9 +180,7 @@ class WalletRegistryService:
             The registered wallet entry
         """
         # Check if wallet already exists
-        existing_wallet = await self.wallet_registry_port.get_by_provider(
-            user_id, provider
-        )
+        existing_wallet = await self.wallet_registry_port.get_by_provider(user_id, provider)
 
         if existing_wallet is not None:
             # Return existing wallet (idempotent)

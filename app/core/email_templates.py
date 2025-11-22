@@ -3,14 +3,15 @@ HTML email templates for Amani Escrow.
 Responsive design with inline CSS for email compatibility.
 """
 
+
 def get_verification_email_html(name: str, otp: str) -> str:
     """
     Generate HTML email for account verification.
-    
+
     Args:
         name: User's full name
         otp: 6-digit verification code
-        
+
     Returns:
         HTML email content
     """
@@ -100,10 +101,10 @@ def get_verification_email_html(name: str, otp: str) -> str:
 def get_welcome_email_html(name: str) -> str:
     """
     Generate HTML welcome email for verified users.
-    
+
     Args:
         name: User's full name
-        
+
     Returns:
         HTML email content
     """

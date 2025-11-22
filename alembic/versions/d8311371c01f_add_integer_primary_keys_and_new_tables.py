@@ -25,10 +25,10 @@ def upgrade() -> None:
     This is an additive migration that preserves existing UUIDs.
     """
     
-    # Create custom enum types for new tables
-    op.execute("CREATE TYPE wallet_provider AS ENUM ('fincra', 'paystack', 'flutterwave')")
-    op.execute("CREATE TYPE hold_status AS ENUM ('active', 'released', 'captured')")
-    op.execute("CREATE TYPE ledger_transaction_type AS ENUM ('debit', 'credit')")
+    # Define enum types once and reuse in table definitions
+    wallet_provider_enum = sa.Enum('fincra', 'paystack', 'flutterwave', name='wallet_provider', create_type=False)
+    hold_status_enum = sa.Enum('active', 'released', 'captured', name='hold_status', create_type=False)
+    ledger_transaction_type_enum = sa.Enum('debit', 'credit', name='ledger_transaction_type', create_type=False)
     
     # Step 1: Modify users table to add integer id as a new column (external_id to be added later)
     # For now, we add a new integer id column alongside the existing UUID id
@@ -50,7 +50,7 @@ def upgrade() -> None:
         sa.Column('external_id', UUID(as_uuid=True), nullable=False),
         sa.Column('user_id', UUID(as_uuid=True), nullable=False),
         sa.Column('token', sa.String(length=255), nullable=False),
-        sa.Column('provider', sa.Enum('fincra', 'paystack', 'flutterwave', name='wallet_provider'), nullable=False),
+        sa.Column('provider', wallet_provider_enum, nullable=False),
         sa.Column('is_consumed', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('created_at', sa.DateTime(), nullable=False, server_default=sa.text('now()')),
         sa.Column('expires_at', sa.DateTime(), nullable=False),
@@ -67,7 +67,7 @@ def upgrade() -> None:
         sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False),
         sa.Column('external_id', UUID(as_uuid=True), nullable=False),
         sa.Column('user_id', UUID(as_uuid=True), nullable=False),
-        sa.Column('provider', sa.Enum('fincra', 'paystack', 'flutterwave', name='wallet_provider'), nullable=False),
+        sa.Column('provider', wallet_provider_enum, nullable=False),
         sa.Column('provider_account_id', sa.String(length=255), nullable=False),
         sa.Column('provider_customer_id', sa.String(length=255), nullable=True),
         sa.Column('metadata', sa.JSON(), nullable=True),
@@ -87,7 +87,7 @@ def upgrade() -> None:
         sa.Column('user_id', UUID(as_uuid=True), nullable=False),
         sa.Column('amount', sa.Numeric(precision=15, scale=2), nullable=False),
         sa.Column('currency', sa.String(length=3), nullable=False, server_default='USD'),
-        sa.Column('status', sa.Enum('active', 'released', 'captured', name='hold_status'), nullable=False, server_default='active'),
+        sa.Column('status', hold_status_enum, nullable=False, server_default='active'),
         sa.Column('reference', sa.String(length=255), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False, server_default=sa.text('now()')),
         sa.Column('released_at', sa.DateTime(), nullable=True),
@@ -104,7 +104,7 @@ def upgrade() -> None:
         sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False),
         sa.Column('external_id', UUID(as_uuid=True), nullable=False),
         sa.Column('user_id', UUID(as_uuid=True), nullable=False),
-        sa.Column('transaction_type', sa.Enum('debit', 'credit', name='ledger_transaction_type'), nullable=False),
+        sa.Column('transaction_type', ledger_transaction_type_enum, nullable=False),
         sa.Column('amount', sa.Numeric(precision=15, scale=2), nullable=False),
         sa.Column('currency', sa.String(length=3), nullable=False, server_default='USD'),
         sa.Column('balance_after', sa.Numeric(precision=15, scale=2), nullable=False),

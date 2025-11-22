@@ -20,9 +20,7 @@ class BotLinkService:
         """
         self.link_token_service = link_token_service
 
-    async def link_bot_wallet(
-        self, token: str, provider_account_id: str
-    ) -> Optional[LinkToken]:
+    async def link_bot_wallet(self, token: str, provider_account_id: str) -> Optional[LinkToken]:
         """Link a bot wallet using a link token.
 
         Args:
@@ -52,9 +50,7 @@ class BotLinkUseCase:
         """
         self.bot_link_service = bot_link_service
 
-    async def execute(
-        self, token: str, provider_account_id: str
-    ) -> Optional[LinkToken]:
+    async def execute(self, token: str, provider_account_id: str) -> Optional[LinkToken]:
         """Execute the use case.
 
         Args:

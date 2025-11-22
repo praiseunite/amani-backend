@@ -1,6 +1,7 @@
 """
 Tests for KYC CRUD operations.
 """
+
 import inspect
 
 
@@ -16,7 +17,7 @@ class TestKycCRUD:
             get_kyc_by_user,
             get_kyc_by_id,
             update_kyc_status,
-            get_all_kyc_submissions
+            get_all_kyc_submissions,
         )
 
         assert hash_security_code is not None
@@ -34,34 +35,34 @@ class TestKycCRUD:
             hash_approval_code,
             create_kyc_submission,
             get_kyc_by_user,
-            update_kyc_status
+            update_kyc_status,
         )
 
         # Check hash_security_code signature
         sig = inspect.signature(hash_security_code)
-        assert 'security_code' in sig.parameters
+        assert "security_code" in sig.parameters
 
         # Check hash_approval_code signature
         sig = inspect.signature(hash_approval_code)
-        assert 'approval_code' in sig.parameters
+        assert "approval_code" in sig.parameters
 
         # Check create_kyc_submission signature
         sig = inspect.signature(create_kyc_submission)
-        assert 'db' in sig.parameters
-        assert 'user_id' in sig.parameters
-        assert 'nin_or_passport' in sig.parameters
-        assert 'security_code' in sig.parameters
+        assert "db" in sig.parameters
+        assert "user_id" in sig.parameters
+        assert "nin_or_passport" in sig.parameters
+        assert "security_code" in sig.parameters
 
         # Check get_kyc_by_user signature
         sig = inspect.signature(get_kyc_by_user)
-        assert 'db' in sig.parameters
-        assert 'user_id' in sig.parameters
+        assert "db" in sig.parameters
+        assert "user_id" in sig.parameters
 
         # Check update_kyc_status signature
         sig = inspect.signature(update_kyc_status)
-        assert 'db' in sig.parameters
-        assert 'kyc_id' in sig.parameters
-        assert 'status' in sig.parameters
+        assert "db" in sig.parameters
+        assert "kyc_id" in sig.parameters
+        assert "status" in sig.parameters
 
     def test_hash_functions_are_not_async(self):
         """Test that hash functions are synchronous."""
@@ -77,7 +78,7 @@ class TestKycCRUD:
             get_kyc_by_user,
             get_kyc_by_id,
             update_kyc_status,
-            get_all_kyc_submissions
+            get_all_kyc_submissions,
         )
 
         assert inspect.iscoroutinefunction(create_kyc_submission)
@@ -149,59 +150,59 @@ class TestKycCRUDDocumentation:
         from app.crud.kyc import hash_security_code
 
         assert hash_security_code.__doc__ is not None
-        assert 'Args:' in hash_security_code.__doc__
-        assert 'Returns:' in hash_security_code.__doc__
+        assert "Args:" in hash_security_code.__doc__
+        assert "Returns:" in hash_security_code.__doc__
 
     def test_hash_approval_code_has_docstring(self):
         """Test that hash_approval_code has a docstring."""
         from app.crud.kyc import hash_approval_code
 
         assert hash_approval_code.__doc__ is not None
-        assert 'Args:' in hash_approval_code.__doc__
-        assert 'Returns:' in hash_approval_code.__doc__
+        assert "Args:" in hash_approval_code.__doc__
+        assert "Returns:" in hash_approval_code.__doc__
 
     def test_create_kyc_submission_has_docstring(self):
         """Test that create_kyc_submission has a docstring."""
         from app.crud.kyc import create_kyc_submission
 
         assert create_kyc_submission.__doc__ is not None
-        assert 'Args:' in create_kyc_submission.__doc__
-        assert 'Returns:' in create_kyc_submission.__doc__
-        assert 'Raises:' in create_kyc_submission.__doc__
+        assert "Args:" in create_kyc_submission.__doc__
+        assert "Returns:" in create_kyc_submission.__doc__
+        assert "Raises:" in create_kyc_submission.__doc__
 
     def test_get_kyc_by_user_has_docstring(self):
         """Test that get_kyc_by_user has a docstring."""
         from app.crud.kyc import get_kyc_by_user
 
         assert get_kyc_by_user.__doc__ is not None
-        assert 'Args:' in get_kyc_by_user.__doc__
-        assert 'Returns:' in get_kyc_by_user.__doc__
+        assert "Args:" in get_kyc_by_user.__doc__
+        assert "Returns:" in get_kyc_by_user.__doc__
 
     def test_update_kyc_status_has_docstring(self):
         """Test that update_kyc_status has a docstring."""
         from app.crud.kyc import update_kyc_status
 
         assert update_kyc_status.__doc__ is not None
-        assert 'Args:' in update_kyc_status.__doc__
-        assert 'Returns:' in update_kyc_status.__doc__
-        assert 'Raises:' in update_kyc_status.__doc__
+        assert "Args:" in update_kyc_status.__doc__
+        assert "Returns:" in update_kyc_status.__doc__
+        assert "Raises:" in update_kyc_status.__doc__
 
     def test_get_kyc_by_id_has_docstring(self):
         """Test that get_kyc_by_id has a docstring."""
         from app.crud.kyc import get_kyc_by_id
 
         assert get_kyc_by_id.__doc__ is not None
-        assert 'Args:' in get_kyc_by_id.__doc__
-        assert 'Returns:' in get_kyc_by_id.__doc__
-        assert 'Raises:' in get_kyc_by_id.__doc__
+        assert "Args:" in get_kyc_by_id.__doc__
+        assert "Returns:" in get_kyc_by_id.__doc__
+        assert "Raises:" in get_kyc_by_id.__doc__
 
     def test_get_all_kyc_submissions_has_docstring(self):
         """Test that get_all_kyc_submissions has a docstring."""
         from app.crud.kyc import get_all_kyc_submissions
 
         assert get_all_kyc_submissions.__doc__ is not None
-        assert 'Args:' in get_all_kyc_submissions.__doc__
-        assert 'Returns:' in get_all_kyc_submissions.__doc__
+        assert "Args:" in get_all_kyc_submissions.__doc__
+        assert "Returns:" in get_all_kyc_submissions.__doc__
 
 
 class TestKycCRUDModuleExports:
@@ -212,25 +213,25 @@ class TestKycCRUDModuleExports:
         import app.crud
 
         # KYC functions
-        assert hasattr(app.crud, 'hash_security_code')
-        assert hasattr(app.crud, 'hash_approval_code')
-        assert hasattr(app.crud, 'create_kyc_submission')
-        assert hasattr(app.crud, 'get_kyc_by_user')
-        assert hasattr(app.crud, 'get_kyc_by_id')
-        assert hasattr(app.crud, 'update_kyc_status')
-        assert hasattr(app.crud, 'get_all_kyc_submissions')
+        assert hasattr(app.crud, "hash_security_code")
+        assert hasattr(app.crud, "hash_approval_code")
+        assert hasattr(app.crud, "create_kyc_submission")
+        assert hasattr(app.crud, "get_kyc_by_user")
+        assert hasattr(app.crud, "get_kyc_by_id")
+        assert hasattr(app.crud, "update_kyc_status")
+        assert hasattr(app.crud, "get_all_kyc_submissions")
 
     def test_kyc_in_crud_all_exports(self):
         """Test that KYC functions are in __all__."""
         import app.crud
 
-        assert hasattr(app.crud, '__all__')
+        assert hasattr(app.crud, "__all__")
 
         # Verify KYC functions are in __all__
-        assert 'hash_security_code' in app.crud.__all__
-        assert 'hash_approval_code' in app.crud.__all__
-        assert 'create_kyc_submission' in app.crud.__all__
-        assert 'get_kyc_by_user' in app.crud.__all__
-        assert 'get_kyc_by_id' in app.crud.__all__
-        assert 'update_kyc_status' in app.crud.__all__
-        assert 'get_all_kyc_submissions' in app.crud.__all__
+        assert "hash_security_code" in app.crud.__all__
+        assert "hash_approval_code" in app.crud.__all__
+        assert "create_kyc_submission" in app.crud.__all__
+        assert "get_kyc_by_user" in app.crud.__all__
+        assert "get_kyc_by_id" in app.crud.__all__
+        assert "update_kyc_status" in app.crud.__all__
+        assert "get_all_kyc_submissions" in app.crud.__all__

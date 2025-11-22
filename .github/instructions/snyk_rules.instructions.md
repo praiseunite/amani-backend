@@ -1,3 +1,11 @@
+---
+alwaysApply: true
+always_on: true
+trigger: always_on
+applyTo: "**"
+description: Snyk Security At Inception
+---
+
 # Project security best practices
 
 - Always run snyk_code_scan tool for new first party code that is generated in a Snyk-supported language.

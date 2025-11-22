@@ -62,9 +62,7 @@ class WalletBalanceSyncService:
         """
         # Step 1: Check if already synced by idempotency_key
         if idempotency_key:
-            existing = await self.wallet_balance_sync_port.get_by_idempotency_key(
-                idempotency_key
-            )
+            existing = await self.wallet_balance_sync_port.get_by_idempotency_key(idempotency_key)
             if existing:
                 return existing
 
@@ -91,9 +89,7 @@ class WalletBalanceSyncService:
         # Step 4: Check if snapshot with this external_balance_id exists
         external_balance_id = balance_data.get("external_balance_id")
         if external_balance_id:
-            existing = await self.wallet_balance_sync_port.get_by_external_id(
-                external_balance_id
-            )
+            existing = await self.wallet_balance_sync_port.get_by_external_id(external_balance_id)
             if existing:
                 return existing
 
@@ -174,9 +170,7 @@ class WalletBalanceSyncService:
             # If we couldn't resolve the race, re-raise the exception
             raise
 
-    async def get_latest_balance(
-        self, wallet_id: UUID
-    ) -> Optional[WalletBalanceSnapshot]:
+    async def get_latest_balance(self, wallet_id: UUID) -> Optional[WalletBalanceSnapshot]:
         """Get the latest balance snapshot for a wallet.
 
         Args:

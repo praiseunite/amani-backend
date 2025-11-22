@@ -41,9 +41,7 @@ class WalletRegistryPort(ABC):
         pass
 
     @abstractmethod
-    async def get_by_idempotency_key(
-        self, idempotency_key: str
-    ) -> Optional[WalletRegistryEntry]:
+    async def get_by_idempotency_key(self, idempotency_key: str) -> Optional[WalletRegistryEntry]:
         """Get wallet by idempotency key.
 
         Args:

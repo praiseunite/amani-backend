@@ -32,9 +32,7 @@ class InMemoryWalletBalanceSync(WalletBalanceSyncPort):
         # Return the most recent snapshot
         return max(wallet_snapshots, key=lambda s: s.as_of)
 
-    async def get_by_external_id(
-        self, external_balance_id: str
-    ) -> Optional[WalletBalanceSnapshot]:
+    async def get_by_external_id(self, external_balance_id: str) -> Optional[WalletBalanceSnapshot]:
         """Get balance snapshot by external provider event ID.
 
         Args:
@@ -65,18 +63,12 @@ class InMemoryWalletBalanceSync(WalletBalanceSyncPort):
             raise DuplicateEntryError("Duplicate idempotency key")
 
         # Check for duplicate external_balance_id
-        if (
-            snapshot.external_balance_id
-            and snapshot.external_balance_id in self._external_ids
-        ):
+        if snapshot.external_balance_id and snapshot.external_balance_id in self._external_ids:
             raise DuplicateEntryError("Duplicate external balance ID")
 
         # Check for duplicate (wallet_id, as_of) - unique constraint
         for existing in self._snapshots:
-            if (
-                existing.wallet_id == snapshot.wallet_id
-                and existing.as_of == snapshot.as_of
-            ):
+            if existing.wallet_id == snapshot.wallet_id and existing.as_of == snapshot.as_of:
                 raise DuplicateEntryError("Duplicate wallet_id and as_of timestamp")
 
         # Save snapshot
@@ -87,9 +79,7 @@ class InMemoryWalletBalanceSync(WalletBalanceSyncPort):
             self._external_ids[snapshot.external_balance_id] = snapshot
         return snapshot
 
-    async def get_by_idempotency_key(
-        self, idempotency_key: str
-    ) -> Optional[WalletBalanceSnapshot]:
+    async def get_by_idempotency_key(self, idempotency_key: str) -> Optional[WalletBalanceSnapshot]:
         """Get snapshot by idempotency key.
 
         Args:

@@ -28,9 +28,7 @@ class WalletBalanceSyncPort(ABC):
         pass
 
     @abstractmethod
-    async def get_by_external_id(
-        self, external_balance_id: str
-    ) -> Optional[WalletBalanceSnapshot]:
+    async def get_by_external_id(self, external_balance_id: str) -> Optional[WalletBalanceSnapshot]:
         """Get balance snapshot by external provider event ID.
 
         Args:
@@ -60,9 +58,7 @@ class WalletBalanceSyncPort(ABC):
         pass
 
     @abstractmethod
-    async def get_by_idempotency_key(
-        self, idempotency_key: str
-    ) -> Optional[WalletBalanceSnapshot]:
+    async def get_by_idempotency_key(self, idempotency_key: str) -> Optional[WalletBalanceSnapshot]:
         """Get snapshot by idempotency key.
 
         Args:

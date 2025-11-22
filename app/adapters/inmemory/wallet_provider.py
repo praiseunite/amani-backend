@@ -59,7 +59,7 @@ class InMemoryWalletProvider(WalletProviderPort):
         # Return mock data or default
         if wallet_id in self._balances:
             return self._balances[wallet_id]
-        
+
         # Default balance if not set
         return {
             "balance": 0.0,

@@ -1,6 +1,7 @@
 """
 Pydantic schemas for authentication.
 """
+
 from typing import Optional, TYPE_CHECKING
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from datetime import datetime
@@ -14,6 +15,7 @@ if TYPE_CHECKING:
 
 class UserBase(BaseModel):
     """Base user schema with common fields."""
+
     email: EmailStr
     full_name: Optional[str] = None
     phone_number: Optional[str] = None
@@ -22,31 +24,34 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     """Schema for user registration."""
+
     password: str = Field(..., min_length=8, description="Password must be at least 8 characters")
-    
-    @field_validator('password')
+
+    @field_validator("password")
     @classmethod
     def password_strength(cls, v: str) -> str:
         """Validate password strength."""
         if len(v) < 8:
-            raise ValueError('Password must be at least 8 characters long')
+            raise ValueError("Password must be at least 8 characters long")
         if not any(c.isupper() for c in v):
-            raise ValueError('Password must contain at least one uppercase letter')
+            raise ValueError("Password must contain at least one uppercase letter")
         if not any(c.islower() for c in v):
-            raise ValueError('Password must contain at least one lowercase letter')
+            raise ValueError("Password must contain at least one lowercase letter")
         if not any(c.isdigit() for c in v):
-            raise ValueError('Password must contain at least one digit')
+            raise ValueError("Password must contain at least one digit")
         return v
 
 
 class UserLogin(BaseModel):
     """Schema for user login."""
+
     email: EmailStr
     password: str
 
 
 class UserResponse(BaseModel):
     """Schema for user response (no sensitive data)."""
+
     id: UUID
     email: str
     full_name: Optional[str] = None
@@ -59,14 +64,13 @@ class UserResponse(BaseModel):
     bio: Optional[str] = None
     created_at: datetime
     last_login: Optional[datetime] = None
-    
-    model_config = {
-        "from_attributes": True
-    }
+
+    model_config = {"from_attributes": True}
 
 
 class Token(BaseModel):
     """Schema for JWT token response."""
+
     access_token: str
     token_type: str = "bearer"
     expires_in: int
@@ -75,6 +79,7 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     """Schema for JWT token payload data."""
+
     user_id: str
     email: str
     role: UserRole
@@ -82,6 +87,7 @@ class TokenData(BaseModel):
 
 class UserUpdate(BaseModel):
     """Schema for updating user profile."""
+
     full_name: Optional[str] = None
     phone_number: Optional[str] = None
     avatar_url: Optional[str] = None
@@ -90,42 +96,47 @@ class UserUpdate(BaseModel):
 
 class PasswordChange(BaseModel):
     """Schema for changing password."""
+
     current_password: str
     new_password: str = Field(..., min_length=8)
-    
-    @field_validator('new_password')
+
+    @field_validator("new_password")
     @classmethod
     def password_strength(cls, v: str) -> str:
         """Validate password strength."""
         if len(v) < 8:
-            raise ValueError('Password must be at least 8 characters long')
+            raise ValueError("Password must be at least 8 characters long")
         if not any(c.isupper() for c in v):
-            raise ValueError('Password must contain at least one uppercase letter')
+            raise ValueError("Password must contain at least one uppercase letter")
         if not any(c.islower() for c in v):
-            raise ValueError('Password must contain at least one lowercase letter')
+            raise ValueError("Password must contain at least one lowercase letter")
         if not any(c.isdigit() for c in v):
-            raise ValueError('Password must contain at least one digit')
+            raise ValueError("Password must contain at least one digit")
         return v
 
 
 class MagicLinkRequest(BaseModel):
     """Schema for requesting magic link authentication."""
+
     email: EmailStr
 
 
 class MagicLinkResponse(BaseModel):
     """Schema for magic link response."""
+
     message: str
     email: str
 
 
 class SignupResponse(BaseModel):
     """Schema for signup response."""
+
     message: str
     email: str
 
 
 class VerifyOtpRequest(BaseModel):
     """Schema for OTP verification."""
+
     email: EmailStr
     otp: str = Field(..., min_length=6, max_length=6)

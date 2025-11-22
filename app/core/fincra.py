@@ -2,6 +2,7 @@
 FinCra API client for payment processing.
 Handles async calls, retries, and error handling.
 """
+
 import httpx
 import logging
 from typing import Dict, Any, Optional
@@ -17,8 +18,10 @@ logger = logging.getLogger(__name__)
 
 class FinCraError(Exception):
     """Base exception for FinCra API errors."""
-    
-    def __init__(self, message: str, status_code: Optional[int] = None, response_data: Optional[Dict] = None):
+
+    def __init__(
+        self, message: str, status_code: Optional[int] = None, response_data: Optional[Dict] = None
+    ):
         self.message = message
         self.status_code = status_code
         self.response_data = response_data
@@ -30,7 +33,7 @@ class FinCraClient:
     Async client for FinCra payment API.
     Includes retry logic and comprehensive error handling.
     """
-    
+
     def __init__(
         self,
         api_key: Optional[str] = None,
@@ -38,11 +41,11 @@ class FinCraClient:
         base_url: Optional[str] = None,
         max_retries: int = 3,
         retry_delay: float = 1.0,
-        timeout: float = 30.0
+        timeout: float = 30.0,
     ):
         """
         Initialize FinCra API client.
-        
+
         Args:
             api_key: FinCra API key
             api_secret: FinCra API secret
@@ -57,119 +60,120 @@ class FinCraClient:
         self.max_retries = max_retries
         self.retry_delay = retry_delay
         self.timeout = timeout
-        
+
         if not self.api_key or not self.api_secret:
             logger.warning("FinCra API credentials not configured")
-        
+
         self.client = httpx.AsyncClient(
             base_url=self.base_url,
             timeout=self.timeout,
             headers={
                 "Content-Type": "application/json",
                 "api-key": self.api_key,
-            }
+            },
         )
-    
+
     async def close(self):
         """Close the HTTP client."""
         await self.client.aclose()
-    
+
     async def __aenter__(self):
         """Async context manager entry."""
         return self
-    
+
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Async context manager exit."""
         await self.close()
-    
+
     async def _make_request(
         self,
         method: str,
         endpoint: str,
         data: Optional[Dict[str, Any]] = None,
         params: Optional[Dict[str, Any]] = None,
-        retry_count: int = 0
+        retry_count: int = 0,
     ) -> Dict[str, Any]:
         """
         Make an HTTP request to FinCra API with retry logic.
-        
+
         Args:
             method: HTTP method (GET, POST, etc.)
             endpoint: API endpoint path
             data: Request body data
             params: Query parameters
             retry_count: Current retry attempt
-            
+
         Returns:
             Response data as dictionary
-            
+
         Raises:
             FinCraError: If request fails after all retries
         """
         try:
-            logger.info(f"FinCra API request: {method} {endpoint} (attempt {retry_count + 1}/{self.max_retries + 1})")
-            
-            response = await self.client.request(
-                method=method,
-                url=endpoint,
-                json=data,
-                params=params
+            logger.info(
+                f"FinCra API request: {method} {endpoint} (attempt {retry_count + 1}/{self.max_retries + 1})"
             )
-            
+
+            response = await self.client.request(
+                method=method, url=endpoint, json=data, params=params
+            )
+
             # Log response
             logger.info(f"FinCra API response: {response.status_code}")
-            
+
             # Check for success
             if response.status_code in (200, 201):
                 response_data = response.json()
                 return response_data
-            
+
             # Handle errors
             error_data = None
             try:
                 error_data = response.json()
             except Exception:
                 error_data = {"message": response.text}
-            
+
             # Retry on server errors (5xx) or rate limiting (429)
             if response.status_code in (429, 500, 502, 503, 504) and retry_count < self.max_retries:
-                wait_time = self.retry_delay * (2 ** retry_count)  # Exponential backoff
+                wait_time = self.retry_delay * (2**retry_count)  # Exponential backoff
                 logger.warning(
                     f"FinCra API error {response.status_code}, retrying in {wait_time}s... "
                     f"(attempt {retry_count + 1}/{self.max_retries})"
                 )
                 await asyncio.sleep(wait_time)
                 return await self._make_request(method, endpoint, data, params, retry_count + 1)
-            
+
             # Raise error if not retryable or max retries reached
             error_message = error_data.get("message", "Unknown error")
             logger.error(f"FinCra API error: {response.status_code} - {error_message}")
             raise FinCraError(
                 message=f"FinCra API error: {error_message}",
                 status_code=response.status_code,
-                response_data=error_data
+                response_data=error_data,
             )
-        
+
         except httpx.TimeoutException as e:
             if retry_count < self.max_retries:
-                wait_time = self.retry_delay * (2 ** retry_count)
+                wait_time = self.retry_delay * (2**retry_count)
                 logger.warning(f"FinCra API timeout, retrying in {wait_time}s...")
                 await asyncio.sleep(wait_time)
                 return await self._make_request(method, endpoint, data, params, retry_count + 1)
-            
+
             logger.error(f"FinCra API timeout after {retry_count + 1} attempts")
             raise FinCraError(message="Request timeout", status_code=None, response_data=None)
-        
+
         except httpx.RequestError as e:
             if retry_count < self.max_retries:
-                wait_time = self.retry_delay * (2 ** retry_count)
+                wait_time = self.retry_delay * (2**retry_count)
                 logger.warning(f"FinCra API request error: {e}, retrying in {wait_time}s...")
                 await asyncio.sleep(wait_time)
                 return await self._make_request(method, endpoint, data, params, retry_count + 1)
-            
+
             logger.error(f"FinCra API request error: {e}")
-            raise FinCraError(message=f"Request error: {str(e)}", status_code=None, response_data=None)
-    
+            raise FinCraError(
+                message=f"Request error: {str(e)}", status_code=None, response_data=None
+            )
+
     async def create_payment(
         self,
         amount: Decimal,
@@ -177,11 +181,11 @@ class FinCraClient:
         customer_email: str,
         reference: str,
         description: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Create a payment transaction.
-        
+
         Args:
             amount: Payment amount
             currency: Currency code (e.g., "USD")
@@ -189,35 +193,33 @@ class FinCraClient:
             reference: Unique reference for the transaction
             description: Payment description
             metadata: Additional metadata
-            
+
         Returns:
             Payment response data
         """
         data = {
             "amount": str(amount),
             "currency": currency,
-            "customer": {
-                "email": customer_email
-            },
+            "customer": {"email": customer_email},
             "reference": reference,
             "description": description or f"Payment for {reference}",
-            "metadata": metadata or {}
+            "metadata": metadata or {},
         }
-        
+
         return await self._make_request("POST", "/payments", data=data)
-    
+
     async def verify_payment(self, transaction_id: str) -> Dict[str, Any]:
         """
         Verify a payment transaction status.
-        
+
         Args:
             transaction_id: FinCra transaction ID
-            
+
         Returns:
             Payment verification data
         """
         return await self._make_request("GET", f"/payments/{transaction_id}")
-    
+
     async def create_transfer(
         self,
         amount: Decimal,
@@ -226,11 +228,11 @@ class FinCraClient:
         recipient_bank_code: str,
         reference: str,
         narration: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Create a transfer/payout transaction.
-        
+
         Args:
             amount: Transfer amount
             currency: Currency code
@@ -239,49 +241,46 @@ class FinCraClient:
             reference: Unique reference for the transaction
             narration: Transfer narration
             metadata: Additional metadata
-            
+
         Returns:
             Transfer response data
         """
         data = {
             "amount": str(amount),
             "currency": currency,
-            "beneficiary": {
-                "accountNumber": recipient_account,
-                "bankCode": recipient_bank_code
-            },
+            "beneficiary": {"accountNumber": recipient_account, "bankCode": recipient_bank_code},
             "reference": reference,
             "narration": narration or f"Transfer for {reference}",
-            "metadata": metadata or {}
+            "metadata": metadata or {},
         }
-        
+
         return await self._make_request("POST", "/transfers", data=data)
-    
+
     async def verify_transfer(self, transaction_id: str) -> Dict[str, Any]:
         """
         Verify a transfer transaction status.
-        
+
         Args:
             transaction_id: FinCra transaction ID
-            
+
         Returns:
             Transfer verification data
         """
         return await self._make_request("GET", f"/transfers/{transaction_id}")
-    
+
     async def get_balance(self, currency: Optional[str] = None) -> Dict[str, Any]:
         """
         Get account balance.
-        
+
         Args:
             currency: Optional currency filter
-            
+
         Returns:
             Balance information
         """
         params = {"currency": currency} if currency else None
         return await self._make_request("GET", "/balance", params=params)
-    
+
     async def submit_kyc(
         self,
         user_id: str,
@@ -294,11 +293,11 @@ class FinCraClient:
         date_of_birth: Optional[str] = None,
         address: Optional[str] = None,
         document_image: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Submit KYC information to FinCra for verification.
-        
+
         Args:
             user_id: User identifier
             kyc_type: Type of KYC (e.g., "individual", "business")
@@ -311,10 +310,10 @@ class FinCraClient:
             address: Customer's address
             document_image: Base64 encoded document image
             metadata: Additional metadata
-            
+
         Returns:
             KYC submission response data
-            
+
         Raises:
             FinCraError: If submission fails
         """
@@ -323,7 +322,7 @@ class FinCraClient:
             "type": kyc_type,
             "identification": {
                 "type": "nin" if "nin" in nin_or_passport.lower() else "passport",
-                "number": nin_or_passport
+                "number": nin_or_passport,
             },
             "personal_info": {
                 "first_name": first_name,
@@ -331,45 +330,45 @@ class FinCraClient:
                 "email": email,
                 "phone": phone,
                 "date_of_birth": date_of_birth,
-                "address": address
+                "address": address,
             },
-            "metadata": metadata or {}
+            "metadata": metadata or {},
         }
-        
+
         if document_image:
             data["document_image"] = document_image
-        
+
         return await self._make_request("POST", "/kyc/submit", data=data)
-    
+
     async def verify_kyc(self, kyc_id: str) -> Dict[str, Any]:
         """
         Verify KYC submission status with FinCra.
-        
+
         Args:
             kyc_id: FinCra KYC submission ID
-            
+
         Returns:
             KYC verification status data including:
             - status: Verification status (pending, approved, rejected)
             - verified_at: Timestamp of verification (if completed)
             - rejection_reason: Reason for rejection (if rejected)
             - verification_details: Additional verification information
-            
+
         Raises:
             FinCraError: If verification check fails
         """
         return await self._make_request("GET", f"/kyc/{kyc_id}")
-    
+
     async def get_kyc_status(self, user_id: str) -> Dict[str, Any]:
         """
         Get KYC status for a user from FinCra.
-        
+
         Args:
             user_id: User identifier
-            
+
         Returns:
             User's KYC status information
-            
+
         Raises:
             FinCraError: If status retrieval fails
         """
@@ -383,16 +382,16 @@ fincra_client: Optional[FinCraClient] = None
 def get_fincra_client() -> FinCraClient:
     """
     Get the global FinCra client instance.
-    
+
     Returns:
         FinCra client instance
-        
+
     Raises:
         ValueError: If client is not initialized
     """
     global fincra_client
-    
+
     if fincra_client is None:
         fincra_client = FinCraClient()
-    
+
     return fincra_client

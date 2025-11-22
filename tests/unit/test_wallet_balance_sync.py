@@ -78,9 +78,7 @@ class TestWalletBalanceSyncService:
         assert result.provider == WalletProvider.FINCRA
 
     @pytest.mark.asyncio
-    async def test_sync_idempotent_same_idempotency_key(
-        self, service, wallet_provider_port
-    ):
+    async def test_sync_idempotent_same_idempotency_key(self, service, wallet_provider_port):
         """Test that syncing with same idempotency_key returns existing snapshot."""
         wallet_id = uuid4()
         idempotency_key = "idem_key_1"
@@ -93,14 +91,10 @@ class TestWalletBalanceSyncService:
         )
 
         # First sync
-        result1 = await service.sync_balance(
-            wallet_id=wallet_id, idempotency_key=idempotency_key
-        )
+        result1 = await service.sync_balance(wallet_id=wallet_id, idempotency_key=idempotency_key)
 
         # Second sync with same idempotency_key
-        result2 = await service.sync_balance(
-            wallet_id=wallet_id, idempotency_key=idempotency_key
-        )
+        result2 = await service.sync_balance(wallet_id=wallet_id, idempotency_key=idempotency_key)
 
         # Should return the same snapshot
         assert result1.id == result2.id
@@ -108,9 +102,7 @@ class TestWalletBalanceSyncService:
         assert result1.balance == result2.balance
 
     @pytest.mark.asyncio
-    async def test_sync_idempotent_same_external_balance_id(
-        self, service, wallet_provider_port
-    ):
+    async def test_sync_idempotent_same_external_balance_id(self, service, wallet_provider_port):
         """Test that syncing returns existing snapshot if external_balance_id matches."""
         wallet_id = uuid4()
         external_balance_id = "ext_bal_123"
@@ -132,9 +124,7 @@ class TestWalletBalanceSyncService:
         assert result1.id == result2.id
 
     @pytest.mark.asyncio
-    async def test_sync_creates_new_snapshot_on_balance_change(
-        self, service, wallet_provider_port
-    ):
+    async def test_sync_creates_new_snapshot_on_balance_change(self, service, wallet_provider_port):
         """Test that sync creates new snapshot when balance changes."""
         wallet_id = uuid4()
         balance1 = 100.50
@@ -162,9 +152,7 @@ class TestWalletBalanceSyncService:
         assert result2.balance == balance2
 
     @pytest.mark.asyncio
-    async def test_sync_no_new_snapshot_if_balance_unchanged(
-        self, service, wallet_provider_port
-    ):
+    async def test_sync_no_new_snapshot_if_balance_unchanged(self, service, wallet_provider_port):
         """Test that sync doesn't create new snapshot if balance hasn't changed."""
         wallet_id = uuid4()
         balance = 100.50
@@ -240,9 +228,7 @@ class TestWalletBalanceSyncService:
         assert result.metadata == metadata
 
     @pytest.mark.asyncio
-    async def test_audit_events_recorded(
-        self, service, wallet_provider_port, audit_port
-    ):
+    async def test_audit_events_recorded(self, service, wallet_provider_port, audit_port):
         """Test that audit events are recorded for new syncs."""
         wallet_id = uuid4()
         balance = 100.50

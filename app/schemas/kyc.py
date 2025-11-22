@@ -1,6 +1,7 @@
 """
 Pydantic schemas for KYC operations.
 """
+
 from typing import Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
@@ -11,12 +12,16 @@ from app.models.kyc import KycType, KycStatus
 
 class KycBase(BaseModel):
     """Base KYC schema with common fields."""
+
     type: KycType = Field(default=KycType.KYC, description="Type of KYC: kyc or kyb")
-    nin_or_passport: str = Field(..., min_length=5, max_length=100, description="National ID or Passport number")
+    nin_or_passport: str = Field(
+        ..., min_length=5, max_length=100, description="National ID or Passport number"
+    )
 
 
 class KycCreate(KycBase):
     """Schema for KYC submission."""
+
     security_code: str = Field(..., min_length=4, description="Security code (will be hashed)")
     fingerprint: Optional[bytes] = Field(None, description="Fingerprint biometric data")
     image: Optional[bytes] = Field(None, description="Identity document image")
@@ -24,6 +29,7 @@ class KycCreate(KycBase):
 
 class KycResponse(KycBase):
     """Schema for KYC response."""
+
     id: UUID
     user_id: UUID
     status: KycStatus
@@ -36,9 +42,7 @@ class KycResponse(KycBase):
     created_at: datetime
     updated_at: datetime
 
-    model_config = {
-        "from_attributes": True
-    }
+    model_config = {"from_attributes": True}
 
     @classmethod
     def from_orm_with_flags(cls, kyc_obj):
@@ -66,13 +70,21 @@ class KycResponse(KycBase):
 
 class KycUpdate(BaseModel):
     """Schema for updating KYC status (admin only)."""
+
     status: Optional[KycStatus] = None
     rejection_reason: Optional[str] = None
-    approval_code: Optional[str] = Field(None, description="Approval code for clients (will be hashed)")
+    approval_code: Optional[str] = Field(
+        None, description="Approval code for clients (will be hashed)"
+    )
 
 
 class KycApproval(BaseModel):
     """Schema for KYC approval/rejection."""
+
     status: KycStatus = Field(..., description="New status: approved or rejected")
-    rejection_reason: Optional[str] = Field(None, description="Reason for rejection (required if status is rejected)")
-    approval_code: Optional[str] = Field(None, description="Approval code for client (required if status is approved)")
+    rejection_reason: Optional[str] = Field(
+        None, description="Reason for rejection (required if status is rejected)"
+    )
+    approval_code: Optional[str] = Field(
+        None, description="Approval code for client (required if status is approved)"
+    )

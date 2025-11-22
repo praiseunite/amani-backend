@@ -102,9 +102,7 @@ class TestWalletsRegister:
         assert events[0]["action"] == "register_wallet"
 
     @pytest.mark.asyncio
-    async def test_register_wallet_idempotent(
-        self, client, api_key_repo, wallet_registry_port
-    ):
+    async def test_register_wallet_idempotent(self, client, api_key_repo, wallet_registry_port):
         """Test wallet registration is idempotent."""
         # Setup: Add API key
         key_id = "test-bot-key"

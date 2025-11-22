@@ -19,11 +19,7 @@ class InMemoryEventPublisher(EventPublisherPort):
             event_type: The type of event
             payload: The event data
         """
-        self.events.append({
-            "topic": topic,
-            "event_type": event_type,
-            "payload": payload
-        })
+        self.events.append({"topic": topic, "event_type": event_type, "payload": payload})
 
     def get_events(self) -> List[Dict[str, Any]]:
         """Get all published events.
