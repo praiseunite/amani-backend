@@ -15,40 +15,27 @@ down_revision = '20251121_073320'
 branch_labels = None
 depends_on = None
 
+# Define enum instances at module level with create_type=False
+wallet_provider_enum = sa.Enum('fincra', 'paystack', 'flutterwave', name='wallet_provider', create_type=False)
+wallet_event_type_enum = sa.Enum(
+    'deposit',
+    'withdrawal',
+    'transfer_in',
+    'transfer_out',
+    'fee',
+    'refund',
+    'hold',
+    'release',
+    name='wallet_event_type',
+    create_type=False
+)
+
 
 def upgrade() -> None:
     """Create wallet_transaction_event table with indexes and constraints."""
-    # Create wallet_event_type enum if it doesn't exist
-    wallet_event_type = postgresql.ENUM(
-        'deposit',
-        'withdrawal',
-        'transfer_in',
-        'transfer_out',
-        'fee',
-        'refund',
-        'hold',
-        'release',
-        name='wallet_event_type',
-        create_type=False
-    )
-    
-    # Try to create the enum type
-    op.execute("""
-        DO $$ BEGIN
-            CREATE TYPE wallet_event_type AS ENUM (
-                'deposit',
-                'withdrawal', 
-                'transfer_in',
-                'transfer_out',
-                'fee',
-                'refund',
-                'hold',
-                'release'
-            );
-        EXCEPTION
-            WHEN duplicate_object THEN null;
-        END $$;
-    """)
+    # Create enum types before using them in tables
+    wallet_provider_enum.create(op.get_bind(), checkfirst=True)
+    wallet_event_type_enum.create(op.get_bind(), checkfirst=True)
 
     # Create wallet_transaction_event table
     op.create_table(
@@ -56,8 +43,8 @@ def upgrade() -> None:
         sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False),
         sa.Column('external_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('wallet_id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('provider', postgresql.ENUM('fincra', 'paystack', 'flutterwave', name='wallet_provider'), nullable=False),
-        sa.Column('event_type', wallet_event_type, nullable=False),
+        sa.Column('provider', wallet_provider_enum, nullable=False),
+        sa.Column('event_type', wallet_event_type_enum, nullable=False),
         sa.Column('amount', sa.Float(), nullable=False),
         sa.Column('currency', sa.String(length=10), nullable=False),
         sa.Column('provider_event_id', sa.String(length=255), nullable=True),
@@ -123,5 +110,6 @@ def downgrade() -> None:
     op.drop_index('ix_wallet_transaction_event_external_id', table_name='wallet_transaction_event')
     op.drop_table('wallet_transaction_event')
     
-    # Drop the enum type
-    op.execute('DROP TYPE IF EXISTS wallet_event_type;')
+    # Drop enum types after dropping table
+    wallet_event_type_enum.drop(op.get_bind(), checkfirst=True)
+    wallet_provider_enum.drop(op.get_bind(), checkfirst=True)

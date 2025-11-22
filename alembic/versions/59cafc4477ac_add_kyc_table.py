@@ -18,26 +18,28 @@ down_revision: Union[str, None] = 'db82de06f57d'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
+# Define enum instances at module level with create_type=False
+kyc_type_enum = sa.Enum('kyc', 'kyb', name='kyctype', create_type=False)
+kyc_status_enum = sa.Enum('pending', 'approved', 'rejected', name='kycstatus', create_type=False)
+
 
 def upgrade() -> None:
-    # Create kyc_type enum type
-    op.execute("CREATE TYPE kyctype AS ENUM ('kyc', 'kyb')")
-    
-    # Create kyc_status enum type
-    op.execute("CREATE TYPE kycstatus AS ENUM ('pending', 'approved', 'rejected')")
+    # Create kyc_type and kyc_status enum types
+    kyc_type_enum.create(op.get_bind(), checkfirst=True)
+    kyc_status_enum.create(op.get_bind(), checkfirst=True)
     
     # Create kyc table
     op.create_table(
         'kyc',
         sa.Column('id', UUID(as_uuid=True), nullable=False),
         sa.Column('user_id', UUID(as_uuid=True), nullable=False),
-        sa.Column('type', sa.Enum('kyc', 'kyb', name='kyctype'), nullable=False, server_default='kyc'),
+        sa.Column('type', kyc_type_enum, nullable=False, server_default='kyc'),
         sa.Column('nin_or_passport', sa.String(length=100), nullable=False),
         sa.Column('fingerprint', sa.LargeBinary(), nullable=True),
         sa.Column('security_code', sa.String(length=255), nullable=False),
         sa.Column('approval_code', sa.String(length=255), nullable=True),
         sa.Column('image', sa.LargeBinary(), nullable=True),
-        sa.Column('status', sa.Enum('pending', 'approved', 'rejected', name='kycstatus'), nullable=False, server_default='pending'),
+        sa.Column('status', kyc_status_enum, nullable=False, server_default='pending'),
         sa.Column('rejection_reason', sa.Text(), nullable=True),
         sa.Column('submitted_at', sa.DateTime(), nullable=False, server_default=sa.text('now()')),
         sa.Column('verified_at', sa.DateTime(), nullable=True),
@@ -62,7 +64,7 @@ def downgrade() -> None:
     # Drop kyc table
     op.drop_table('kyc')
     
-    # Drop enum types
-    op.execute("DROP TYPE kycstatus")
-    op.execute("DROP TYPE kyctype")
+    # Drop enum types after dropping table
+    kyc_status_enum.drop(op.get_bind(), checkfirst=True)
+    kyc_type_enum.drop(op.get_bind(), checkfirst=True)
 

@@ -18,16 +18,18 @@ down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
+# Define enum instances at module level with create_type=False
+project_status_enum = sa.Enum('draft', 'active', 'completed', 'cancelled', 'disputed', name='project_status', create_type=False)
+milestone_status_enum = sa.Enum('pending', 'in_progress', 'completed', 'approved', 'rejected', 'disputed', name='milestone_status', create_type=False)
+transaction_type_enum = sa.Enum('deposit', 'withdrawal', 'escrow_hold', 'escrow_release', 'refund', 'fee', 'commission', name='transaction_type', create_type=False)
+transaction_status_enum = sa.Enum('pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded', name='transaction_status', create_type=False)
+
 
 def upgrade() -> None:
-    # Patch: Always use checkfirst=True and pass enum instance to columns
-    project_status_enum = sa.Enum('draft', 'active', 'completed', 'cancelled', 'disputed', name='project_status')
+    # Create enum types before using them in tables
     project_status_enum.create(op.get_bind(), checkfirst=True)
-    milestone_status_enum = sa.Enum('pending', 'in_progress', 'completed', 'approved', 'rejected', 'disputed', name='milestone_status')
     milestone_status_enum.create(op.get_bind(), checkfirst=True)
-    transaction_type_enum = sa.Enum('deposit', 'withdrawal', 'escrow_hold', 'escrow_release', 'refund', 'fee', 'commission', name='transaction_type')
     transaction_type_enum.create(op.get_bind(), checkfirst=True)
-    transaction_status_enum = sa.Enum('pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded', name='transaction_status')
     transaction_status_enum.create(op.get_bind(), checkfirst=True)
     
     # Create users table
@@ -58,7 +60,7 @@ def upgrade() -> None:
         sa.Column('description', sa.Text(), nullable=False),
         sa.Column('total_amount', sa.Numeric(precision=15, scale=2), nullable=False),
         sa.Column('currency', sa.String(length=3), nullable=False, server_default='USD'),
-        sa.Column('status', sa.Enum('draft', 'pending', 'active', 'in_progress', 'completed', 'disputed', 'cancelled', 'refunded', name='project_status'), nullable=False, server_default='draft'),
+        sa.Column('status', project_status_enum, nullable=False, server_default='draft'),
         sa.Column('creator_id', UUID(as_uuid=True), nullable=False),
         sa.Column('buyer_id', UUID(as_uuid=True), nullable=True),
         sa.Column('seller_id', UUID(as_uuid=True), nullable=True),
@@ -89,7 +91,7 @@ def upgrade() -> None:
         sa.Column('order_index', sa.Integer(), nullable=False, server_default='0'),
         sa.Column('amount', sa.Numeric(precision=15, scale=2), nullable=False),
         sa.Column('currency', sa.String(length=3), nullable=False, server_default='USD'),
-        sa.Column('status', sa.Enum('pending', 'in_progress', 'completed', 'approved', 'rejected', 'disputed', name='milestone_status'), nullable=False, server_default='pending'),
+        sa.Column('status', milestone_status_enum, nullable=False, server_default='pending'),
         sa.Column('is_paid', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('completion_criteria', sa.Text(), nullable=True),
         sa.Column('completion_notes', sa.Text(), nullable=True),
@@ -111,8 +113,8 @@ def upgrade() -> None:
         sa.Column('id', UUID(as_uuid=True), nullable=False),
         sa.Column('user_id', UUID(as_uuid=True), nullable=False),
         sa.Column('project_id', UUID(as_uuid=True), nullable=True),
-        sa.Column('transaction_type', sa.Enum('deposit', 'withdrawal', 'escrow_hold', 'escrow_release', 'refund', 'fee', 'commission', name='transaction_type'), nullable=False),
-        sa.Column('status', sa.Enum('pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded', name='transaction_status'), nullable=False, server_default='pending'),
+        sa.Column('transaction_type', transaction_type_enum, nullable=False),
+        sa.Column('status', transaction_status_enum, nullable=False, server_default='pending'),
         sa.Column('amount', sa.Numeric(precision=15, scale=2), nullable=False),
         sa.Column('currency', sa.String(length=3), nullable=False, server_default='USD'),
         sa.Column('fee', sa.Numeric(precision=15, scale=2), nullable=False, server_default='0'),
@@ -161,11 +163,7 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_users_email'), table_name='users')
     op.drop_table('users')
     
-    # Patch: Always use checkfirst=True and pass enum instance to drop
-    project_status_enum = sa.Enum('draft', 'active', 'completed', 'cancelled', 'disputed', name='project_status')
-    milestone_status_enum = sa.Enum('pending', 'in_progress', 'completed', 'approved', 'rejected', 'disputed', name='milestone_status')
-    transaction_type_enum = sa.Enum('deposit', 'withdrawal', 'escrow_hold', 'escrow_release', 'refund', 'fee', 'commission', name='transaction_type')
-    transaction_status_enum = sa.Enum('pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded', name='transaction_status')
+    # Drop enum types after dropping tables
     transaction_status_enum.drop(op.get_bind(), checkfirst=True)
     transaction_type_enum.drop(op.get_bind(), checkfirst=True)
     milestone_status_enum.drop(op.get_bind(), checkfirst=True)

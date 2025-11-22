@@ -17,6 +17,9 @@ down_revision: Union[str, None] = '20251120_140218'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
+# Define enum instance at module level with create_type=False
+wallet_provider_enum = sa.Enum('fincra', 'paystack', 'flutterwave', name='wallet_provider', create_type=False)
+
 
 def upgrade() -> None:
     """
@@ -25,17 +28,16 @@ def upgrade() -> None:
     with idempotency support and constraints to prevent duplicate entries.
     """
     
+    # Create wallet_provider enum type before using it in table
+    wallet_provider_enum.create(op.get_bind(), checkfirst=True)
+    
     # Create wallet_balance_snapshot table
     op.create_table(
         'wallet_balance_snapshot',
         sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False),
         sa.Column('external_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('wallet_id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column(
-            'provider',
-            sa.Enum('fincra', 'paystack', 'flutterwave', name='wallet_provider'),
-            nullable=False
-        ),
+        sa.Column('provider', wallet_provider_enum, nullable=False),
         sa.Column('balance', sa.Numeric(precision=20, scale=2), nullable=False),
         sa.Column('currency', sa.String(length=3), nullable=False),
         sa.Column('external_balance_id', sa.String(length=255), nullable=True),
@@ -119,3 +121,6 @@ def downgrade() -> None:
     
     # Drop table
     op.drop_table('wallet_balance_snapshot')
+    
+    # Drop enum type after dropping table
+    wallet_provider_enum.drop(op.get_bind(), checkfirst=True)

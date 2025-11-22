@@ -11,9 +11,10 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID
 
+# Define enum instances at module level with create_type=False
 wallet_provider_enum = sa.Enum('fincra', 'paystack', 'flutterwave', name='wallet_provider', create_type=False)
-hold_status_enum = sa.Enum('active', 'released', 'captured', name='hold_status')
-ledger_transaction_type_enum = sa.Enum('debit', 'credit', name='ledger_transaction_type')
+hold_status_enum = sa.Enum('active', 'released', 'captured', name='hold_status', create_type=False)
+ledger_transaction_type_enum = sa.Enum('debit', 'credit', name='ledger_transaction_type', create_type=False)
 
 
 # revision identifiers, used by Alembic.
@@ -29,9 +30,8 @@ def upgrade() -> None:
     This is an additive migration that preserves existing UUIDs.
     """
     
-    # Create enum type if not present (use a separate instance for creation)
-    wallet_provider_enum_type = sa.Enum('fincra', 'paystack', 'flutterwave', name='wallet_provider')
-    wallet_provider_enum_type.create(op.get_bind(), checkfirst=True)
+    # Create enum types before using them in tables
+    wallet_provider_enum.create(op.get_bind(), checkfirst=True)
     hold_status_enum.create(op.get_bind(), checkfirst=True)
     ledger_transaction_type_enum.create(op.get_bind(), checkfirst=True)
     
@@ -157,6 +157,5 @@ def downgrade() -> None:
     # Drop enums after dropping tables
     ledger_transaction_type_enum.drop(op.get_bind(), checkfirst=True)
     hold_status_enum.drop(op.get_bind(), checkfirst=True)
-    wallet_provider_enum_type = sa.Enum('fincra', 'paystack', 'flutterwave', name='wallet_provider')
-    wallet_provider_enum_type.drop(op.get_bind(), checkfirst=True)
+    wallet_provider_enum.drop(op.get_bind(), checkfirst=True)
 
