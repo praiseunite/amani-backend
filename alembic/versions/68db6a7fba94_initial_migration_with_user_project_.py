@@ -21,6 +21,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     # Create enum types before using them in tables (using raw SQL with IF NOT EXISTS)
+    # Note: project_status enum includes all values from ProjectStatus model
     op.execute("""
         DO $$ BEGIN
             CREATE TYPE project_status AS ENUM ('draft', 'pending', 'active', 'in_progress', 'completed', 'disputed', 'cancelled', 'refunded');

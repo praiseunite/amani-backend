@@ -114,5 +114,4 @@ def downgrade() -> None:
     
     # Drop enum types after dropping table
     op.execute('DROP TYPE IF EXISTS wallet_event_type')
-    # Note: wallet_provider enum is also used by wallet_registry and wallet_balance_snapshot
-    # so we should not drop it here. The first migration that creates it should drop it.
+    # Note: wallet_provider enum is created in migration d8311371c01f and should be dropped there

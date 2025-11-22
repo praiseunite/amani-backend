@@ -119,6 +119,5 @@ def downgrade() -> None:
     # Drop table
     op.drop_table('wallet_balance_snapshot')
     
-    # Drop enum type after dropping table (only if not used by other tables)
-    # Note: wallet_provider enum is also used by wallet_registry and wallet_transaction_event
-    # so we should not drop it here. The first migration that creates it should drop it.
+    # Drop enum type after dropping table
+    # Note: wallet_provider enum is created in migration d8311371c01f and should be dropped there
