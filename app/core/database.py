@@ -37,7 +37,16 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
     Yields:
         AsyncSession: Database session
+        
+    Raises:
+        RuntimeError: If async engine is not initialized (e.g., using psycopg2 instead of asyncpg)
     """
+    if AsyncSessionLocal is None:
+        raise RuntimeError(
+            "AsyncSessionLocal is not initialized. "
+            "Ensure DATABASE_URL uses asyncpg driver (postgresql+asyncpg://...)"
+        )
+    
     async with AsyncSessionLocal() as session:
         try:
             yield session
@@ -53,6 +62,15 @@ async def init_db():
     """
     Initialize database tables.
     Should be called on application startup.
+    
+    Raises:
+        RuntimeError: If async engine is not initialized (e.g., using psycopg2 instead of asyncpg)
     """
+    if engine is None:
+        raise RuntimeError(
+            "Async engine is not initialized. "
+            "Ensure DATABASE_URL uses asyncpg driver (postgresql+asyncpg://...)"
+        )
+    
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

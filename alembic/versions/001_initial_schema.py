@@ -53,6 +53,9 @@ def upgrade() -> None:
     Create all tables and enums for the initial schema.
     Uses checkfirst=True for idempotency.
     """
+    # Enable UUID extension for PostgreSQL
+    op.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"')
+    
     # Create all enum types first (before tables that reference them)
     # Using checkfirst=True makes the migration idempotent
     user_role_enum.create(op.get_bind(), checkfirst=True)
@@ -69,7 +72,7 @@ def upgrade() -> None:
     # Create users table first (referenced by other tables)
     op.create_table(
         'users',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False, server_default=sa.text('uuid_generate_v4()')),
         sa.Column('integer_id', sa.BigInteger(), nullable=True),
         sa.Column('email', sa.String(length=255), nullable=False),
         sa.Column('full_name', sa.String(length=255), nullable=True),
@@ -96,7 +99,7 @@ def upgrade() -> None:
     # Create projects table (references users)
     op.create_table(
         'projects',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False, server_default=sa.text('uuid_generate_v4()')),
         sa.Column('title', sa.String(length=255), nullable=False),
         sa.Column('description', sa.Text(), nullable=False),
         sa.Column('total_amount', sa.Numeric(precision=15, scale=2), nullable=False),
@@ -125,7 +128,7 @@ def upgrade() -> None:
     # Create transactions table (references users and projects)
     op.create_table(
         'transactions',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False, server_default=sa.text('uuid_generate_v4()')),
         sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('project_id', postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column('transaction_type', transaction_type_enum, nullable=False),
@@ -159,7 +162,7 @@ def upgrade() -> None:
     # Create milestones table (references projects)
     op.create_table(
         'milestones',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False, server_default=sa.text('uuid_generate_v4()')),
         sa.Column('project_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('title', sa.String(length=255), nullable=False),
         sa.Column('description', sa.Text(), nullable=False),
@@ -185,7 +188,7 @@ def upgrade() -> None:
     # Create kyc table (references users)
     op.create_table(
         'kyc',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False, server_default=sa.text('uuid_generate_v4()')),
         sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('type', kyc_type_enum, nullable=False, server_default='kyc'),
         sa.Column('nin_or_passport', sa.String(length=100), nullable=False),
@@ -290,7 +293,7 @@ def upgrade() -> None:
     # Create wallet_balance_snapshot table
     op.create_table(
         'wallet_balance_snapshot',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False, server_default=sa.text('uuid_generate_v4()')),
         sa.Column('wallet_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('provider', wallet_provider_enum, nullable=False),
         sa.Column('balance', sa.Numeric(precision=20, scale=2), nullable=False),
