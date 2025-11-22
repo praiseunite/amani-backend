@@ -15,7 +15,7 @@ Base = declarative_base()
 engine: Optional[AsyncEngine] = None
 AsyncSessionLocal: Optional[async_sessionmaker] = None
 
-if settings.DATABASE_URL.startswith('postgresql+asyncpg://'):
+if settings.DATABASE_URL and settings.DATABASE_URL.startswith('postgresql+asyncpg://'):
     engine = create_async_engine(
         settings.DATABASE_URL,
         echo=settings.DEBUG,

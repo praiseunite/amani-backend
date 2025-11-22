@@ -297,9 +297,10 @@ my_enum.drop(op.get_bind(), checkfirst=True)  # Won't error if doesn't exist
 
 **Solution**: The env.py automatically converts asyncpg URLs to psycopg2. Ensure:
 
-1. `psycopg2` is installed (for production) or `psycopg2-binary` (for development/testing):
-   - Production: `pip install psycopg2`
-   - Development/Testing: `pip install psycopg2-binary`
+1. `psycopg2` or `psycopg2-binary` is installed:
+   - **Production**: Use `pip install psycopg2` (built from source, better performance and reliability)
+   - **Development/Testing**: Use `pip install psycopg2-binary` (pre-compiled, easier installation)
+   - **Note**: `psycopg2-binary` is NOT recommended for production due to potential compatibility and performance issues
 2. The DATABASE_URL is set correctly
 3. The env.py is converting the URL properly
 
