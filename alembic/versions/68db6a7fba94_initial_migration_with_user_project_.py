@@ -23,7 +23,7 @@ def upgrade() -> None:
     # Create enum types before using them in tables (using raw SQL with IF NOT EXISTS)
     op.execute("""
         DO $$ BEGIN
-            CREATE TYPE project_status AS ENUM ('draft', 'active', 'completed', 'cancelled', 'disputed');
+            CREATE TYPE project_status AS ENUM ('draft', 'pending', 'active', 'in_progress', 'completed', 'disputed', 'cancelled', 'refunded');
         EXCEPTION
             WHEN duplicate_object THEN null;
         END $$;
@@ -78,7 +78,7 @@ def upgrade() -> None:
         sa.Column('description', sa.Text(), nullable=False),
         sa.Column('total_amount', sa.Numeric(precision=15, scale=2), nullable=False),
         sa.Column('currency', sa.String(length=3), nullable=False, server_default='USD'),
-        sa.Column('status', postgresql.ENUM('draft', 'active', 'completed', 'cancelled', 'disputed', name='project_status', create_type=False), nullable=False, server_default='draft'),
+        sa.Column('status', postgresql.ENUM('draft', 'pending', 'active', 'in_progress', 'completed', 'disputed', 'cancelled', 'refunded', name='project_status', create_type=False), nullable=False, server_default='draft'),
         sa.Column('creator_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('buyer_id', postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column('seller_id', postgresql.UUID(as_uuid=True), nullable=True),
