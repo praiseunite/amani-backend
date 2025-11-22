@@ -105,26 +105,26 @@ def upgrade() -> None:
     op.create_table(
         'users',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('integer_id', sa.BigInteger(), nullable=True),
         sa.Column('email', sa.String(length=255), nullable=False),
-        sa.Column('hashed_password', sa.String(length=255), nullable=False),
         sa.Column('full_name', sa.String(length=255), nullable=True),
-        sa.Column('phone_number', sa.String(length=20), nullable=True),
+        sa.Column('phone_number', sa.String(length=50), nullable=True),
+        sa.Column('hashed_password', sa.String(length=255), nullable=True),
+        sa.Column('role', user_role_enum, nullable=False, server_default='client'),
         sa.Column('is_active', sa.Boolean(), nullable=False, server_default='true'),
         sa.Column('is_verified', sa.Boolean(), nullable=False, server_default='false'),
-        sa.Column('role', user_role_enum, nullable=False, server_default='client'),
-        sa.Column('verification_code', sa.String(length=6), nullable=True),
-        sa.Column('verification_code_expires_at', sa.DateTime(), nullable=True),
-        sa.Column('password_reset_token', sa.String(length=255), nullable=True),
-        sa.Column('password_reset_expires_at', sa.DateTime(), nullable=True),
-        sa.Column('two_factor_secret', sa.String(length=32), nullable=True),
-        sa.Column('two_factor_enabled', sa.Boolean(), nullable=False, server_default='false'),
+        sa.Column('is_superuser', sa.Boolean(), nullable=False, server_default='false'),
+        sa.Column('otp_code', sa.String(length=6), nullable=True),
+        sa.Column('otp_expires_at', sa.DateTime(), nullable=True),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('last_login', sa.DateTime(), nullable=True),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('email')
+        sa.UniqueConstraint('email'),
+        sa.UniqueConstraint('integer_id')
     )
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=False)
+    op.create_index(op.f('ix_users_integer_id'), 'users', ['integer_id'], unique=False)
     
     # Create projects table
     op.create_table(
@@ -404,6 +404,7 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_projects_buyer_id'), table_name='projects')
     op.drop_table('projects')
     
+    op.drop_index(op.f('ix_users_integer_id'), table_name='users')
     op.drop_index(op.f('ix_users_email'), table_name='users')
     op.drop_table('users')
     
