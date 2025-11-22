@@ -18,14 +18,10 @@ depends_on = None
 
 def upgrade() -> None:
     """Create wallet_transaction_event table with indexes and constraints."""
-    # Create enum types before using them in tables
-    op.execute("""
-        DO $$ BEGIN
-            CREATE TYPE wallet_provider AS ENUM ('fincra', 'paystack', 'flutterwave');
-        EXCEPTION
-            WHEN duplicate_object THEN null;
-        END $$;
-    """)
+    # wallet_provider enum already created in migration d8311371c01f
+    # No need to create it again here
+    
+    # Create wallet_event_type enum type
     op.execute("""
         DO $$ BEGIN
             CREATE TYPE wallet_event_type AS ENUM (

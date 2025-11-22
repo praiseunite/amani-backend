@@ -25,14 +25,8 @@ def upgrade() -> None:
     with idempotency support and constraints to prevent duplicate entries.
     """
     
-    # Create wallet_provider enum type before using it in table
-    op.execute("""
-        DO $$ BEGIN
-            CREATE TYPE wallet_provider AS ENUM ('fincra', 'paystack', 'flutterwave');
-        EXCEPTION
-            WHEN duplicate_object THEN null;
-        END $$;
-    """)
+    # wallet_provider enum already created in migration d8311371c01f
+    # No need to create it again here
     
     # Create wallet_balance_snapshot table
     op.create_table(
