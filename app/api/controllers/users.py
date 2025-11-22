@@ -1,9 +1,10 @@
 """Users controller."""
 
-from uuid import UUID
-from fastapi import APIRouter, HTTPException, status, Depends, Header
-from pydantic import BaseModel
 from typing import Optional
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, Header, HTTPException, status
+from pydantic import BaseModel
 
 from app.application.use_cases.get_user_status import GetUserStatusUseCase
 

@@ -5,16 +5,17 @@ Tests for custom exception handlers.
 import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
+
 from app.core.exceptions import (
     APIError,
     BadRequestError,
-    UnauthorizedError,
+    ConflictError,
     ForbiddenError,
     NotFoundError,
-    ConflictError,
-    ValidationErrorException,
     RateLimitError,
     ServiceUnavailableError,
+    UnauthorizedError,
+    ValidationErrorException,
     register_exception_handlers,
 )
 

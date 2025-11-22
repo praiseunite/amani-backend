@@ -2,7 +2,7 @@
 
 from uuid import UUID
 
-from app.domain.entities import WalletRegistryEntry, WalletProvider
+from app.domain.entities import WalletProvider, WalletRegistryEntry
 from app.domain.services import WalletRegistryService
 
 

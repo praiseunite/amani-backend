@@ -3,22 +3,22 @@ KYC routes for identity verification submission and status checking.
 Integrates with FinCra API for KYC verification.
 """
 
-from typing import Optional, List
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.ext.asyncio import AsyncSession
-from uuid import UUID
-import logging
 import base64
+import logging
+from typing import List, Optional
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_active_user
-from app.core.fincra import get_fincra_client, FinCraError
-from app.core.exceptions import NotFoundError, ConflictError, BadRequestError
-from app.models.user import User
+from app.core.exceptions import BadRequestError, ConflictError, NotFoundError
+from app.core.fincra import FinCraError, get_fincra_client
+from app.crud.kyc import create_kyc_submission, get_kyc_by_id, get_kyc_by_user
 from app.models.kyc import KycStatus
+from app.models.user import User
 from app.schemas.kyc import KycCreate, KycResponse
-from app.crud.kyc import create_kyc_submission, get_kyc_by_user, get_kyc_by_id
-
 
 router = APIRouter(prefix="/kyc", tags=["kyc"])
 logger = logging.getLogger(__name__)

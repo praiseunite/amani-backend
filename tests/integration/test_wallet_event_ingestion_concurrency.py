@@ -4,19 +4,18 @@ These tests require a test database and are gated by TEST_DATABASE_URL environme
 Run `alembic upgrade head` before running these tests.
 """
 
-import os
 import asyncio
-import pytest
-from uuid import uuid4
+import os
 from datetime import datetime
+from uuid import uuid4
 
+import pytest
 from sqlalchemy import MetaData
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.domain.entities import WalletProvider, WalletEventType, WalletTransactionEvent
 from app.adapters.sql.wallet_event_ingestion import SQLWalletEventIngestion
+from app.domain.entities import WalletEventType, WalletProvider, WalletTransactionEvent
 from app.errors import DuplicateEntryError
-
 
 # Mark all tests in this module as integration tests
 pytestmark = [

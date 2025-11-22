@@ -1,16 +1,17 @@
 """Wallet events controller."""
 
+from datetime import datetime
+from typing import List, Optional
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from typing import Optional, List
-from datetime import datetime
 
-from app.domain.entities import WalletProvider, WalletEventType
 from app.application.use_cases.wallet_events import (
     IngestWalletEventUseCase,
     ListWalletEventsUseCase,
 )
+from app.domain.entities import WalletEventType, WalletProvider
 
 
 class IngestEventRequest(BaseModel):

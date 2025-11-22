@@ -1,19 +1,20 @@
 """API tests for wallet balance sync endpoints."""
 
-import pytest
 from uuid import uuid4
+
+import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from app.api.controllers.wallets import create_wallets_router
-from app.application.use_cases.register_wallet import RegisterWalletUseCase
-from app.application.use_cases.sync_wallet_balance import SyncWalletBalanceUseCase
-from app.application.services.wallet_registry_service import WalletRegistryService
-from app.application.services.wallet_balance_sync_service import WalletBalanceSyncService
-from app.adapters.inmemory.wallet_registry import InMemoryWalletRegistry
+from app.adapters.inmemory.audit import InMemoryAudit
 from app.adapters.inmemory.wallet_balance_sync import InMemoryWalletBalanceSync
 from app.adapters.inmemory.wallet_provider import InMemoryWalletProvider
-from app.adapters.inmemory.audit import InMemoryAudit
+from app.adapters.inmemory.wallet_registry import InMemoryWalletRegistry
+from app.api.controllers.wallets import create_wallets_router
+from app.application.services.wallet_balance_sync_service import WalletBalanceSyncService
+from app.application.services.wallet_registry_service import WalletRegistryService
+from app.application.use_cases.register_wallet import RegisterWalletUseCase
+from app.application.use_cases.sync_wallet_balance import SyncWalletBalanceUseCase
 
 
 class TestWalletBalanceSyncAPI:

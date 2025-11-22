@@ -2,10 +2,11 @@
 CRUD operations for wallet transaction events.
 """
 
-from typing import Optional, List
-from uuid import UUID
 from datetime import datetime
-from sqlalchemy import select, and_, desc
+from typing import List, Optional
+from uuid import UUID
+
+from sqlalchemy import and_, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.wallet_event import WalletTransactionEvent
@@ -60,7 +61,9 @@ async def create_wallet_event(
     return event
 
 
-async def get_wallet_event_by_id(db: AsyncSession, event_id: int) -> Optional[WalletTransactionEvent]:
+async def get_wallet_event_by_id(
+    db: AsyncSession, event_id: int
+) -> Optional[WalletTransactionEvent]:
     """
     Get wallet transaction event by internal ID.
 

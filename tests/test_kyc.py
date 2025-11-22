@@ -2,16 +2,17 @@
 Comprehensive tests for KYC functionality including 2FA TOTP and middleware.
 """
 
-import pytest
-from unittest.mock import Mock, AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 from uuid import uuid4
 
-from app.core.auth import generate_totp_secret, get_totp_uri, verify_totp_code, generate_totp_code
+import pytest
+from fastapi import Request, status
+from fastapi.responses import JSONResponse
+
+from app.core.auth import generate_totp_code, generate_totp_secret, get_totp_uri, verify_totp_code
 from app.core.security import KYCEnforcementMiddleware
 from app.models.kyc import Kyc, KycStatus
 from app.models.user import User
-from fastapi import Request, status
-from fastapi.responses import JSONResponse
 
 
 class TestTOTPFunctionality:
@@ -324,10 +325,10 @@ class TestKYCIntegration:
     def test_totp_imports(self):
         """Test that all TOTP functions can be imported."""
         from app.core.auth import (
+            generate_totp_code,
             generate_totp_secret,
             get_totp_uri,
             verify_totp_code,
-            generate_totp_code,
         )
 
         assert generate_totp_secret is not None

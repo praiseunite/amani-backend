@@ -1,61 +1,20 @@
 """Schemas module for Pydantic models."""
 
 from app.schemas.auth import (
+    MagicLinkRequest,
+    MagicLinkResponse,
+    PasswordChange,
+    Token,
+    TokenData,
     UserBase,
     UserCreate,
     UserLogin,
     UserResponse,
-    Token,
-    TokenData,
     UserUpdate,
-    PasswordChange,
-    MagicLinkRequest,
-    MagicLinkResponse,
-)
-from app.schemas.project import (
-    ProjectBase,
-    ProjectCreate,
-    ProjectUpdate,
-    ProjectResponse,
-    ProjectListResponse,
-)
-from app.schemas.milestone import (
-    MilestoneBase,
-    MilestoneCreate,
-    MilestoneUpdate,
-    MilestoneSubmit,
-    MilestoneApprove,
-    MilestoneResponse,
-    MilestoneListResponse,
-)
-from app.schemas.transaction import (
-    TransactionBase,
-    TransactionCreate,
-    EscrowHoldRequest,
-    EscrowReleaseRequest,
-    TransactionResponse,
-    TransactionListResponse,
-)
-from app.schemas.kyc import KycBase, KycCreate, KycResponse, KycUpdate, KycApproval
-from app.schemas.wallet import (
-    WalletProvider,
-    WalletEventType,
-    WalletRegistryBase,
-    WalletRegistryCreate,
-    WalletRegistryResponse,
-    WalletRegistryListResponse,
-    WalletBalanceSnapshotBase,
-    WalletBalanceSnapshotCreate,
-    WalletBalanceSnapshotResponse,
-    WalletBalanceSnapshotListResponse,
-    WalletTransactionEventBase,
-    WalletTransactionEventCreate,
-    WalletTransactionEventResponse,
-    WalletTransactionEventListResponse,
-    WalletSyncRequest,
-    WalletGetBalanceRequest,
 )
 from app.schemas.fincra import (
+    FinCraBalanceRequest,
+    FinCraBalanceResponse,
     FinCraPaymentRequest,
     FinCraPaymentResponse,
     FinCraPaymentVerifyRequest,
@@ -64,8 +23,49 @@ from app.schemas.fincra import (
     FinCraTransferResponse,
     FinCraTransferVerifyRequest,
     FinCraTransferVerifyResponse,
-    FinCraBalanceRequest,
-    FinCraBalanceResponse,
+)
+from app.schemas.kyc import KycApproval, KycBase, KycCreate, KycResponse, KycUpdate
+from app.schemas.milestone import (
+    MilestoneApprove,
+    MilestoneBase,
+    MilestoneCreate,
+    MilestoneListResponse,
+    MilestoneResponse,
+    MilestoneSubmit,
+    MilestoneUpdate,
+)
+from app.schemas.project import (
+    ProjectBase,
+    ProjectCreate,
+    ProjectListResponse,
+    ProjectResponse,
+    ProjectUpdate,
+)
+from app.schemas.transaction import (
+    EscrowHoldRequest,
+    EscrowReleaseRequest,
+    TransactionBase,
+    TransactionCreate,
+    TransactionListResponse,
+    TransactionResponse,
+)
+from app.schemas.wallet import (
+    WalletBalanceSnapshotBase,
+    WalletBalanceSnapshotCreate,
+    WalletBalanceSnapshotListResponse,
+    WalletBalanceSnapshotResponse,
+    WalletEventType,
+    WalletGetBalanceRequest,
+    WalletProvider,
+    WalletRegistryBase,
+    WalletRegistryCreate,
+    WalletRegistryListResponse,
+    WalletRegistryResponse,
+    WalletSyncRequest,
+    WalletTransactionEventBase,
+    WalletTransactionEventCreate,
+    WalletTransactionEventListResponse,
+    WalletTransactionEventResponse,
 )
 
 __all__ = [

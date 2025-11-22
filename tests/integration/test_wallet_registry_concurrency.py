@@ -4,18 +4,18 @@ These tests require a test database and are gated by TEST_DATABASE_URL environme
 Run `alembic upgrade head` before running these tests.
 """
 
-import os
 import asyncio
-import pytest
+import os
 from uuid import uuid4
+
+import pytest
 from sqlalchemy import MetaData
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.domain.entities import WalletProvider
-from app.application.services.wallet_registry_service import WalletRegistryService
-from app.adapters.sql.wallet_registry import SQLWalletRegistry
 from app.adapters.inmemory.audit import InMemoryAudit
-
+from app.adapters.sql.wallet_registry import SQLWalletRegistry
+from app.application.services.wallet_registry_service import WalletRegistryService
+from app.domain.entities import WalletProvider
 
 # Mark all tests in this module as integration tests
 pytestmark = [

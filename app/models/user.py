@@ -4,12 +4,15 @@ Includes support for Supabase Row-Level Security.
 Uses integer primary key with UUID external_id for hexagonal architecture.
 """
 
+import enum
+import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Boolean, DateTime, Text, Enum as SQLEnum, BigInteger
+
+from sqlalchemy import BigInteger, Boolean, Column, DateTime
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-import uuid
-import enum
 
 from app.core.database import Base
 

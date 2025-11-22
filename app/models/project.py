@@ -3,12 +3,13 @@ Project model for escrow projects.
 Supports Row-Level Security for Supabase.
 """
 
+import enum
+import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, DateTime, Text, Enum, Numeric, ForeignKey
+
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-import uuid
-import enum
 
 from app.core.database import Base
 

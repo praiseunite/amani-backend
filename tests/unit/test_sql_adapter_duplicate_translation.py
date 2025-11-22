@@ -1,15 +1,15 @@
 """Unit tests for SQL adapter IntegrityError to DuplicateEntryError translation."""
 
-import pytest
+from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
-from datetime import datetime
 
-from sqlalchemy.exc import IntegrityError
+import pytest
 from sqlalchemy import MetaData
+from sqlalchemy.exc import IntegrityError
 
 from app.adapters.sql.wallet_registry import SQLWalletRegistry
-from app.domain.entities import WalletRegistryEntry, WalletProvider
+from app.domain.entities import WalletProvider, WalletRegistryEntry
 from app.errors import DuplicateEntryError
 
 

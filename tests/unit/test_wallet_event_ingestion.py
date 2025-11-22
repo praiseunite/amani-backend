@@ -1,13 +1,14 @@
 """Unit tests for wallet event ingestion."""
 
-import pytest
-from uuid import uuid4
 from datetime import datetime, timedelta
+from uuid import uuid4
 
-from app.domain.entities import WalletProvider, WalletEventType
-from app.application.services.wallet_event_ingestion_service import WalletEventIngestionService
-from app.adapters.inmemory.wallet_event_ingestion import InMemoryWalletEventIngestion
+import pytest
+
 from app.adapters.inmemory.audit import InMemoryAudit
+from app.adapters.inmemory.wallet_event_ingestion import InMemoryWalletEventIngestion
+from app.application.services.wallet_event_ingestion_service import WalletEventIngestionService
+from app.domain.entities import WalletEventType, WalletProvider
 
 
 class TestWalletEventIngestion:

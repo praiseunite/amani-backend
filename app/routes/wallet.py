@@ -6,30 +6,21 @@ Additional providers (Paystack, Flutterwave) can be added by implementing
 their respective balance fetch logic.
 """
 
+import logging
 from typing import Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-import logging
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_active_user
-from app.models.user import User
-from app.models.wallet_registry import WalletRegistry
-from app.models.wallet_balance_snapshot import WalletBalanceSnapshot
-from app.schemas.wallet import (
-    WalletRegistryCreate,
-    WalletRegistryResponse,
-    WalletRegistryListResponse,
-    WalletBalanceSnapshotResponse,
-    WalletBalanceSnapshotListResponse,
-    WalletSyncRequest,
-)
+from app.core.fincra import FinCraError, get_fincra_client
 from app.crud.wallet import (
     create_wallet_registry,
-    get_wallet_registry_by_external_id,
     get_wallet_registries_by_user,
+    get_wallet_registry_by_external_id,
     get_wallet_registry_by_user_and_provider,
 )
 from app.crud.wallet_balance import (
@@ -37,13 +28,25 @@ from app.crud.wallet_balance import (
     get_latest_wallet_balance_snapshot,
     get_wallet_balance_snapshots_by_wallet,
 )
-from app.core.fincra import get_fincra_client, FinCraError
+from app.models.user import User
+from app.models.wallet_balance_snapshot import WalletBalanceSnapshot
+from app.models.wallet_registry import WalletRegistry
+from app.schemas.wallet import (
+    WalletBalanceSnapshotListResponse,
+    WalletBalanceSnapshotResponse,
+    WalletRegistryCreate,
+    WalletRegistryListResponse,
+    WalletRegistryResponse,
+    WalletSyncRequest,
+)
 
 router = APIRouter(prefix="/wallet", tags=["wallet"])
 logger = logging.getLogger(__name__)
 
 
-@router.post("/register", response_model=WalletRegistryResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register", response_model=WalletRegistryResponse, status_code=status.HTTP_201_CREATED
+)
 async def register_wallet(
     wallet_data: WalletRegistryCreate,
     current_user: User = Depends(get_current_active_user),

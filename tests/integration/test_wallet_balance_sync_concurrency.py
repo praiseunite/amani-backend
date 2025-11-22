@@ -1,17 +1,17 @@
 """Integration tests for wallet balance sync with concurrent operations."""
 
-import pytest
 import asyncio
 from uuid import uuid4
 
-from app.domain.entities import WalletProvider
-from app.application.services.wallet_balance_sync_service import WalletBalanceSyncService
+import pytest
+
+from app.adapters.inmemory.audit import InMemoryAudit
 from app.adapters.inmemory.wallet_balance_sync import InMemoryWalletBalanceSync
 from app.adapters.inmemory.wallet_provider import InMemoryWalletProvider
 from app.adapters.inmemory.wallet_registry import InMemoryWalletRegistry
-from app.adapters.inmemory.audit import InMemoryAudit
+from app.application.services.wallet_balance_sync_service import WalletBalanceSyncService
+from app.domain.entities import WalletProvider
 from app.errors import DuplicateEntryError
-
 
 # Mark all tests in this module as unit tests (using in-memory adapters)
 pytestmark = pytest.mark.unit

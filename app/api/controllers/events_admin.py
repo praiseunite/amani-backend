@@ -1,8 +1,9 @@
 """Events admin controller for testing."""
 
+from typing import Any, Dict
+
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
-from typing import Dict, Any
 
 from app.ports.event_publisher import EventPublisherPort
 

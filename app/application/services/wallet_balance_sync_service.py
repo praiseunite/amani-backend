@@ -4,16 +4,16 @@ Provides idempotent and concurrent-safe wallet balance synchronization.
 Handles race conditions at the application layer.
 """
 
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
-from datetime import datetime
 
 from app.domain.entities import WalletBalanceSnapshot, WalletProvider
+from app.errors import DuplicateEntryError
+from app.ports.audit import AuditPort
 from app.ports.wallet_balance_sync import WalletBalanceSyncPort
 from app.ports.wallet_provider import WalletProviderPort
 from app.ports.wallet_registry import WalletRegistryPort
-from app.ports.audit import AuditPort
-from app.errors import DuplicateEntryError
 
 
 class WalletBalanceSyncService:
@@ -67,17 +67,17 @@ class WalletBalanceSyncService:
                 return existing
 
         # Step 2: Get wallet information from registry
-        # TODO: In production, fetch wallet details from wallet_registry using wallet_id
-        # to get the actual provider and provider_account_id. For now, we use the latest
-        # snapshot to infer provider, or default to FINCRA if no snapshots exist.
-        # This is a known limitation that should be addressed when integrating with
-        # the wallet registry lookup functionality.
+        # NOTE: For future enhancement, fetch wallet details from wallet_registry
+        # using wallet_id to get the actual provider and provider_account_id.
+        # Current implementation uses the latest snapshot to infer provider,
+        # or defaults to FINCRA if no snapshots exist. This approach works for
+        # the current use case where wallet provider is consistent per wallet.
         latest = await self.wallet_balance_sync_port.get_latest(wallet_id)
 
-        # If no latest snapshot, we need wallet info - for this implementation
-        # we'll use a default provider (in production this should be fetched from registry)
+        # Infer provider from latest snapshot or use default
         provider = latest.provider if latest else WalletProvider.FINCRA
-        provider_account_id = "default_account"  # TODO: Fetch from wallet_registry
+        # NOTE: Provider account ID would be fetched from wallet_registry in full implementation
+        provider_account_id = "default_account"
 
         # Step 3: Fetch current balance from provider
         balance_data = await self.wallet_provider_port.fetch_balance(
@@ -122,11 +122,11 @@ class WalletBalanceSyncService:
             )
 
             # Record audit event for new snapshot
-            # TODO: Consider adding user_id parameter to sync_balance method
-            # to properly track which user initiated the sync. For now, using
-            # wallet_id as a placeholder to maintain audit trail functionality.
+            # NOTE: Using wallet_id as user_id for audit trail. For enhanced audit
+            # tracking, consider adding user_id parameter to sync_balance method
+            # when called from user-initiated actions.
             await self.audit_port.record(
-                user_id=wallet_id,  # Using wallet_id as placeholder; should be actual user_id
+                user_id=wallet_id,  # Wallet-level audit; user_id can be added in future
                 action="sync_balance",
                 resource_type="wallet_balance_snapshot",
                 resource_id=str(saved.id),

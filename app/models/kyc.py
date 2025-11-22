@@ -3,12 +3,15 @@ KYC (Know Your Customer) model for identity verification.
 Supports both KYC (individuals) and KYB (businesses).
 """
 
+import enum
+import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, DateTime, Text, Enum as SQLEnum, LargeBinary, ForeignKey
+
+from sqlalchemy import Column, DateTime
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import ForeignKey, LargeBinary, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-import uuid
-import enum
 
 from app.core.database import Base
 

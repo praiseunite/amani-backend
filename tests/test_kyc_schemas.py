@@ -5,8 +5,8 @@ Tests for KYC schemas validation.
 import pytest
 from pydantic import ValidationError
 
-from app.schemas.kyc import KycCreate, KycUpdate, KycApproval
-from app.models.kyc import KycType, KycStatus
+from app.models.kyc import KycStatus, KycType
+from app.schemas.kyc import KycApproval, KycCreate, KycUpdate
 
 
 class TestKycSchemas:

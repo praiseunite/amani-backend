@@ -3,7 +3,8 @@ Tests for advanced input validation utilities.
 """
 
 import pytest
-from app.core.validation import ValidationPatterns, InputValidator, create_string_validator
+
+from app.core.validation import InputValidator, ValidationPatterns, create_string_validator
 
 
 class TestValidationPatterns:

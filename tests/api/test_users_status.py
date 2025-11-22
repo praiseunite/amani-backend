@@ -1,14 +1,15 @@
 """Tests for user status endpoint."""
 
-import pytest
-import hmac
 import hashlib
+import hmac
 from datetime import datetime
 from uuid import uuid4
+
+import pytest
 from fastapi.testclient import TestClient
 
-from app.composition import build_app_components
 from app.api.app import create_app
+from app.composition import build_app_components
 from app.domain.entities import User
 
 

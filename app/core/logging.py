@@ -5,7 +5,9 @@ Logging configuration for structured logging and audit trails.
 import logging
 import sys
 from pathlib import Path
+
 from pythonjsonlogger import jsonlogger
+
 from app.core.config import settings
 
 

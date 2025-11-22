@@ -4,8 +4,9 @@ Handles environment variables and application settings.
 """
 
 from typing import List, Union
-from pydantic_settings import BaseSettings, SettingsConfigDict
+
 from pydantic import field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):

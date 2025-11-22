@@ -1,15 +1,16 @@
 """Unit tests for wallet balance sync service."""
 
-import pytest
-from uuid import uuid4
 from datetime import datetime, timedelta
+from uuid import uuid4
 
-from app.domain.entities import WalletProvider, WalletBalanceSnapshot
-from app.application.services.wallet_balance_sync_service import WalletBalanceSyncService
+import pytest
+
+from app.adapters.inmemory.audit import InMemoryAudit
 from app.adapters.inmemory.wallet_balance_sync import InMemoryWalletBalanceSync
 from app.adapters.inmemory.wallet_provider import InMemoryWalletProvider
 from app.adapters.inmemory.wallet_registry import InMemoryWalletRegistry
-from app.adapters.inmemory.audit import InMemoryAudit
+from app.application.services.wallet_balance_sync_service import WalletBalanceSyncService
+from app.domain.entities import WalletBalanceSnapshot, WalletProvider
 
 
 class TestWalletBalanceSyncService:

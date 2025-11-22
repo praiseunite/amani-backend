@@ -3,9 +3,9 @@
 from typing import Dict, List, Optional
 from uuid import UUID
 
-from app.domain.entities import WalletRegistryEntry, WalletProvider
-from app.ports.wallet_registry import WalletRegistryPort
+from app.domain.entities import WalletProvider, WalletRegistryEntry
 from app.errors import DuplicateEntryError
+from app.ports.wallet_registry import WalletRegistryPort
 
 
 class InMemoryWalletRegistry(WalletRegistryPort):

@@ -1,14 +1,15 @@
 """Wallets controller."""
 
+from datetime import datetime
+from typing import Awaitable, Callable, Optional
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from typing import Optional, Callable, Awaitable
-from datetime import datetime
 
-from app.domain.entities import WalletProvider
 from app.application.use_cases.register_wallet import RegisterWalletUseCase
 from app.application.use_cases.sync_wallet_balance import SyncWalletBalanceUseCase
+from app.domain.entities import WalletProvider
 
 
 class RegisterWalletRequest(BaseModel):

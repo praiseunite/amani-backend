@@ -1,11 +1,11 @@
 """Use case for ingesting wallet transaction events."""
 
+from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
-from datetime import datetime
 
-from app.domain.entities import WalletTransactionEvent, WalletProvider, WalletEventType
 from app.application.services.wallet_event_ingestion_service import WalletEventIngestionService
+from app.domain.entities import WalletEventType, WalletProvider, WalletTransactionEvent
 
 
 class IngestWalletEventUseCase:

@@ -2,14 +2,15 @@
 Authentication middleware and dependencies for route protection.
 """
 
-from typing import Optional, List
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from typing import List, Optional
 
-from app.core.database import get_db
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.core.auth import decode_access_token
+from app.core.database import get_db
 from app.models.user import User, UserRole
 from app.schemas.auth import TokenData
 

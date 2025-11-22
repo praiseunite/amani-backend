@@ -1,13 +1,13 @@
 """Domain services - business logic using ports."""
 
+import secrets
 from datetime import datetime, timedelta
 from typing import Optional
 from uuid import UUID
-import secrets
 
 from app.domain.entities import LinkToken, WalletProvider, WalletRegistryEntry
-from app.ports.link_token import LinkTokenPort
 from app.ports.audit import AuditPort
+from app.ports.link_token import LinkTokenPort
 from app.ports.wallet_registry import WalletRegistryPort
 
 

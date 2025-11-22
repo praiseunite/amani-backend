@@ -2,10 +2,11 @@
 Unit tests for wallet CRUD operations.
 """
 
-import pytest
-from uuid import uuid4
-from decimal import Decimal
 from datetime import datetime
+from decimal import Decimal
+from uuid import uuid4
+
+import pytest
 
 
 class TestWalletCRUDImports:
@@ -15,13 +16,13 @@ class TestWalletCRUDImports:
         """Test that wallet registry CRUD functions can be imported."""
         from app.crud.wallet import (
             create_wallet_registry,
-            get_wallet_registry_by_id,
-            get_wallet_registry_by_external_id,
-            get_wallet_registry_by_user_and_provider,
-            get_wallet_registries_by_user,
-            update_wallet_registry,
             deactivate_wallet_registry,
             delete_wallet_registry,
+            get_wallet_registries_by_user,
+            get_wallet_registry_by_external_id,
+            get_wallet_registry_by_id,
+            get_wallet_registry_by_user_and_provider,
+            update_wallet_registry,
         )
 
         assert create_wallet_registry is not None
@@ -37,12 +38,12 @@ class TestWalletCRUDImports:
         """Test that wallet balance CRUD functions can be imported."""
         from app.crud.wallet_balance import (
             create_wallet_balance_snapshot,
+            delete_wallet_balance_snapshot,
+            get_latest_wallet_balance_snapshot,
+            get_wallet_balance_snapshot_by_external_id,
             get_wallet_balance_snapshot_by_id,
             get_wallet_balance_snapshot_by_idempotency_key,
-            get_latest_wallet_balance_snapshot,
             get_wallet_balance_snapshots_by_wallet,
-            get_wallet_balance_snapshot_by_external_id,
-            delete_wallet_balance_snapshot,
         )
 
         assert create_wallet_balance_snapshot is not None
@@ -57,13 +58,13 @@ class TestWalletCRUDImports:
         """Test that wallet event CRUD functions can be imported."""
         from app.crud.wallet_event import (
             create_wallet_event,
-            get_wallet_event_by_id,
+            delete_wallet_event,
             get_wallet_event_by_external_id,
+            get_wallet_event_by_id,
             get_wallet_event_by_idempotency_key,
-            get_wallet_events_by_wallet,
             get_wallet_events_by_provider_event_id,
             get_wallet_events_by_type,
-            delete_wallet_event,
+            get_wallet_events_by_wallet,
         )
 
         assert create_wallet_event is not None
@@ -81,8 +82,9 @@ class TestWalletCRUDFunctionSignatures:
 
     def test_create_wallet_registry_signature(self):
         """Test create_wallet_registry function signature."""
-        from app.crud.wallet import create_wallet_registry
         import inspect
+
+        from app.crud.wallet import create_wallet_registry
 
         sig = inspect.signature(create_wallet_registry)
         assert "db" in sig.parameters
@@ -94,8 +96,9 @@ class TestWalletCRUDFunctionSignatures:
 
     def test_create_wallet_balance_snapshot_signature(self):
         """Test create_wallet_balance_snapshot function signature."""
-        from app.crud.wallet_balance import create_wallet_balance_snapshot
         import inspect
+
+        from app.crud.wallet_balance import create_wallet_balance_snapshot
 
         sig = inspect.signature(create_wallet_balance_snapshot)
         assert "db" in sig.parameters
@@ -107,8 +110,9 @@ class TestWalletCRUDFunctionSignatures:
 
     def test_create_wallet_event_signature(self):
         """Test create_wallet_event function signature."""
-        from app.crud.wallet_event import create_wallet_event
         import inspect
+
+        from app.crud.wallet_event import create_wallet_event
 
         sig = inspect.signature(create_wallet_event)
         assert "db" in sig.parameters

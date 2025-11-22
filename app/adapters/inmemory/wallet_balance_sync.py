@@ -4,8 +4,8 @@ from typing import Dict, List, Optional
 from uuid import UUID
 
 from app.domain.entities import WalletBalanceSnapshot
-from app.ports.wallet_balance_sync import WalletBalanceSyncPort
 from app.errors import DuplicateEntryError
+from app.ports.wallet_balance_sync import WalletBalanceSyncPort
 
 
 class InMemoryWalletBalanceSync(WalletBalanceSyncPort):

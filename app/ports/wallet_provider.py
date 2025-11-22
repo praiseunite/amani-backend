@@ -1,7 +1,7 @@
 """Wallet provider adapter - interface for fetching wallet balances from providers."""
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any
+from typing import Any, Dict
 from uuid import UUID
 
 from app.domain.entities import WalletProvider

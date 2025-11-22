@@ -3,28 +3,28 @@ Escrow and transaction routes for payment processing.
 Integrates with FinCra API for payments.
 """
 
-from typing import Optional
-from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from uuid import UUID
 import logging
+from datetime import datetime
+from typing import Optional
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_active_user
-from app.core.fincra import get_fincra_client, FinCraError
-from app.models.user import User
-from app.models.project import Project, ProjectStatus
+from app.core.fincra import FinCraError, get_fincra_client
 from app.models.milestone import Milestone, MilestoneStatus
-from app.models.transaction import Transaction, TransactionType, TransactionStatus
+from app.models.project import Project, ProjectStatus
+from app.models.transaction import Transaction, TransactionStatus, TransactionType
+from app.models.user import User
 from app.schemas.transaction import (
-    TransactionResponse,
-    TransactionListResponse,
     EscrowHoldRequest,
     EscrowReleaseRequest,
+    TransactionListResponse,
+    TransactionResponse,
 )
-
 
 router = APIRouter(prefix="/escrow", tags=["escrow"])
 logger = logging.getLogger(__name__)

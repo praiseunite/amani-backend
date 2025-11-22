@@ -2,10 +2,11 @@
 Pydantic schemas for authentication.
 """
 
-from typing import Optional, TYPE_CHECKING
-from pydantic import BaseModel, EmailStr, Field, field_validator
 from datetime import datetime
+from typing import TYPE_CHECKING, Optional
 from uuid import UUID
+
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.models.user import UserRole
 

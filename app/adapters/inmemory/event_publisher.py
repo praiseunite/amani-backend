@@ -1,6 +1,7 @@
 """In-memory event publisher adapter."""
 
 from typing import Any, Dict, List
+
 from app.ports.event_publisher import EventPublisherPort
 
 

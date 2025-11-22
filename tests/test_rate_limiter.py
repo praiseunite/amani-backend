@@ -2,8 +2,10 @@
 Tests for rate limiting middleware.
 """
 
-import pytest
 import time
+
+import pytest
+
 from app.core.rate_limit import RateLimiter
 
 

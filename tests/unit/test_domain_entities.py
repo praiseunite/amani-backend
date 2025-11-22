@@ -3,20 +3,22 @@ Comprehensive unit tests for app.domain.entities module.
 Tests domain entity dataclasses and enums.
 """
 
-import pytest
 from datetime import datetime
 from uuid import UUID, uuid4
+
+import pytest
+
 from app.domain.entities import (
-    WalletProvider,
-    HoldStatus,
-    TransactionType,
-    WalletEventType,
-    User,
-    LinkToken,
-    WalletRegistryEntry,
     Hold,
+    HoldStatus,
     LedgerEntry,
+    LinkToken,
+    TransactionType,
+    User,
     WalletBalanceSnapshot,
+    WalletEventType,
+    WalletProvider,
+    WalletRegistryEntry,
     WalletTransactionEvent,
 )
 
@@ -87,7 +89,7 @@ class TestUser:
     def test_user_initialization_with_defaults(self):
         """Test User initialization with default values."""
         user = User()
-        
+
         assert isinstance(user.id, UUID)
         assert user.external_id is None
         assert user.email == ""
@@ -102,7 +104,7 @@ class TestUser:
         """Test User initialization with custom values."""
         user_id = uuid4()
         created_at = datetime(2024, 1, 1, 10, 0, 0)
-        
+
         user = User(
             id=user_id,
             external_id="ext_123",
@@ -114,7 +116,7 @@ class TestUser:
             created_at=created_at,
             updated_at=created_at,
         )
-        
+
         assert user.id == user_id
         assert user.external_id == "ext_123"
         assert user.email == "test@example.com"
@@ -128,7 +130,7 @@ class TestUser:
         """Test that Users get unique IDs."""
         user1 = User()
         user2 = User()
-        
+
         assert user1.id != user2.id
 
 
@@ -138,7 +140,7 @@ class TestLinkToken:
     def test_link_token_initialization_defaults(self):
         """Test LinkToken with default values."""
         token = LinkToken()
-        
+
         assert isinstance(token.id, UUID)
         assert isinstance(token.user_id, UUID)
         assert token.token == ""
@@ -154,7 +156,7 @@ class TestLinkToken:
         user_id = uuid4()
         expires_at = datetime(2024, 12, 31, 23, 59, 59)
         consumed_at = datetime(2024, 6, 1, 10, 0, 0)
-        
+
         token = LinkToken(
             id=token_id,
             user_id=user_id,
@@ -164,7 +166,7 @@ class TestLinkToken:
             is_consumed=True,
             consumed_at=consumed_at,
         )
-        
+
         assert token.id == token_id
         assert token.user_id == user_id
         assert token.token == "secure_token_123"
@@ -178,7 +180,7 @@ class TestLinkToken:
         token_fincra = LinkToken(provider=WalletProvider.FINCRA)
         token_paystack = LinkToken(provider=WalletProvider.PAYSTACK)
         token_flutter = LinkToken(provider=WalletProvider.FLUTTERWAVE)
-        
+
         assert token_fincra.provider == WalletProvider.FINCRA
         assert token_paystack.provider == WalletProvider.PAYSTACK
         assert token_flutter.provider == WalletProvider.FLUTTERWAVE
@@ -190,7 +192,7 @@ class TestWalletRegistryEntry:
     def test_wallet_registry_entry_defaults(self):
         """Test WalletRegistryEntry with defaults."""
         entry = WalletRegistryEntry()
-        
+
         assert isinstance(entry.id, UUID)
         assert isinstance(entry.user_id, UUID)
         assert entry.provider == WalletProvider.FINCRA
@@ -206,7 +208,7 @@ class TestWalletRegistryEntry:
         entry_id = uuid4()
         user_id = uuid4()
         metadata = {"account_type": "business", "verified": True}
-        
+
         entry = WalletRegistryEntry(
             id=entry_id,
             user_id=user_id,
@@ -216,7 +218,7 @@ class TestWalletRegistryEntry:
             metadata=metadata,
             is_active=False,
         )
-        
+
         assert entry.id == entry_id
         assert entry.user_id == user_id
         assert entry.provider == WalletProvider.PAYSTACK
@@ -229,9 +231,9 @@ class TestWalletRegistryEntry:
         """Test that metadata dict is not shared between instances."""
         entry1 = WalletRegistryEntry()
         entry2 = WalletRegistryEntry()
-        
+
         entry1.metadata["key"] = "value"
-        
+
         assert "key" in entry1.metadata
         assert "key" not in entry2.metadata
 
@@ -242,7 +244,7 @@ class TestHold:
     def test_hold_defaults(self):
         """Test Hold with default values."""
         hold = Hold()
-        
+
         assert isinstance(hold.id, UUID)
         assert isinstance(hold.user_id, UUID)
         assert hold.amount == 0.0
@@ -258,7 +260,7 @@ class TestHold:
         hold_id = uuid4()
         user_id = uuid4()
         released_at = datetime(2024, 6, 1, 10, 0, 0)
-        
+
         hold = Hold(
             id=hold_id,
             user_id=user_id,
@@ -268,7 +270,7 @@ class TestHold:
             reference="hold_ref_123",
             released_at=released_at,
         )
-        
+
         assert hold.id == hold_id
         assert hold.user_id == user_id
         assert hold.amount == 1500.50
@@ -282,7 +284,7 @@ class TestHold:
         hold_active = Hold(status=HoldStatus.ACTIVE)
         hold_released = Hold(status=HoldStatus.RELEASED)
         hold_captured = Hold(status=HoldStatus.CAPTURED)
-        
+
         assert hold_active.status == HoldStatus.ACTIVE
         assert hold_released.status == HoldStatus.RELEASED
         assert hold_captured.status == HoldStatus.CAPTURED
@@ -294,7 +296,7 @@ class TestLedgerEntry:
     def test_ledger_entry_defaults(self):
         """Test LedgerEntry with defaults."""
         entry = LedgerEntry()
-        
+
         assert isinstance(entry.id, UUID)
         assert isinstance(entry.user_id, UUID)
         assert entry.transaction_type == TransactionType.CREDIT
@@ -309,7 +311,7 @@ class TestLedgerEntry:
         """Test LedgerEntry with custom values."""
         entry_id = uuid4()
         user_id = uuid4()
-        
+
         entry = LedgerEntry(
             id=entry_id,
             user_id=user_id,
@@ -320,7 +322,7 @@ class TestLedgerEntry:
             reference="txn_ref_456",
             description="Payment for services",
         )
-        
+
         assert entry.id == entry_id
         assert entry.user_id == user_id
         assert entry.transaction_type == TransactionType.DEBIT
@@ -334,7 +336,7 @@ class TestLedgerEntry:
         """Test LedgerEntry with different transaction types."""
         credit = LedgerEntry(transaction_type=TransactionType.CREDIT)
         debit = LedgerEntry(transaction_type=TransactionType.DEBIT)
-        
+
         assert credit.transaction_type == TransactionType.CREDIT
         assert debit.transaction_type == TransactionType.DEBIT
 
@@ -347,7 +349,7 @@ class TestWalletBalanceSnapshot:
         wallet_id = uuid4()
         as_of = datetime(2024, 6, 1, 12, 0, 0)
         metadata = {"source": "api", "version": "v1"}
-        
+
         snapshot = WalletBalanceSnapshot(
             wallet_id=wallet_id,
             provider=WalletProvider.FINCRA,
@@ -356,7 +358,7 @@ class TestWalletBalanceSnapshot:
             as_of=as_of,
             metadata=metadata,
         )
-        
+
         assert snapshot.wallet_id == wallet_id
         assert snapshot.provider == WalletProvider.FINCRA
         assert snapshot.balance == 5000.00
@@ -371,7 +373,7 @@ class TestWalletBalanceSnapshot:
         """Test WalletBalanceSnapshot with external balance ID."""
         wallet_id = uuid4()
         as_of = datetime.utcnow()
-        
+
         snapshot = WalletBalanceSnapshot(
             wallet_id=wallet_id,
             provider=WalletProvider.PAYSTACK,
@@ -381,7 +383,7 @@ class TestWalletBalanceSnapshot:
             metadata={},
             external_balance_id="ext_bal_123",
         )
-        
+
         assert snapshot.external_balance_id == "ext_bal_123"
 
 
@@ -391,7 +393,7 @@ class TestWalletTransactionEvent:
     def test_wallet_transaction_event_defaults(self):
         """Test WalletTransactionEvent with defaults."""
         event = WalletTransactionEvent()
-        
+
         assert isinstance(event.id, UUID)
         assert isinstance(event.wallet_id, UUID)
         assert event.provider == WalletProvider.FINCRA
@@ -409,7 +411,7 @@ class TestWalletTransactionEvent:
         wallet_id = uuid4()
         occurred_at = datetime(2024, 6, 1, 15, 30, 0)
         metadata = {"fee_amount": 2.50, "reference": "ref_123"}
-        
+
         event = WalletTransactionEvent(
             id=event_id,
             wallet_id=wallet_id,
@@ -421,7 +423,7 @@ class TestWalletTransactionEvent:
             metadata=metadata,
             occurred_at=occurred_at,
         )
-        
+
         assert event.id == event_id
         assert event.wallet_id == wallet_id
         assert event.provider == WalletProvider.FLUTTERWAVE
@@ -438,7 +440,7 @@ class TestWalletTransactionEvent:
         withdrawal = WalletTransactionEvent(event_type=WalletEventType.WITHDRAWAL)
         transfer_in = WalletTransactionEvent(event_type=WalletEventType.TRANSFER_IN)
         transfer_out = WalletTransactionEvent(event_type=WalletEventType.TRANSFER_OUT)
-        
+
         assert deposit.event_type == WalletEventType.DEPOSIT
         assert withdrawal.event_type == WalletEventType.WITHDRAWAL
         assert transfer_in.event_type == WalletEventType.TRANSFER_IN
@@ -448,10 +450,10 @@ class TestWalletTransactionEvent:
         """Test metadata dict is isolated between instances."""
         event1 = WalletTransactionEvent()
         event2 = WalletTransactionEvent()
-        
+
         event1.metadata["key1"] = "value1"
         event2.metadata["key2"] = "value2"
-        
+
         assert "key1" in event1.metadata
         assert "key1" not in event2.metadata
         assert "key2" in event2.metadata

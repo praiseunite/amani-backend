@@ -2,33 +2,34 @@
 Authentication routes for user signup, login, and magic link authentication.
 """
 
-from datetime import datetime, timedelta
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 import logging
+from datetime import datetime, timedelta
 
-from app.core.database import get_db
-from app.core.auth import verify_password, get_password_hash, create_access_token
-from app.core.supabase_client import send_magic_link
-from app.core.dependencies import get_current_user, get_current_active_user
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.auth import create_access_token, get_password_hash, verify_password
 from app.core.config import settings
+from app.core.database import get_db
+from app.core.dependencies import get_current_active_user, get_current_user
+from app.core.email import send_email
+from app.core.email_templates import get_verification_email_html, get_welcome_email_html
+from app.core.supabase_client import send_magic_link
 from app.models.user import User
 from app.schemas.auth import (
+    MagicLinkRequest,
+    MagicLinkResponse,
+    PasswordChange,
+    SignupResponse,
+    Token,
     UserCreate,
     UserLogin,
     UserResponse,
-    Token,
-    MagicLinkRequest,
-    MagicLinkResponse,
-    SignupResponse,
-    VerifyOtpRequest,
-    PasswordChange,
     UserUpdate,
+    VerifyOtpRequest,
 )
-from app.core.email import send_email
-from app.core.email_templates import get_verification_email_html, get_welcome_email_html
-from pydantic import BaseModel
 
 
 class TestEmailRequest(BaseModel):

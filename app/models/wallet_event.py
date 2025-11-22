@@ -3,10 +3,13 @@ WalletTransactionEvent model for tracking wallet transaction events.
 Uses integer primary key with UUID external_id for hexagonal architecture.
 """
 
-from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, DateTime, Enum as SQLEnum, BigInteger, JSON
-from sqlalchemy.dialects.postgresql import UUID
 import uuid
+from datetime import datetime
+
+from sqlalchemy import JSON, BigInteger, Column, DateTime
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import Float, Integer, String
+from sqlalchemy.dialects.postgresql import UUID
 
 from app.core.database import Base
 from app.models.link_token import WalletProvider

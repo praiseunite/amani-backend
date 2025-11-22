@@ -2,14 +2,15 @@
 Tests for project schemas validation.
 """
 
-import pytest
+from datetime import datetime, timedelta
 from decimal import Decimal
 from uuid import uuid4
-from datetime import datetime, timedelta
+
+import pytest
 from pydantic import ValidationError
 
-from app.schemas.project import ProjectCreate, ProjectUpdate, ProjectResponse
 from app.models.project import ProjectStatus
+from app.schemas.project import ProjectCreate, ProjectResponse, ProjectUpdate
 
 
 class TestProjectSchemas:

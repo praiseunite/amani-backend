@@ -3,11 +3,11 @@ Email sending module using Brevo SMTP.
 """
 
 import asyncio
+import logging
 import smtplib
 import ssl
-from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import logging
+from email.mime.text import MIMEText
 
 from app.core.config import settings
 

@@ -1,10 +1,11 @@
 """HMAC authentication dependency for service-to-service auth."""
 
-import hmac
 import hashlib
+import hmac
 import secrets
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
 from fastapi import Header, HTTPException, status
 
 from app.ports.api_key import ApiKeyPort

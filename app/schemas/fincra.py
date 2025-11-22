@@ -2,11 +2,12 @@
 Pydantic schemas for FinCra payment operations.
 """
 
-from typing import Optional, Dict, Any
-from pydantic import BaseModel, Field, EmailStr
 from datetime import datetime
-from uuid import UUID
 from decimal import Decimal
+from typing import Any, Dict, Optional
+from uuid import UUID
+
+from pydantic import BaseModel, EmailStr, Field
 
 
 # Payment Schemas
@@ -105,7 +106,9 @@ class FinCraTransferVerifyResponse(BaseModel):
 class FinCraBalanceRequest(BaseModel):
     """Schema for FinCra balance request."""
 
-    currency: Optional[str] = Field(None, pattern="^[A-Z]{3}$", description="Optional currency filter")
+    currency: Optional[str] = Field(
+        None, pattern="^[A-Z]{3}$", description="Optional currency filter"
+    )
 
 
 class FinCraBalanceResponse(BaseModel):
