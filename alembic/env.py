@@ -17,7 +17,39 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
+# Import Base and models without creating async engine
+# We'll create our own sync engine for alembic
+import sys
+import os
+
+# Load env vars
+from dotenv import load_dotenv
+load_dotenv()
+
+# Temporarily replace create_async_engine to avoid initialization
+from sqlalchemy.ext.asyncio import create_async_engine as real_create_async_engine
+from sqlalchemy.orm import declarative_base
+
+# Create a dummy Base that won't initialize the async engine
+temp_base = declarative_base()
+
+# Monkey patch to prevent async engine creation during import
+def dummy_create_async_engine(*args, **kwargs):
+    return None
+
+import sqlalchemy.ext.asyncio
+sqlalchemy.ext.asyncio.create_async_engine = dummy_create_async_engine
+
+# Now import to register models with Base
 from app.core.database import Base
+from app.models import (
+    user, project, milestone, transaction, kyc, 
+    hold, link_token, ledger_entry, wallet_balance_snapshot, wallet_registry
+)
+
+# Restore original function
+sqlalchemy.ext.asyncio.create_async_engine = real_create_async_engine
+
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
