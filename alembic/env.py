@@ -16,7 +16,6 @@ database_url = os.environ.get('DATABASE_URL')
 if database_url:
     # Convert asyncpg to psycopg2 for synchronous operations
     database_url = database_url.replace('postgresql+asyncpg://', 'postgresql+psycopg2://')
-    database_url = database_url.replace('postgresql+psycopg://', 'postgresql+psycopg2://')
     config.set_main_option('sqlalchemy.url', database_url)
 
 # Interpret the config file for Python logging.

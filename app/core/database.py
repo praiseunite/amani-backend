@@ -3,7 +3,7 @@ Database configuration with async SQLAlchemy and PostgreSQL (Supabase).
 """
 
 from typing import AsyncGenerator, Optional
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import declarative_base
 from app.core.config import settings
 
@@ -12,10 +12,10 @@ Base = declarative_base()
 
 # Create async engine only if using async driver
 # This allows alembic migrations to work with psycopg2
-engine: Optional[AsyncSession] = None
+engine: Optional[AsyncEngine] = None
 AsyncSessionLocal: Optional[async_sessionmaker] = None
 
-if 'asyncpg' in settings.DATABASE_URL or 'asyncpg' in settings.DATABASE_URL.lower():
+if 'asyncpg' in settings.DATABASE_URL.lower():
     engine = create_async_engine(
         settings.DATABASE_URL,
         echo=settings.DEBUG,
