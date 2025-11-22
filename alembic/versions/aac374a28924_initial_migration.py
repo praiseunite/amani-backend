@@ -19,62 +19,63 @@ depends_on: Union[str, Sequence[str], None] = None
 
 # Define enums as top-level instances for proper handling
 # This prevents issues with inline enum creation and ensures proper type reuse
+# Note: Enum values must match the lowercase string values from model definitions
 project_status_enum = sa.Enum(
-    'DRAFT', 'PENDING', 'ACTIVE', 'IN_PROGRESS', 'COMPLETED', 'DISPUTED', 'CANCELLED', 'REFUNDED',
+    'draft', 'pending', 'active', 'in_progress', 'completed', 'disputed', 'cancelled', 'refunded',
     name='project_status',
     create_type=False
 )
 
 milestone_status_enum = sa.Enum(
-    'PENDING', 'IN_PROGRESS', 'COMPLETED', 'APPROVED', 'REJECTED', 'DISPUTED',
+    'pending', 'in_progress', 'completed', 'approved', 'rejected', 'disputed',
     name='milestone_status',
     create_type=False
 )
 
 transaction_type_enum = sa.Enum(
-    'DEPOSIT', 'WITHDRAWAL', 'ESCROW_HOLD', 'ESCROW_RELEASE', 'REFUND', 'FEE', 'COMMISSION',
+    'deposit', 'withdrawal', 'escrow_hold', 'escrow_release', 'refund', 'fee', 'commission',
     name='transaction_type',
     create_type=False
 )
 
 transaction_status_enum = sa.Enum(
-    'PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELLED', 'REFUNDED',
+    'pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded',
     name='transaction_status',
     create_type=False
 )
 
 hold_status_enum = sa.Enum(
-    'ACTIVE', 'RELEASED', 'CAPTURED',
+    'active', 'released', 'captured',
     name='hold_status',
     create_type=False
 )
 
 kyc_type_enum = sa.Enum(
-    'KYC', 'KYB',
+    'kyc', 'kyb',
     name='kyc_type',
     create_type=False
 )
 
 kyc_status_enum = sa.Enum(
-    'PENDING', 'APPROVED', 'REJECTED',
+    'pending', 'approved', 'rejected',
     name='kyc_status',
     create_type=False
 )
 
 wallet_provider_enum = sa.Enum(
-    'FINCRA', 'PAYSTACK', 'FLUTTERWAVE',
+    'fincra', 'paystack', 'flutterwave',
     name='wallet_provider',
     create_type=False
 )
 
 ledger_transaction_type_enum = sa.Enum(
-    'CREDIT', 'DEBIT', 'HOLD', 'RELEASE', 'REFUND',
+    'debit', 'credit',
     name='ledger_transaction_type',
     create_type=False
 )
 
 user_role_enum = sa.Enum(
-    'CLIENT', 'ADMIN', 'SUPERADMIN',
+    'admin', 'client', 'freelancer',
     name='user_role',
     create_type=False
 )
@@ -110,7 +111,7 @@ def upgrade() -> None:
         sa.Column('phone_number', sa.String(length=20), nullable=True),
         sa.Column('is_active', sa.Boolean(), nullable=False, server_default='true'),
         sa.Column('is_verified', sa.Boolean(), nullable=False, server_default='false'),
-        sa.Column('role', user_role_enum, nullable=False, server_default='CLIENT'),
+        sa.Column('role', user_role_enum, nullable=False, server_default='client'),
         sa.Column('verification_code', sa.String(length=6), nullable=True),
         sa.Column('verification_code_expires_at', sa.DateTime(), nullable=True),
         sa.Column('password_reset_token', sa.String(length=255), nullable=True),
@@ -133,7 +134,7 @@ def upgrade() -> None:
         sa.Column('description', sa.Text(), nullable=False),
         sa.Column('total_amount', sa.Numeric(precision=15, scale=2), nullable=False),
         sa.Column('currency', sa.String(length=3), nullable=False, server_default='USD'),
-        sa.Column('status', project_status_enum, nullable=False, server_default='DRAFT'),
+        sa.Column('status', project_status_enum, nullable=False, server_default='draft'),
         sa.Column('creator_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('buyer_id', postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column('seller_id', postgresql.UUID(as_uuid=True), nullable=True),
@@ -164,7 +165,7 @@ def upgrade() -> None:
         sa.Column('order_index', sa.Integer(), nullable=False, server_default='0'),
         sa.Column('amount', sa.Numeric(precision=15, scale=2), nullable=False),
         sa.Column('currency', sa.String(length=3), nullable=False, server_default='USD'),
-        sa.Column('status', milestone_status_enum, nullable=False, server_default='PENDING'),
+        sa.Column('status', milestone_status_enum, nullable=False, server_default='pending'),
         sa.Column('is_paid', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('completion_criteria', sa.Text(), nullable=True),
         sa.Column('completion_notes', sa.Text(), nullable=True),
@@ -187,7 +188,7 @@ def upgrade() -> None:
         sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('project_id', postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column('transaction_type', transaction_type_enum, nullable=False),
-        sa.Column('status', transaction_status_enum, nullable=False, server_default='PENDING'),
+        sa.Column('status', transaction_status_enum, nullable=False, server_default='pending'),
         sa.Column('amount', sa.Numeric(precision=15, scale=2), nullable=False),
         sa.Column('currency', sa.String(length=3), nullable=False, server_default='USD'),
         sa.Column('fee', sa.Numeric(precision=15, scale=2), nullable=False, server_default='0'),
@@ -219,13 +220,13 @@ def upgrade() -> None:
         'kyc',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('type', kyc_type_enum, nullable=False, server_default='KYC'),
+        sa.Column('type', kyc_type_enum, nullable=False, server_default='kyc'),
         sa.Column('nin_or_passport', sa.String(length=100), nullable=False),
         sa.Column('fingerprint', sa.LargeBinary(), nullable=True),
         sa.Column('security_code', sa.String(length=255), nullable=False),
         sa.Column('approval_code', sa.String(length=255), nullable=True),
         sa.Column('image', sa.LargeBinary(), nullable=True),
-        sa.Column('status', kyc_status_enum, nullable=False, server_default='PENDING'),
+        sa.Column('status', kyc_status_enum, nullable=False, server_default='pending'),
         sa.Column('rejection_reason', sa.Text(), nullable=True),
         sa.Column('submitted_at', sa.DateTime(), nullable=False),
         sa.Column('verified_at', sa.DateTime(), nullable=True),
@@ -246,7 +247,7 @@ def upgrade() -> None:
         sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('amount', sa.Numeric(precision=15, scale=2), nullable=False),
         sa.Column('currency', sa.String(length=3), nullable=False, server_default='USD'),
-        sa.Column('status', hold_status_enum, nullable=False, server_default='ACTIVE'),
+        sa.Column('status', hold_status_enum, nullable=False, server_default='active'),
         sa.Column('reference', sa.String(length=255), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('released_at', sa.DateTime(), nullable=True),
