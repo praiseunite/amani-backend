@@ -32,7 +32,17 @@ fi
 
 # Load environment variables
 if [ -f .env ]; then
-    export $(cat .env | grep -v '^#' | xargs)
+    # SECURITY: Load environment variables safely
+    # Only export variables that match the expected pattern
+    while IFS='=' read -r key value; do
+        # Skip comments and empty lines
+        [[ "$key" =~ ^#.*$ ]] && continue
+        [[ -z "$key" ]] && continue
+        # Only export valid variable names (alphanumeric and underscore)
+        if [[ "$key" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+            export "$key=$value"
+        fi
+    done < .env
 else
     echo -e "${RED}Error: .env file not found${NC}"
     exit 1

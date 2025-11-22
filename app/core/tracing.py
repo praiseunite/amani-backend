@@ -52,10 +52,18 @@ def init_tracing(app=None):
     elif settings.TRACING_EXPORTER == "console":
         _add_console_exporter(provider)
     else:
-        logger.warning(
-            f"Unknown tracing exporter: {settings.TRACING_EXPORTER}, using console"
-        )
-        _add_console_exporter(provider)
+        # Default to console in development, but warn in production
+        if settings.ENVIRONMENT == "production":
+            logger.error(
+                f"Invalid tracing exporter '{settings.TRACING_EXPORTER}' in production. "
+                "Valid options: otlp, console. Tracing disabled."
+            )
+            return None
+        else:
+            logger.warning(
+                f"Unknown tracing exporter: {settings.TRACING_EXPORTER}, defaulting to console"
+            )
+            _add_console_exporter(provider)
 
     # Set as global tracer provider
     trace.set_tracer_provider(provider)
