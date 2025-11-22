@@ -303,7 +303,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_ledger_entries_user_id'), 'ledger_entries', ['user_id'], unique=False)
     
     # Create wallet_balance_snapshot table
-    # Note: This table will be modified by migration b4ae3e96c066 to use UUID as primary key
+    # Note: This table will be modified by a subsequent migration to use UUID as primary key
     op.create_table(
         'wallet_balance_snapshot',
         sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False),

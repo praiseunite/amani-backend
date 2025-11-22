@@ -28,10 +28,6 @@ load_dotenv()
 
 # Temporarily replace create_async_engine to avoid initialization
 from sqlalchemy.ext.asyncio import create_async_engine as real_create_async_engine
-from sqlalchemy.orm import declarative_base
-
-# Create a dummy Base that won't initialize the async engine
-temp_base = declarative_base()
 
 # Monkey patch to prevent async engine creation during import
 def dummy_create_async_engine(*args, **kwargs):
