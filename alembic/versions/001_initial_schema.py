@@ -272,6 +272,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_link_tokens_user_id'), 'link_tokens', ['user_id'], unique=False)
 
     # Create wallet_registry table
+    # Note: 'metadata' column maps to 'extra_data' attribute in the model to avoid SQLAlchemy reserved name
     op.create_table(
         'wallet_registry',
         sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False),
@@ -291,6 +292,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_wallet_registry_user_id'), 'wallet_registry', ['user_id'], unique=False)
 
     # Create wallet_balance_snapshot table
+    # Note: 'metadata' column maps to 'extra_data' attribute in the model to avoid SQLAlchemy reserved name
     op.create_table(
         'wallet_balance_snapshot',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False, server_default=sa.text('uuid_generate_v4()')),

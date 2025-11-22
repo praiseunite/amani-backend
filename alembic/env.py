@@ -12,6 +12,7 @@ config = context.config
 
 # Override sqlalchemy.url from environment variable if present
 # Convert asyncpg URL to psycopg2 for synchronous migrations
+# This conversion is used by alembic's own database connection
 database_url = os.environ.get('DATABASE_URL')
 if database_url:
     # Convert asyncpg to psycopg2 for synchronous operations
@@ -27,7 +28,8 @@ if config.config_file_name is not None:
 # add your model's MetaData object here
 # for 'autogenerate' support
 # We need to import Base from database.py BUT avoid creating the async engine
-# So we'll temporarily set the DATABASE_URL to use psycopg2
+# So we'll temporarily set the DATABASE_URL to use psycopg2 for model imports
+# This is separate from the conversion above which is for alembic's connection
 # This is safe because:
 # 1. It's wrapped in try/finally to always restore the original value
 # 2. It only runs once during alembic's env.py import (not during runtime)
