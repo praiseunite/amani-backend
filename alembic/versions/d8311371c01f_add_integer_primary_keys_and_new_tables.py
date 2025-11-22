@@ -11,6 +11,10 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID
 
+wallet_provider_enum = sa.Enum('fincra', 'paystack', 'flutterwave', name='wallet_provider', create_type=False)
+hold_status_enum = sa.Enum('active', 'released', 'captured', name='hold_status')
+ledger_transaction_type_enum = sa.Enum('debit', 'credit', name='ledger_transaction_type')
+
 
 # revision identifiers, used by Alembic.
 revision: str = 'd8311371c01f'
@@ -25,10 +29,11 @@ def upgrade() -> None:
     This is an additive migration that preserves existing UUIDs.
     """
     
-    # Define enum types once and reuse in table definitions
-    wallet_provider_enum = sa.Enum('fincra', 'paystack', 'flutterwave', name='wallet_provider', create_type=False)
-    hold_status_enum = sa.Enum('active', 'released', 'captured', name='hold_status', create_type=False)
-    ledger_transaction_type_enum = sa.Enum('debit', 'credit', name='ledger_transaction_type', create_type=False)
+    # Create enum type if not present (use a separate instance for creation)
+    wallet_provider_enum_type = sa.Enum('fincra', 'paystack', 'flutterwave', name='wallet_provider')
+    wallet_provider_enum_type.create(op.get_bind(), checkfirst=True)
+    hold_status_enum.create(op.get_bind(), checkfirst=True)
+    ledger_transaction_type_enum.create(op.get_bind(), checkfirst=True)
     
     # Step 1: Modify users table to add integer id as a new column (external_id to be added later)
     # For now, we add a new integer id column alongside the existing UUID id
@@ -149,8 +154,9 @@ def downgrade() -> None:
     op.drop_column('users', 'integer_id')
     op.execute("DROP SEQUENCE IF EXISTS users_integer_id_seq")
     
-    # Drop custom enum types
-    op.execute("DROP TYPE IF EXISTS ledger_transaction_type")
-    op.execute("DROP TYPE IF EXISTS hold_status")
-    op.execute("DROP TYPE IF EXISTS wallet_provider")
+    # Drop enums after dropping tables
+    ledger_transaction_type_enum.drop(op.get_bind(), checkfirst=True)
+    hold_status_enum.drop(op.get_bind(), checkfirst=True)
+    wallet_provider_enum_type = sa.Enum('fincra', 'paystack', 'flutterwave', name='wallet_provider')
+    wallet_provider_enum_type.drop(op.get_bind(), checkfirst=True)
 
