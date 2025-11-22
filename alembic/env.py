@@ -29,7 +29,7 @@ if config.config_file_name is not None:
 # We need to import Base from database.py BUT avoid creating the async engine
 # So we'll temporarily set the DATABASE_URL to use psycopg2
 _original_db_url = os.environ.get('DATABASE_URL')
-if _original_db_url and 'asyncpg' in _original_db_url:
+if _original_db_url and _original_db_url.startswith('postgresql+asyncpg://'):
     os.environ['DATABASE_URL'] = _original_db_url.replace('postgresql+asyncpg://', 'postgresql+psycopg2://')
 
 try:
