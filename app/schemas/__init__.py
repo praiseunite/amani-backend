@@ -37,6 +37,36 @@ from app.schemas.transaction import (
     TransactionListResponse,
 )
 from app.schemas.kyc import KycBase, KycCreate, KycResponse, KycUpdate, KycApproval
+from app.schemas.wallet import (
+    WalletProvider,
+    WalletEventType,
+    WalletRegistryBase,
+    WalletRegistryCreate,
+    WalletRegistryResponse,
+    WalletRegistryListResponse,
+    WalletBalanceSnapshotBase,
+    WalletBalanceSnapshotCreate,
+    WalletBalanceSnapshotResponse,
+    WalletBalanceSnapshotListResponse,
+    WalletTransactionEventBase,
+    WalletTransactionEventCreate,
+    WalletTransactionEventResponse,
+    WalletTransactionEventListResponse,
+    WalletSyncRequest,
+    WalletGetBalanceRequest,
+)
+from app.schemas.fincra import (
+    FinCraPaymentRequest,
+    FinCraPaymentResponse,
+    FinCraPaymentVerifyRequest,
+    FinCraPaymentVerifyResponse,
+    FinCraTransferRequest,
+    FinCraTransferResponse,
+    FinCraTransferVerifyRequest,
+    FinCraTransferVerifyResponse,
+    FinCraBalanceRequest,
+    FinCraBalanceResponse,
+)
 
 __all__ = [
     # Auth schemas
@@ -77,4 +107,32 @@ __all__ = [
     "KycResponse",
     "KycUpdate",
     "KycApproval",
+    # Wallet schemas
+    "WalletProvider",
+    "WalletEventType",
+    "WalletRegistryBase",
+    "WalletRegistryCreate",
+    "WalletRegistryResponse",
+    "WalletRegistryListResponse",
+    "WalletBalanceSnapshotBase",
+    "WalletBalanceSnapshotCreate",
+    "WalletBalanceSnapshotResponse",
+    "WalletBalanceSnapshotListResponse",
+    "WalletTransactionEventBase",
+    "WalletTransactionEventCreate",
+    "WalletTransactionEventResponse",
+    "WalletTransactionEventListResponse",
+    "WalletSyncRequest",
+    "WalletGetBalanceRequest",
+    # FinCra schemas
+    "FinCraPaymentRequest",
+    "FinCraPaymentResponse",
+    "FinCraPaymentVerifyRequest",
+    "FinCraPaymentVerifyResponse",
+    "FinCraTransferRequest",
+    "FinCraTransferResponse",
+    "FinCraTransferVerifyRequest",
+    "FinCraTransferVerifyResponse",
+    "FinCraBalanceRequest",
+    "FinCraBalanceResponse",
 ]

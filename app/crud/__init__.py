@@ -60,6 +60,41 @@ from app.crud.kyc import (
     get_all_kyc_submissions,
 )
 
+# Wallet CRUD operations
+from app.crud.wallet import (
+    create_wallet_registry,
+    get_wallet_registry_by_id,
+    get_wallet_registry_by_external_id,
+    get_wallet_registry_by_user_and_provider,
+    get_wallet_registries_by_user,
+    update_wallet_registry,
+    deactivate_wallet_registry,
+    delete_wallet_registry,
+)
+
+# Wallet Balance CRUD operations
+from app.crud.wallet_balance import (
+    create_wallet_balance_snapshot,
+    get_wallet_balance_snapshot_by_id,
+    get_wallet_balance_snapshot_by_idempotency_key,
+    get_latest_wallet_balance_snapshot,
+    get_wallet_balance_snapshots_by_wallet,
+    get_wallet_balance_snapshot_by_external_id,
+    delete_wallet_balance_snapshot,
+)
+
+# Wallet Event CRUD operations
+from app.crud.wallet_event import (
+    create_wallet_event,
+    get_wallet_event_by_id,
+    get_wallet_event_by_external_id,
+    get_wallet_event_by_idempotency_key,
+    get_wallet_events_by_wallet,
+    get_wallet_events_by_provider_event_id,
+    get_wallet_events_by_type,
+    delete_wallet_event,
+)
+
 __all__ = [
     # User
     "create_user",
@@ -103,4 +138,30 @@ __all__ = [
     "get_kyc_by_id",
     "update_kyc_status",
     "get_all_kyc_submissions",
+    # Wallet
+    "create_wallet_registry",
+    "get_wallet_registry_by_id",
+    "get_wallet_registry_by_external_id",
+    "get_wallet_registry_by_user_and_provider",
+    "get_wallet_registries_by_user",
+    "update_wallet_registry",
+    "deactivate_wallet_registry",
+    "delete_wallet_registry",
+    # Wallet Balance
+    "create_wallet_balance_snapshot",
+    "get_wallet_balance_snapshot_by_id",
+    "get_wallet_balance_snapshot_by_idempotency_key",
+    "get_latest_wallet_balance_snapshot",
+    "get_wallet_balance_snapshots_by_wallet",
+    "get_wallet_balance_snapshot_by_external_id",
+    "delete_wallet_balance_snapshot",
+    # Wallet Event
+    "create_wallet_event",
+    "get_wallet_event_by_id",
+    "get_wallet_event_by_external_id",
+    "get_wallet_event_by_idempotency_key",
+    "get_wallet_events_by_wallet",
+    "get_wallet_events_by_provider_event_id",
+    "get_wallet_events_by_type",
+    "delete_wallet_event",
 ]
