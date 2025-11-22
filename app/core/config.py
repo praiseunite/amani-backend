@@ -61,6 +61,23 @@ class Settings(BaseSettings):
     BREVO_FROM_NAME: str = ""
     BREVO_SMTP_LOGIN: str = ""
 
+    # Monitoring and Observability
+    # Sentry Error Tracking
+    SENTRY_DSN: str = ""
+    SENTRY_TRACES_SAMPLE_RATE: float = 0.1  # 10% of transactions
+    SENTRY_PROFILES_SAMPLE_RATE: float = 0.1  # 10% of transactions
+
+    # OpenTelemetry Tracing
+    TRACING_ENABLED: bool = False
+    TRACING_EXPORTER: str = "console"  # Options: otlp, console
+    OTLP_ENDPOINT: str = "http://localhost:4317"
+    OTLP_HEADERS: str = ""  # Comma-separated key=value pairs
+
+    # Alerting and Notifications
+    SLACK_WEBHOOK_URL: str = ""
+    PAGERDUTY_API_KEY: str = ""
+    PAGERDUTY_SERVICE_ID: str = ""
+
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", case_sensitive=True
     )

@@ -13,12 +13,15 @@ A secure, high-performance FastAPI backend for the Amani escrow platform with Fi
 - ✅ **Input Validation**: Advanced validation with XSS, SQL injection, and path traversal protection
 - 🔐 **Authentication System**: JWT tokens, password hashing, Supabase Auth integration, role-based access control
 - 📊 **PostgreSQL/Supabase**: Async SQLAlchemy integration with connection pooling
-- 📝 **Structured Logging**: JSON-formatted logs for easy parsing and audit trails
+- 📝 **Structured Logging**: JSON-formatted logs with request IDs for easy parsing and audit trails
 - 🌐 **CORS Configured**: Cross-origin resource sharing support
 - 🚨 **Error Handling**: Custom exception handlers with standardized error responses
 - ⚡ **Async Support**: Built for high concurrency and scalability
 - 💳 **FinCra Integration**: Ready for payment processing integration
 - 🔄 **API Versioning**: Versioned API endpoints for backward compatibility
+- 📈 **Monitoring & Observability**: Prometheus metrics, Grafana dashboards, Sentry error tracking, OpenTelemetry tracing
+- 🔔 **Alerting**: Slack and PagerDuty integration for critical alerts
+- 💾 **Backup & Recovery**: Automated database backup scripts and disaster recovery procedures
 
 ## Project Structure
 
@@ -139,6 +142,15 @@ Copy `.env.example` to `.env` and configure the following:
 - `REDIS_ENABLED`: Enable Redis for distributed rate limiting (default: False)
 - `REDIS_URL`: Redis connection URL (default: redis://localhost:6379/0)
 
+### Monitoring and Observability
+
+- `SENTRY_DSN`: Sentry error tracking DSN (get from https://sentry.io)
+- `SENTRY_TRACES_SAMPLE_RATE`: Percentage of transactions to trace (default: 0.1)
+- `TRACING_ENABLED`: Enable OpenTelemetry distributed tracing (default: False)
+- `TRACING_EXPORTER`: Tracing backend (options: otlp, console)
+- `SLACK_WEBHOOK_URL`: Slack webhook for alerts
+- `PAGERDUTY_API_KEY`: PagerDuty integration key for critical alerts
+
 ## API Endpoints
 
 ### Health & Status
@@ -147,6 +159,7 @@ Copy `.env.example` to `.env` and configure the following:
 - `GET /api/v1/health` - Comprehensive health check with database and migration status
 - `GET /api/v1/readiness` - Readiness probe for deployment orchestration
 - `GET /api/v1/ping` - Simple ping/pong for basic liveness checks
+- `GET /metrics` - Prometheus metrics endpoint for monitoring
 
 #### Health Endpoint Details
 
@@ -460,8 +473,82 @@ This script tests:
 7. ✅ ~~Configure CI/CD pipeline~~
 8. ✅ ~~Add comprehensive integration tests~~
 9. ✅ ~~Implement health and readiness probes~~
-10. Integrate FinCra payment APIs
-11. Add comprehensive end-to-end tests
+10. ✅ ~~Add monitoring and observability (Prometheus, Sentry, OpenTelemetry)~~
+11. Integrate FinCra payment APIs
+12. Add comprehensive end-to-end tests
+
+## Monitoring and Observability
+
+The application includes comprehensive monitoring and observability features:
+
+### Prometheus Metrics
+
+- **Metrics Endpoint**: `GET /metrics`
+- **Available Metrics**:
+  - HTTP request count, duration, and errors
+  - Database connection pool status
+  - Business metrics (transactions, registrations, KYC)
+  - Error tracking by type and endpoint
+
+### Grafana Dashboards
+
+Pre-configured dashboards available in `config/grafana_dashboard.json`:
+- Request rate and response times
+- Error rates and types
+- Database performance
+- Business metrics visualization
+
+```bash
+# Start monitoring stack
+docker-compose up -d prometheus grafana
+
+# Access Grafana
+open http://localhost:3000  # admin/admin
+```
+
+### Sentry Error Tracking
+
+Automatic error capture and performance monitoring:
+- Unhandled exceptions
+- Performance traces
+- User context
+- Release tracking
+
+Configure in `.env`:
+```bash
+SENTRY_DSN=https://your-dsn@sentry.io/project-id
+```
+
+### OpenTelemetry Tracing
+
+Distributed tracing with OTLP exporter:
+- Automatic instrumentation of FastAPI, SQLAlchemy, and httpx
+- Trace context propagation
+- Custom span creation
+
+### Alerting
+
+Configured alerts for:
+- High error rates
+- Slow response times
+- Database issues
+- Resource exhaustion
+
+Notifications via:
+- Slack webhooks
+- PagerDuty
+
+### Backup and Recovery
+
+Automated database backup scripts:
+
+```bash
+# Create backup
+./scripts/backup_database.sh
+
+# Restore from backup
+./scripts/restore_database.sh backups/amani_backup_YYYYMMDD_HHMMSS.sql.gz
+```
 
 ## Operational Runbooks
 
@@ -469,6 +556,10 @@ Detailed operational guides are available in `docs/runbooks/`:
 
 - **[Migration Runbook](docs/runbooks/migration_runbook.md)** - Database migration procedures, verification, and rollback
 - **[Troubleshooting Guide](docs/runbooks/troubleshooting_guide.md)** - Solutions to common issues and problems
+- **[Monitoring Runbook](docs/runbooks/monitoring_runbook.md)** - Monitoring setup and operations
+- **[Incident Response Checklist](docs/runbooks/incident_response_checklist.md)** - Structured incident response procedures
+- **[Backup and Disaster Recovery](docs/runbooks/backup_disaster_recovery.md)** - Backup procedures and disaster recovery
+- **[Post-Deployment Monitoring](docs/runbooks/post_deployment_monitoring.md)** - Post-deployment monitoring guide
 - **[Wallet Registry Runbook](docs/runbooks/wallet_registry_runbook.md)** - Wallet registry operations and maintenance
 - **[Wallet Event Ingestion Runbook](docs/runbooks/wallet_event_ingestion_runbook.md)** - Event ingestion procedures
 
@@ -489,9 +580,19 @@ alembic upgrade head
 curl http://localhost:8000/api/v1/health
 ```
 
+**Get Metrics**:
+```bash
+curl http://localhost:8000/metrics
+```
+
 **Run Tests**:
 ```bash
 pytest tests/ --cov=app
+```
+
+**Create Backup**:
+```bash
+./scripts/backup_database.sh
 ```
 
 ## Additional Documentation

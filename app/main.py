@@ -14,9 +14,13 @@ from app.core.config import settings
 from app.core.database import init_db
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import setup_logging
+from app.core.metrics import PrometheusMiddleware
 from app.core.rate_limit import RateLimitMiddleware
+from app.core.request_id import RequestIDMiddleware
 from app.core.security import HTTPSRedirectMiddleware
-from app.routes import auth, escrow, health, kyc, milestones, payment, projects, wallet
+from app.core.sentry import init_sentry
+from app.core.tracing import init_tracing
+from app.routes import auth, escrow, health, kyc, metrics, milestones, payment, projects, wallet
 
 # Initialize logging
 logger = logging.getLogger(__name__)
@@ -31,6 +35,12 @@ async def lifespan(app: FastAPI):
     logger.info("Starting Amani Escrow Backend...")
     logger.info(f"Environment: {settings.ENVIRONMENT}")
     logger.info(f"Debug mode: {settings.DEBUG}")
+
+    # Initialize Sentry error tracking
+    init_sentry()
+
+    # Initialize OpenTelemetry tracing
+    init_tracing(app)
 
     # Initialize database
     try:
@@ -57,6 +67,12 @@ app = FastAPI(
 
 # Register exception handlers
 register_exception_handlers(app)
+
+# Request ID Middleware (must be first to generate IDs for all requests)
+app.add_middleware(RequestIDMiddleware)
+
+# Prometheus Metrics Middleware (should be early to capture all requests)
+app.add_middleware(PrometheusMiddleware)
 
 # CORS Middleware - Configure allowed origins
 app.add_middleware(
@@ -89,6 +105,7 @@ if settings.ENVIRONMENT == "production":
 
 # Include routers
 app.include_router(health.router, prefix="/api/v1")
+app.include_router(metrics.router)  # Metrics at /metrics (no prefix)
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(projects.router, prefix="/api/v1")
 app.include_router(milestones.router, prefix="/api/v1")
@@ -101,10 +118,15 @@ app.include_router(payment.router, prefix="/api/v1")
 # Request logging middleware
 @app.middleware("http")
 async def log_requests(request, call_next):
-    """Log all incoming requests for audit purposes."""
+    """Log all incoming requests for audit purposes with request ID."""
+    from app.core.request_id import get_request_id
+
+    request_id = get_request_id(request)
+
     logger.info(
         f"Incoming request",
         extra={
+            "request_id": request_id,
             "method": request.method,
             "url": str(request.url),
             "client": request.client.host if request.client else None,
@@ -116,6 +138,7 @@ async def log_requests(request, call_next):
     logger.info(
         f"Request completed",
         extra={
+            "request_id": request_id,
             "method": request.method,
             "url": str(request.url),
             "status_code": response.status_code,
