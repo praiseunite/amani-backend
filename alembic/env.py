@@ -1,4 +1,5 @@
 from logging.config import fileConfig
+import os
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
@@ -9,6 +10,15 @@ from alembic import context
 # access to the values within the .ini file in use.
 config = context.config
 
+# Override sqlalchemy.url from environment variable if present
+# Convert asyncpg URL to psycopg2 for synchronous migrations
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    # Convert asyncpg to psycopg2 for synchronous operations
+    database_url = database_url.replace('postgresql+asyncpg://', 'postgresql+psycopg2://')
+    database_url = database_url.replace('postgresql+psycopg://', 'postgresql+psycopg2://')
+    config.set_main_option('sqlalchemy.url', database_url)
+
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
@@ -17,7 +27,21 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from app.core.database import Base
+# We need to import Base from database.py BUT avoid creating the async engine
+# So we'll temporarily set the DATABASE_URL to use psycopg2
+_original_db_url = os.environ.get('DATABASE_URL')
+if _original_db_url and 'asyncpg' in _original_db_url:
+    os.environ['DATABASE_URL'] = _original_db_url.replace('postgresql+asyncpg://', 'postgresql+psycopg2://')
+
+try:
+    from app.core.database import Base
+    # Import all models to ensure they're registered with Base.metadata
+    import app.models
+finally:
+    # Restore original DATABASE_URL
+    if _original_db_url:
+        os.environ['DATABASE_URL'] = _original_db_url
+
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
