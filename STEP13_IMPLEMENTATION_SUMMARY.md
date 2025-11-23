@@ -585,16 +585,55 @@ All new features have been created with:
 
 ## Future Enhancements
 
-Potential improvements:
+Potential improvements identified during code review:
 
+### High Priority
+- [ ] Make deployment domains configurable via environment variables
+- [ ] Add environment-specific health check URLs for scripts
+- [ ] Pin GitHub Actions to commit SHAs for enhanced security
+- [ ] Derive version from VERSION file or pyproject.toml
+
+### Medium Priority
 - [ ] Add performance testing in CI
 - [ ] Implement blue-green deployments
 - [ ] Add canary deployment support
 - [ ] Automated security patch deployment
 - [ ] Integration with APM for deployment tracking
+
+### Low Priority
 - [ ] Slack/Teams webhook notifications
 - [ ] Automated rollback on metrics degradation
 - [ ] Multi-region deployment support
+- [ ] Advanced deployment strategies (A/B testing)
+
+### Code Review Suggestions
+
+The following non-blocking improvements were identified:
+
+1. **Domain Configuration** (`scripts/verify_deployment.sh:29`):
+   - Currently hardcodes `api.amani.com` for production
+   - Consider making configurable via environment variable
+   - Document domain assumptions
+
+2. **Health Check URLs** (`scripts/rollback.sh:66`):
+   - Default localhost URL may not work for production
+   - Consider environment-specific defaults
+   - Add validation for production environments
+
+3. **Build Info Path** (`app/routes/health.py:34`):
+   - Hardcoded `/app/build-info.json` assumes container structure
+   - Consider making configurable via environment variable
+   - Low priority - works for current deployment methods
+
+4. **Action Version Pinning** (`.github/workflows/security-scan.yml:28`):
+   - Consider pinning to commit SHA vs version tag
+   - Enhances security (SHAs are immutable)
+   - Trade-off: harder to maintain, more secure
+
+5. **Version Source** (`.github/workflows/deploy.yml:71`):
+   - Hardcoded fallback version `1.0.0`
+   - Consider VERSION file or pyproject.toml
+   - Current implementation works correctly with tags
 
 ## Conclusion
 
