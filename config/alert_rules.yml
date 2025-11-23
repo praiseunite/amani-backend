@@ -1,0 +1,123 @@
+groups:
+  - name: amani_backend_alerts
+    interval: 30s
+    rules:
+      # High error rate alert
+      - alert: HighErrorRate
+        expr: |
+          rate(http_requests_total{status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          component: backend
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} for {{ $labels.endpoint }}"
+
+      # High response time alert
+      - alert: HighResponseTime
+        expr: |
+          histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          component: backend
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}s for {{ $labels.endpoint }}"
+
+      # Database connection issues
+      - alert: DatabaseConnectionIssues
+        expr: |
+          db_connections_active == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "No active database connections"
+          description: "The application has no active database connections"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: |
+          (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 90%: {{ $value | humanizePercentage }}"
+
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: |
+          100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is above 80%: {{ $value }}%"
+
+      # Disk space running low
+      - alert: DiskSpaceLow
+        expr: |
+          (node_filesystem_avail_bytes / node_filesystem_size_bytes) < 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "Disk space running low"
+          description: "Available disk space is below 10%: {{ $value | humanizePercentage }}"
+
+      # Application down
+      - alert: ApplicationDown
+        expr: |
+          up{job="amani-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: backend
+        annotations:
+          summary: "Application is down"
+          description: "The Amani backend application is not responding"
+
+      # High request rate
+      - alert: HighRequestRate
+        expr: |
+          rate(http_requests_total[5m]) > 1000
+        for: 5m
+        labels:
+          severity: info
+          component: backend
+        annotations:
+          summary: "High request rate"
+          description: "Request rate is {{ $value }} requests/second"
+
+      # Database query slow
+      - alert: SlowDatabaseQueries
+        expr: |
+          histogram_quantile(0.95, rate(db_query_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Slow database queries detected"
+          description: "95th percentile query time is {{ $value }}s"
+
+      # Too many 4xx errors
+      - alert: HighClientErrorRate
+        expr: |
+          rate(http_requests_total{status=~"4.."}[5m]) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+          component: backend
+        annotations:
+          summary: "High client error rate"
+          description: "Client error rate is {{ $value | humanizePercentage }} for {{ $labels.endpoint }}"
