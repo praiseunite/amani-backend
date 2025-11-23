@@ -154,7 +154,7 @@ jobs:
         cat deployment-metadata.json
     
     - name: Upload deployment metadata
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: deployment-metadata
         path: deployment-metadata.json
