@@ -63,7 +63,7 @@ show_usage() {
 
 get_current_version() {
     # Try to get current version from deployed application
-    local health_url="${HEALTH_CHECK_URL:-http://localhost:8000/api/v1/version}"
+    local health_url="${HEALTH_CHECK_URL:-http://localhost:8000/api/v1/health}"
     
     if command -v curl &> /dev/null; then
         local version=$(curl -sf "$health_url" | grep -o '"version":"[^"]*"' | cut -d'"' -f4 2>/dev/null || echo "unknown")

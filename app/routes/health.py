@@ -2,6 +2,7 @@
 
 import json
 import os
+import sys
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, status
@@ -82,8 +83,8 @@ async def version_info():
             "build_branch": build_info["build_branch"],
         },
         "runtime": {
-            "python_version": os.sys.version,
-            "platform": os.sys.platform,
+            "python_version": sys.version,
+            "platform": sys.platform,
         },
     }
 
