@@ -1,0 +1,58 @@
+# CODEOWNERS file for Amani Backend
+# 
+# This file defines code ownership and automatic review requests
+# Owners are automatically requested for review when someone opens a PR
+# that modifies code they own.
+#
+# Order is important; the last matching pattern takes precedence.
+# More specific patterns should be placed after less specific ones.
+
+# Default owners for everything in the repo
+# These owners will be requested for review unless a later match takes precedence
+* @praiseunite
+
+# Core application code
+/app/ @praiseunite
+/app/core/ @praiseunite
+/app/domain/ @praiseunite
+
+# API and routes
+/app/api/ @praiseunite
+/app/routes/ @praiseunite
+
+# Database and migrations
+/alembic/ @praiseunite
+/app/models/ @praiseunite
+alembic.ini @praiseunite
+
+# Infrastructure and deployment
+/Dockerfile @praiseunite
+/docker-compose.yml @praiseunite
+/fly.toml @praiseunite
+/.github/ @praiseunite
+
+# CI/CD workflows - require DevOps review
+/.github/workflows/ @praiseunite
+
+# Security-sensitive files - require security review
+/app/core/security.py @praiseunite
+/app/core/validation.py @praiseunite
+/app/core/audit.py @praiseunite
+SECURITY.md @praiseunite
+
+# Configuration files
+/config/ @praiseunite
+*.env.example @praiseunite
+pyproject.toml @praiseunite
+requirements*.txt @praiseunite
+
+# Scripts - require review for changes
+/scripts/ @praiseunite
+
+# Documentation
+/docs/ @praiseunite
+*.md @praiseunite
+
+# Tests
+/tests/ @praiseunite
+pytest.ini @praiseunite

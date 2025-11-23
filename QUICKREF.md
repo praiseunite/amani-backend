@@ -208,11 +208,59 @@ kill -9 <PID>
 
 The CI/CD pipeline runs automatically on push:
 - Linting (Black, Flake8)
-- Testing (pytest with coverage)
+- Testing (pytest with coverage ≥85%)
+- Security scanning (CodeQL, Trivy, Bandit, Safety)
+- Migration tests
 - Docker build verification
-- Deployment to Docker registry (main branch only)
+- Deployment to staging (develop branch)
+- Deployment to production (main branch/tags)
 
-See [CI_CD.md](CI_CD.md) for detailed documentation.
+### Common CI/CD Commands
+
+```bash
+# Security scans (run locally)
+bandit -r app/ -c pyproject.toml
+safety check
+trivy fs .
+trivy image amani-backend:latest
+
+# Verify deployment
+./scripts/verify_deployment.sh staging v1.2.3
+./scripts/verify_deployment.sh production v1.2.3
+
+# Rollback deployment
+./scripts/rollback.sh v1.2.2
+./scripts/rollback.sh v1.2.2 --auto-confirm  # Non-interactive
+
+# Check deployed version
+curl https://api.amani.com/api/v1/version | jq .
+curl https://api.amani.com/api/v1/health | jq .
+
+# Trigger manual deployment (requires gh CLI)
+gh workflow run deploy-staging.yml
+gh workflow run deploy.yml
+gh run watch
+
+# View workflow logs
+gh run list --workflow=deploy.yml
+gh run view --log
+gh run view <run-id> --log-failed
+```
+
+### Build with Metadata
+
+```bash
+# Build Docker image with version info
+docker build \
+  --build-arg BUILD_VERSION=$(git describe --tags --always) \
+  --build-arg BUILD_SHA=$(git rev-parse --short HEAD) \
+  --build-arg BUILD_TIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+  -t amani-backend:local .
+```
+
+See [CI_CD.md](CI_CD.md) for detailed documentation.  
+See [docs/BRANCH_PROTECTION.md](docs/BRANCH_PROTECTION.md) for governance policies.  
+See [docs/runbooks/incident_playbook.md](docs/runbooks/incident_playbook.md) for incident response.
 
 ## Resources
 
