@@ -1,5 +1,7 @@
 """Health check and status routes with comprehensive system checks."""
 
+import json
+import os
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, status
@@ -10,6 +12,34 @@ from app.core.config import settings
 from app.core.database import get_db
 
 router = APIRouter(tags=["health"])
+
+
+def get_build_info():
+    """
+    Get build information from environment variables and build-info.json file.
+    
+    Returns:
+        dict: Build information including version, commit SHA, build time, etc.
+    """
+    build_info = {
+        "version": os.getenv("BUILD_VERSION", settings.APP_VERSION),
+        "commit_sha": os.getenv("BUILD_SHA", "unknown"),
+        "build_time": os.getenv("BUILD_TIME", "unknown"),
+        "build_number": os.getenv("BUILD_NUMBER", "0"),
+        "build_branch": os.getenv("BUILD_BRANCH", "unknown"),
+    }
+    
+    # Try to load from build-info.json if it exists
+    build_info_path = "/app/build-info.json"
+    if os.path.exists(build_info_path):
+        try:
+            with open(build_info_path, "r") as f:
+                file_info = json.load(f)
+                build_info.update(file_info)
+        except Exception:
+            pass  # Fallback to environment variables
+    
+    return build_info
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
@@ -28,6 +58,36 @@ async def root():
     }
 
 
+@router.get("/version", status_code=status.HTTP_200_OK)
+async def version_info():
+    """
+    Version and build information endpoint.
+    
+    Returns detailed version and build metadata for deployed application.
+    Useful for deployment verification and troubleshooting.
+    
+    Returns:
+        dict: Version and build information
+    """
+    build_info = get_build_info()
+    
+    return {
+        "app": settings.APP_NAME,
+        "environment": settings.ENVIRONMENT,
+        "version": build_info["version"],
+        "build": {
+            "commit_sha": build_info["commit_sha"],
+            "build_time": build_info["build_time"],
+            "build_number": build_info["build_number"],
+            "build_branch": build_info["build_branch"],
+        },
+        "runtime": {
+            "python_version": os.sys.version,
+            "platform": os.sys.platform,
+        },
+    }
+
+
 @router.get("/health", status_code=status.HTTP_200_OK)
 async def health_check(db: AsyncSession = Depends(get_db)):
     """
@@ -41,11 +101,14 @@ async def health_check(db: AsyncSession = Depends(get_db)):
     Returns:
         dict: Detailed health status information
     """
+    build_info = get_build_info()
+    
     health_status = {
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
         "app": settings.APP_NAME,
-        "version": settings.APP_VERSION,
+        "version": build_info["version"],
+        "commit_sha": build_info["commit_sha"],
         "environment": settings.ENVIRONMENT,
         "checks": {},
     }
