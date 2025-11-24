@@ -3,7 +3,7 @@
 [![CI Pipeline](https://github.com/praiseunite/amani-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/praiseunite/amani-backend/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/praiseunite/amani-backend/branch/main/graph/badge.svg)](https://codecov.io/gh/praiseunite/amani-backend)
 
-A secure, high-performance FastAPI backend for the Amani escrow platform with FinCra payment integration.
+A secure, high-performance FastAPI backend for the Amani escrow platform with FinCra and Lightning Network (LNbits) payment integration.
 
 ## Features
 
@@ -17,7 +17,9 @@ A secure, high-performance FastAPI backend for the Amani escrow platform with Fi
 - 🌐 **CORS Configured**: Cross-origin resource sharing support
 - 🚨 **Error Handling**: Custom exception handlers with standardized error responses
 - ⚡ **Async Support**: Built for high concurrency and scalability
-- 💳 **FinCra Integration**: Ready for payment processing integration
+- 💳 **FinCra Integration**: Traditional payment processing integration
+- ⚡ **Lightning Network**: LNbits integration for Bitcoin Lightning payments
+- 🤖 **Bot Features**: Magic links, faucet, internal transfers, PIN protection
 - 🔄 **API Versioning**: Versioned API endpoints for backward compatibility
 - 📈 **Monitoring & Observability**: Prometheus metrics, Grafana dashboards, Sentry error tracking, OpenTelemetry tracing
 - 🔔 **Alerting**: Slack and PagerDuty integration for critical alerts
@@ -232,7 +234,29 @@ Use this endpoint for:
 - `GET /api/v1/kyc/status` - Get KYC submission status
 - `POST /api/v1/kyc/resubmit/{kyc_id}` - Resubmit rejected KYC
 
+### Lightning Network (LNbits)
+
+- `POST /api/v1/lightning/wallet/create` - Create Lightning wallet
+- `GET /api/v1/lightning/wallet/details` - Get wallet details
+- `POST /api/v1/lightning/invoice/create` - Generate Lightning invoice
+- `POST /api/v1/lightning/invoice/check` - Check payment status
+- `POST /api/v1/lightning/invoice/decode` - Decode BOLT11 invoice
+- `POST /api/v1/lightning/payment/send` - Pay Lightning invoice
+- `GET /api/v1/lightning/balance` - Get wallet balance
+
+### Bot Features
+
+- `POST /api/v1/bot/magic-link/create` - Create claimable cheque
+- `POST /api/v1/bot/magic-link/claim/{id}` - Claim magic link
+- `POST /api/v1/bot/faucet/claim` - Claim from faucet
+- `POST /api/v1/bot/transfer/internal` - Internal user transfer
+- `POST /api/v1/bot/withdrawal/pin/set` - Set withdrawal PIN
+- `POST /api/v1/bot/withdrawal/pin/verify` - Verify PIN
+- `DELETE /api/v1/bot/withdrawal/pin` - Remove PIN
+
 **See [AUTHENTICATION.md](AUTHENTICATION.md) for complete authentication documentation.**
+
+**See [LIGHTNING_INTEGRATION.md](LIGHTNING_INTEGRATION.md) for Lightning Network integration guide.**
 
 ## Development
 
