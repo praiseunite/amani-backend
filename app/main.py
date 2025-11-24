@@ -20,7 +20,7 @@ from app.core.request_id import RequestIDMiddleware
 from app.core.security import HTTPSRedirectMiddleware
 from app.core.sentry import init_sentry
 from app.core.tracing import init_tracing
-from app.routes import auth, escrow, health, kyc, metrics, milestones, payment, projects, wallet
+from app.routes import auth, bot, escrow, health, kyc, lightning, metrics, milestones, payment, projects, wallet
 
 # Initialize logging
 logger = logging.getLogger(__name__)
@@ -113,6 +113,8 @@ app.include_router(escrow.router, prefix="/api/v1")
 app.include_router(kyc.router, prefix="/api/v1")
 app.include_router(wallet.router, prefix="/api/v1")
 app.include_router(payment.router, prefix="/api/v1")
+app.include_router(lightning.router, prefix="/api/v1")
+app.include_router(bot.router, prefix="/api/v1")
 
 
 # Request logging middleware

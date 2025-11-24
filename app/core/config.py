@@ -36,6 +36,10 @@ class Settings(BaseSettings):
     FINCRA_API_SECRET: str = ""
     FINCRA_BASE_URL: str = "https://api.fincra.com"
 
+    # LNbits Lightning API
+    LNBITS_API_KEY: str = ""
+    LNBITS_BASE_URL: str = "https://legend.lnbits.com"
+
     # CORS Settings
     ALLOWED_ORIGINS: Union[str, List[str]] = "http://localhost:3000"
 

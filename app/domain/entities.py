@@ -13,6 +13,7 @@ class WalletProvider(str, Enum):
     FINCRA = "fincra"
     PAYSTACK = "paystack"
     FLUTTERWAVE = "flutterwave"
+    LNBITS = "lnbits"
 
 
 class HoldStatus(str, Enum):

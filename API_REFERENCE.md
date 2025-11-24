@@ -11,6 +11,8 @@ Complete API reference for Amani Escrow Backend with request/response examples.
 - [Escrow & Transactions](#escrow--transactions)
 - [KYC Verification](#kyc-verification)
 - [Wallet Operations](#wallet-operations)
+- [Lightning Network](#lightning-network)
+- [Bot Features](#bot-features)
 - [Error Handling](#error-handling)
 
 ## Base URL
@@ -465,6 +467,256 @@ Authorization: Bearer <token>
   "provider": "fincra",
   "as_of": "2025-11-22T20:00:00Z",
   "synced_at": "2025-11-22T20:00:05Z"
+}
+```
+
+## Lightning Network
+
+Lightning Network integration via LNbits for Bitcoin micropayments. See [LIGHTNING_INTEGRATION.md](LIGHTNING_INTEGRATION.md) for complete guide.
+
+### Create Lightning Wallet
+
+Create a new Lightning wallet for a user.
+
+**Endpoint**: `POST /api/v1/lightning/wallet/create`
+
+**Headers**:
+```
+Authorization: Bearer <token>
+```
+
+**Request Body**:
+```json
+{
+  "user_name": "john_doe",
+  "wallet_name": "John's Wallet"
+}
+```
+
+**Response** (201 Created):
+```json
+{
+  "id": "wallet123abc",
+  "name": "John's Wallet",
+  "user": "john_doe",
+  "adminkey": "admin_key_here",
+  "inkey": "invoice_key_here",
+  "balance_msat": 0
+}
+```
+
+### Create Lightning Invoice
+
+Generate a Lightning payment request (BOLT11).
+
+**Endpoint**: `POST /api/v1/lightning/invoice/create`
+
+**Headers**:
+```
+Authorization: Bearer <token>
+```
+
+**Request Body**:
+```json
+{
+  "amount": 1000,
+  "memo": "Payment for service",
+  "unit": "sat",
+  "expiry": 3600
+}
+```
+
+**Response** (201 Created):
+```json
+{
+  "payment_hash": "0123456789abcdef...",
+  "payment_request": "lnbc10u1p3...",
+  "checking_id": "check123"
+}
+```
+
+### Check Invoice Status
+
+Check payment status of a Lightning invoice.
+
+**Endpoint**: `POST /api/v1/lightning/invoice/check`
+
+**Headers**:
+```
+Authorization: Bearer <token>
+```
+
+**Request Body**:
+```json
+{
+  "payment_hash": "0123456789abcdef..."
+}
+```
+
+**Response** (200 OK):
+```json
+{
+  "checking_id": "check123",
+  "pending": false,
+  "amount": 1000000,
+  "memo": "Payment for service",
+  "time": 1637683200,
+  "preimage": "proof_of_payment",
+  "payment_hash": "0123456789abcdef..."
+}
+```
+
+### Get Lightning Balance
+
+Get current Lightning wallet balance.
+
+**Endpoint**: `GET /api/v1/lightning/balance`
+
+**Headers**:
+```
+Authorization: Bearer <token>
+```
+
+**Response** (200 OK):
+```json
+{
+  "balance": 500000,
+  "currency": "msat"
+}
+```
+
+Note: Balance is in millisatoshis (msat). 1 satoshi = 1,000 millisatoshis.
+
+## Bot Features
+
+Special endpoints for bot integration. Designed for https://github.com/praiseunite/bitbot.
+
+### Create Magic Link (Cheque)
+
+Create a claimable Bitcoin cheque that can be shared via link.
+
+**Endpoint**: `POST /api/v1/bot/magic-link/create`
+
+**Headers**:
+```
+Authorization: Bearer <token>
+```
+
+**Request Body**:
+```json
+{
+  "amount": 1000,
+  "memo": "Gift for you!",
+  "expiry_hours": 24
+}
+```
+
+**Response** (201 Created):
+```json
+{
+  "link_id": "abc123def456",
+  "magic_link": "/api/v1/bot/magic-link/claim/abc123def456",
+  "amount": 1000,
+  "memo": "Gift for you!",
+  "expires_at": "2025-11-25T04:36:45Z",
+  "created_at": "2025-11-24T04:36:45Z"
+}
+```
+
+### Claim Magic Link
+
+Claim a magic link created by another user.
+
+**Endpoint**: `POST /api/v1/bot/magic-link/claim/{link_id}`
+
+**Headers**:
+```
+Authorization: Bearer <token>
+```
+
+**Response** (200 OK):
+```json
+{
+  "success": true,
+  "amount": 1000,
+  "payment_hash": "0123456789abcdef..."
+}
+```
+
+### Claim Faucet
+
+Claim small amount from faucet (once per 24 hours).
+
+**Endpoint**: `POST /api/v1/bot/faucet/claim`
+
+**Headers**:
+```
+Authorization: Bearer <token>
+```
+
+**Response** (200 OK):
+```json
+{
+  "success": true,
+  "amount": 100,
+  "next_claim_at": "2025-11-25T04:36:45Z"
+}
+```
+
+### Internal Transfer
+
+Transfer sats between platform users instantly.
+
+**Endpoint**: `POST /api/v1/bot/transfer/internal`
+
+**Headers**:
+```
+Authorization: Bearer <token>
+```
+
+**Request Body**:
+```json
+{
+  "recipient_user_id": "550e8400-e29b-41d4-a716-446655440000",
+  "amount": 1000,
+  "memo": "Thanks!",
+  "pin": "1234"
+}
+```
+
+**Response** (200 OK):
+```json
+{
+  "success": true,
+  "amount": 1000,
+  "fee": 0,
+  "payment_hash": "0123456789abcdef..."
+}
+```
+
+### Set Withdrawal PIN
+
+Set a security PIN for withdrawals.
+
+**Endpoint**: `POST /api/v1/bot/withdrawal/pin/set`
+
+**Headers**:
+```
+Authorization: Bearer <token>
+```
+
+**Request Body**:
+```json
+{
+  "pin": "1234"
+}
+```
+
+**Response** (200 OK):
+```json
+{
+  "success": true,
+  "message": "Withdrawal PIN set successfully"
 }
 ```
 
