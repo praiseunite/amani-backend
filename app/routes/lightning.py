@@ -105,7 +105,7 @@ async def get_wallet_details(
         lnbits_client = get_lnbits_client()
 
         # Get wallet details
-        wallet_details = await lnbits_client.get_wallet_details("")
+        wallet_details = await lnbits_client.get_wallet_details()
 
         logger.info(f"Lightning wallet details retrieved for user {current_user.id}")
 

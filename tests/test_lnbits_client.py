@@ -159,6 +159,7 @@ class TestLNbitsClient:
 
             assert result["balance"] == 5000000
             assert result["currency"] == "msat"
+            mock_details.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_error_handling(self):

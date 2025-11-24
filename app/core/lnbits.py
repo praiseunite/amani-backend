@@ -193,17 +193,16 @@ class LNbitsClient:
 
         return await self._make_request("POST", "/api/v1/wallet", data=data)
 
-    async def get_wallet_details(self, wallet_id: str) -> Dict[str, Any]:
+    async def get_wallet_details(self) -> Dict[str, Any]:
         """
         Get wallet details including balance.
-
-        Args:
-            wallet_id: LNbits wallet ID
+        
+        Uses the API key from headers to identify the wallet.
 
         Returns:
             Wallet details with balance
         """
-        return await self._make_request("GET", f"/api/v1/wallet")
+        return await self._make_request("GET", "/api/v1/wallet")
 
     async def create_invoice(
         self,
@@ -296,7 +295,7 @@ class LNbitsClient:
         Returns:
             Balance information in msats
         """
-        wallet_details = await self.get_wallet_details("")
+        wallet_details = await self.get_wallet_details()
         return {
             "balance": wallet_details.get("balance", 0),
             "currency": "msat",

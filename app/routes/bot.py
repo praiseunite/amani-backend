@@ -107,7 +107,13 @@ class WithdrawalPINResponse(BaseModel):
     message: str = Field(..., description="Response message")
 
 
-# In-memory storage for demo purposes (should be replaced with database in production)
+# In-memory storage for demo purposes
+# PRODUCTION NOTE: These should be replaced with database persistence for:
+# - Data durability across restarts
+# - Horizontal scaling across multiple instances
+# - Better security (encrypted PIN storage with bcrypt)
+# - Query capabilities and audit trails
+# See LNBITS_MIGRATION.md for database schema examples
 magic_links_storage = {}
 faucet_claims_storage = {}
 user_pins_storage = {}
@@ -438,6 +444,14 @@ async def set_withdrawal_pin(
             detail="PIN must contain only digits",
         )
 
+    # Check for common weak PINs (basic security)
+    weak_pins = ["0000", "1111", "2222", "3333", "4444", "5555", "6666", "7777", "8888", "9999", "1234", "4321"]
+    if request.pin in weak_pins:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="PIN is too weak. Please choose a stronger PIN.",
+        )
+
     user_id = str(current_user.id)
     user_pins_storage[user_id] = request.pin
 
@@ -457,6 +471,12 @@ async def verify_withdrawal_pin(
 ):
     """
     Verify withdrawal PIN.
+    
+    SECURITY NOTE: In production, implement:
+    - Rate limiting (e.g., 5 attempts per hour)
+    - Account lockout after failed attempts
+    - Logging of all verification attempts
+    - Consider using timing-safe comparison
 
     Args:
         request: PIN verify request
@@ -474,7 +494,11 @@ async def verify_withdrawal_pin(
             detail="No PIN set for this user",
         )
 
+    # PRODUCTION: Implement rate limiting here to prevent brute force
+    # Example: Check failed_attempts table and reject if > 5 in last hour
+    
     if user_pins_storage[user_id] != request.pin:
+        # PRODUCTION: Log failed attempt with timestamp
         return WithdrawalPINResponse(
             success=False,
             message="Incorrect PIN",
